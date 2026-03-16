@@ -71,6 +71,21 @@ def upsert_parlamentar(conn, data: dict) -> int:
 # DESPESAS
 # ──────────────────────────────────────────────
 
+def _clean_str(value):
+    if value is None:
+        return None
+    s = str(value).strip()
+    return s if s else None
+
+
+def _to_float(value):
+    if value in (None, ""):
+        return 0.0
+    try:
+        return float(str(value).replace(",", "."))
+    except (ValueError, TypeError):
+        return 0.0
+
 def insert_despesas_batch(conn, parlamentar_id: int, despesas: list[dict]):
     """
     Insere lote de despesas ignorando duplicatas.
@@ -87,14 +102,14 @@ def insert_despesas_batch(conn, parlamentar_id: int, despesas: list[dict]):
             parlamentar_id,
             d.get("ano"),
             d.get("mes"),
-            d.get("tipoDespesa") or d.get("tipo_despesa"),
-            d.get("nomeFornecedor") or d.get("fornecedor"),
-            d.get("cnpjCpfFornecedor") or d.get("cnpj_cpf"),
-            d.get("valorDocumento") or d.get("valor_documento") or 0,
-            d.get("valorLiquido") or d.get("valor_liquido") or 0,
-            d.get("numDocumento") or d.get("numero_documento"),
-            d.get("urlDocumento") or d.get("url_documento"),
-            d.get("dataEmissao") or d.get("data_emissao"),
+            _clean_str(d.get("tipoDespesa") or d.get("tipo_despesa")),
+            _clean_str(d.get("nomeFornecedor") or d.get("fornecedor")),
+            _clean_str(d.get("cnpjCpfFornecedor") or d.get("cnpj_cpf")),
+            _to_float(d.get("valorDocumento") or d.get("valor_documento")),
+            _to_float(d.get("valorLiquido") or d.get("valor_liquido")),
+            _clean_str(d.get("numDocumento") or d.get("numero_documento")),
+            _clean_str(d.get("urlDocumento") or d.get("url_documento")),
+            _clean_str(d.get("dataEmissao") or d.get("data_emissao")),
         )
         for d in despesas
     ]
@@ -107,8 +122,14 @@ def insert_despesas_batch(conn, parlamentar_id: int, despesas: list[dict]):
             VALUES %s
             ON CONFLICT DO NOTHING
         """, rows)
+        inserted = cur.rowcount if cur.rowcount is not None and cur.rowcount >= 0 else 0
 
-    log.info(f"  → {len(rows)} despesas salvas (parlamentar_id={parlamentar_id})")
+    ignored = len(rows) - inserted
+    log.info(
+        "  → "
+        f"{inserted} despesas inseridas (parlamentar_id={parlamentar_id}; "
+        f"{ignored} duplicadas ignoradas)"
+    )
 
 
 # ──────────────────────────────────────────────

@@ -9,19 +9,18 @@ export default function RankingPage() {
   const [loading, setLoading] = useState(true)
 
   const [ano, setAno] = useState(ANOS[0])
-  const [casa, setCasa] = useState('')
   const [partido, setPartido] = useState('')
   const [uf, setUf] = useState('')
 
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await getRanking({ ano, casa, partido, uf, limit: 100 })
+      const res = await getRanking({ ano, partido, uf, limit: 100 })
       setItems(res.data)
     } finally {
       setLoading(false)
     }
-  }, [ano, casa, partido, uf])
+  }, [ano, partido, uf])
 
   useEffect(() => { load() }, [load])
 
@@ -40,12 +39,6 @@ export default function RankingPage() {
       <div className="filter-bar">
         <select value={ano} onChange={e => setAno(Number(e.target.value))}>
           {ANOS.map(a => <option key={a} value={a}>{a}</option>)}
-        </select>
-
-        <select value={casa} onChange={e => setCasa(e.target.value)}>
-          <option value="">Câmara + Senado</option>
-          <option value="camara">Câmara</option>
-          <option value="senado">Senado</option>
         </select>
 
         <input
@@ -89,7 +82,6 @@ export default function RankingPage() {
                 <th style={{ width: 48 }}>#</th>
                 <th>Parlamentar</th>
                 <th>Partido / UF</th>
-                <th>Casa</th>
                 <th>Despesas</th>
                 <th>Total gasto</th>
                 <th style={{ width: 160 }}>Proporção</th>
@@ -98,12 +90,12 @@ export default function RankingPage() {
             <tbody>
               {loading && (
                 <tr className="loading-row">
-                  <td colSpan={7}><span className="spinner" /></td>
+                  <td colSpan={6}><span className="spinner" /></td>
                 </tr>
               )}
               {!loading && items.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="empty">Nenhum resultado encontrado.</td>
+                  <td colSpan={6} className="empty">Nenhum resultado encontrado.</td>
                 </tr>
               )}
               {!loading && items.map((item) => (
@@ -118,11 +110,6 @@ export default function RankingPage() {
                   <td>
                     <span className="badge badge-partido">
                       {item.sigla_partido ?? '—'} / {item.sigla_uf ?? '—'}
-                    </span>
-                  </td>
-                  <td>
-                    <span className={`badge badge-${item.casa}`}>
-                      {item.casa === 'camara' ? 'Câmara' : 'Senado'}
                     </span>
                   </td>
                   <td style={{ color: 'var(--muted)' }}>{item.qtd_despesas.toLocaleString('pt-BR')}</td>

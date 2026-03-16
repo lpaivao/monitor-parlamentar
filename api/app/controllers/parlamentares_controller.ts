@@ -9,26 +9,16 @@ export default class ParlamentaresController {
    *   nome       – busca parcial no nome
    *   partido    – filtra por sigla do partido (ex: PT, PL)
    *   uf         – filtra por UF (ex: SP, BA)
-   *   casa       – 'camara' | 'senado'
    *   legislatura
    *   page       – paginação (default 1)
    *   perPage    – itens por página (default 50, max 100)
    *   ano        – ano para calcular total_gasto
    */
   async index({ request, response }: HttpContext) {
-    const {
-      nome,
-      partido,
-      uf,
-      casa,
-      legislatura,
-      page    = 1,
-      perPage = 50,
-      ano,
-    } = request.qs()
+    const { nome, partido, uf, legislatura, page = 1, perPage = 50, ano } = request.qs()
 
     const anoFiltro = Number(ano) || new Date().getFullYear()
-    const limit     = Math.min(Number(perPage), 100)
+    const limit = Math.min(Number(perPage), 100)
 
     const query = db
       .from('parlamentares as p')
@@ -39,7 +29,6 @@ export default class ParlamentaresController {
         'p.sigla_partido',
         'p.sigla_uf',
         'p.foto_url',
-        'p.casa',
         'p.legislatura'
       )
       .select(
@@ -53,11 +42,11 @@ export default class ParlamentaresController {
         )
       )
 
-    if (nome)        query.whereILike('p.nome', `%${nome}%`)
-    if (partido)     query.where('p.sigla_partido', partido.toUpperCase())
-    if (uf)          query.where('p.sigla_uf', uf.toUpperCase())
-    if (casa)        query.where('p.casa', casa)
+    if (nome) query.whereILike('p.nome', `%${nome}%`)
+    if (partido) query.where('p.sigla_partido', partido.toUpperCase())
+    if (uf) query.where('p.sigla_uf', uf.toUpperCase())
     if (legislatura) query.where('p.legislatura', Number(legislatura))
+    query.where('p.casa', 'camara')
 
     query.orderBy('total_gasto', 'desc')
 
@@ -78,6 +67,7 @@ export default class ParlamentaresController {
     const parlamentar = await db
       .from('parlamentares')
       .where('id', params.id)
+      .where('casa', 'camara')
       .first()
 
     if (!parlamentar) {
@@ -114,10 +104,10 @@ export default class ParlamentaresController {
 
     return response.ok({
       ...parlamentar,
-      ano:          anoFiltro,
-      total_gasto:  Number(total_gasto) || 0,
+      ano: anoFiltro,
+      total_gasto: Number(total_gasto) || 0,
       por_categoria: porCategoria.map((r) => ({ ...r, total: Number(r.total) })),
-      por_mes:       porMes.map((r) => ({ ...r, total: Number(r.total) })),
+      por_mes: porMes.map((r) => ({ ...r, total: Number(r.total) })),
     })
   }
 }

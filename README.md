@@ -4,7 +4,7 @@ Plataforma para visualização de gastos parlamentares brasileiros usando dados 
 
 ```
 monitor-parlamentar/
-├── crawler/        Python — coleta da API da Câmara e do Senado
+├── crawler/        Python — coleta da API da Câmara
 ├── api/            AdonisJS V6 — REST API
 └── frontend/       React + Vite + TypeScript
 ```
@@ -30,14 +30,11 @@ cp .env.example .env   # configure DB_HOST, DB_PASSWORD etc.
 Rodar a migration do banco **antes** do primeiro crawl — veja passo 3.
 
 ```bash
-# Coleta completa (Câmara + Senado, ano atual)
+# Coleta da Câmara (ano atual)
 python main.py
 
 # Só Câmara, ano específico
 python main.py --casa camara --ano 2024
-
-# Só Senado
-python main.py --casa senado --ano 2023
 ```
 
 Recomendado: agendar via cron para execução diária.
@@ -72,15 +69,15 @@ A API sobe em `http://localhost:3333`.
 
 ### Endpoints
 
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| GET | `/api/parlamentares` | Lista com filtros: `nome`, `partido`, `uf`, `casa`, `ano`, `page` |
-| GET | `/api/parlamentares/:id` | Detalhes + gastos por categoria e por mês |
-| GET | `/api/despesas` | Lista de despesas com filtros |
-| GET | `/api/despesas/:parlamentarId` | Despesas de um parlamentar |
-| GET | `/api/ranking` | Top gastadores. Params: `ano`, `casa`, `partido`, `uf`, `limit` |
-| GET | `/api/ranking/categorias` | Total por categoria de despesa |
-| GET | `/api/ranking/partidos` | Total por partido |
+| Método | Rota                           | Descrição                                                 |
+| ------ | ------------------------------ | --------------------------------------------------------- |
+| GET    | `/api/parlamentares`           | Lista com filtros: `nome`, `partido`, `uf`, `ano`, `page` |
+| GET    | `/api/parlamentares/:id`       | Detalhes + gastos por categoria e por mês                 |
+| GET    | `/api/despesas`                | Lista de despesas com filtros                             |
+| GET    | `/api/despesas/:parlamentarId` | Despesas de um parlamentar                                |
+| GET    | `/api/ranking`                 | Top gastadores. Params: `ano`, `partido`, `uf`, `limit`   |
+| GET    | `/api/ranking/categorias`      | Total por categoria de despesa                            |
+| GET    | `/api/ranking/partidos`        | Total por partido                                         |
 
 ---
 
@@ -96,18 +93,17 @@ npm run dev   # http://localhost:5173
 
 ### Páginas
 
-| Rota | Descrição |
-|------|-----------|
-| `/` | Ranking dos maiores gastadores com filtros e barra proporcional |
-| `/parlamentares` | Lista completa com busca por nome, partido, UF e casa |
-| `/parlamentares/:id` | Perfil individual: gasto total, por categoria, por mês e notas |
-| `/partidos` | Comparativo por partido e por categoria de despesa |
+| Rota                 | Descrição                                                       |
+| -------------------- | --------------------------------------------------------------- |
+| `/`                  | Ranking dos maiores gastadores com filtros e barra proporcional |
+| `/parlamentares`     | Lista completa com busca por nome, partido e UF                 |
+| `/parlamentares/:id` | Perfil individual: gasto total, por categoria, por mês e notas  |
+| `/partidos`          | Comparativo por partido e por categoria de despesa              |
 
 ---
 
 ## Fontes de dados
 
-| Fonte | URL |
-|-------|-----|
+| Fonte                | URL                                       |
+| -------------------- | ----------------------------------------- |
 | Câmara dos Deputados | https://dadosabertos.camara.leg.br/api/v2 |
-| Senado Federal | https://legis.senado.leg.br/dadosabertos |

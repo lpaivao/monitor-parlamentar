@@ -2,9 +2,8 @@
 Orquestrador do crawler.
 
 Uso:
-    python main.py                          # coleta tudo (Câmara + Senado)
+    python main.py                          # coleta Câmara (padrão)
     python main.py --casa camara
-    python main.py --casa senado
     python main.py --ano 2023
 """
 
@@ -27,19 +26,15 @@ logging.basicConfig(
 
 def main():
     parser = argparse.ArgumentParser(description="Monitor Parlamentar - Crawler")
-    parser.add_argument("--casa", choices=["camara", "senado", "todas"], default="todas")
+    parser.add_argument("--casa", choices=["camara"], default="camara")
     parser.add_argument("--ano", type=int, default=int(os.getenv("ANO", 2024)))
     parser.add_argument("--legislatura", type=int, default=int(os.getenv("LEGISLATURA", 57)))
     args = parser.parse_args()
 
     import camara_crawler
-    import senado_crawler
 
-    if args.casa in ("camara", "todas"):
+    if args.casa == "camara":
         camara_crawler.run(args.legislatura, args.ano)
-
-    if args.casa in ("senado", "todas"):
-        senado_crawler.run(args.legislatura, args.ano)
 
 if __name__ == "__main__":
     main()

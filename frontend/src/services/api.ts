@@ -64,7 +64,6 @@ export function getDespesasParlamentar(
 // ── Ranking ───────────────────────────────────────────────
 export function getRanking(params: {
   ano?: number;
-  casa?: string;
   partido?: string;
   uf?: string;
   limit?: number;
@@ -77,7 +76,6 @@ export function getRanking(params: {
 
 export function getRankingCategorias(params: {
   ano?: number;
-  casa?: string;
   partido?: string;
 }) {
   return get<{ ano: number; data: RankingCategoria[] }>(
@@ -86,7 +84,7 @@ export function getRankingCategorias(params: {
   );
 }
 
-export function getRankingPartidos(params: { ano?: number; casa?: string }) {
+export function getRankingPartidos(params: { ano?: number }) {
   return get<{ ano: number; data: RankingPartido[] }>(
     "/ranking/partidos",
     params as Record<string, unknown>,

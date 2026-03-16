@@ -1,6 +1,6 @@
 # Crawler - Monitor Parlamentar
 
-Coleta dados oficiais da Camara e do Senado e persiste no PostgreSQL.
+Coleta dados oficiais da Camara e persiste no PostgreSQL.
 
 ## Setup
 
@@ -14,5 +14,4 @@ cp .env.example .env
 ```bash
 python main.py
 python main.py --casa camara --ano 2024
-python main.py --casa senado --ano 2023
 ```

@@ -7,21 +7,11 @@ export default class DespesasController {
    *
    * Query params:
    *   ano, mes, tipo_despesa, fornecedor
-   *   partido, uf, casa
+   *   partido, uf
    *   page, perPage
    */
   async index({ request, response }: HttpContext) {
-    const {
-      ano,
-      mes,
-      tipo_despesa,
-      fornecedor,
-      partido,
-      uf,
-      casa,
-      page    = 1,
-      perPage = 50,
-    } = request.qs()
+    const { ano, mes, tipo_despesa, fornecedor, partido, uf, page = 1, perPage = 50 } = request.qs()
 
     const limit = Math.min(Number(perPage), 100)
 
@@ -34,7 +24,6 @@ export default class DespesasController {
         'p.nome as parlamentar_nome',
         'p.sigla_partido',
         'p.sigla_uf',
-        'p.casa',
         'd.ano',
         'd.mes',
         'd.tipo_despesa',
@@ -48,13 +37,13 @@ export default class DespesasController {
       )
       .orderBy('d.valor_liquido', 'desc')
 
-    if (ano)          query.where('d.ano', Number(ano))
-    if (mes)          query.where('d.mes', Number(mes))
+    if (ano) query.where('d.ano', Number(ano))
+    if (mes) query.where('d.mes', Number(mes))
     if (tipo_despesa) query.whereILike('d.tipo_despesa', `%${tipo_despesa}%`)
-    if (fornecedor)   query.whereILike('d.fornecedor', `%${fornecedor}%`)
-    if (partido)      query.where('p.sigla_partido', partido.toUpperCase())
-    if (uf)           query.where('p.sigla_uf', uf.toUpperCase())
-    if (casa)         query.where('p.casa', casa)
+    if (fornecedor) query.whereILike('d.fornecedor', `%${fornecedor}%`)
+    if (partido) query.where('p.sigla_partido', partido.toUpperCase())
+    if (uf) query.where('p.sigla_uf', uf.toUpperCase())
+    query.where('p.casa', 'camara')
 
     const result = await query.paginate(Number(page), limit)
     return response.ok(result)
@@ -70,13 +59,15 @@ export default class DespesasController {
     const limit = Math.min(Number(perPage), 100)
 
     const query = db
-      .from('despesas')
-      .where('parlamentar_id', params.parlamentarId)
-      .orderBy('data_emissao', 'desc')
-      .orderBy('valor_liquido', 'desc')
+      .from('despesas as d')
+      .join('parlamentares as p', 'p.id', 'd.parlamentar_id')
+      .where('d.parlamentar_id', params.parlamentarId)
+      .where('p.casa', 'camara')
+      .orderBy('d.data_emissao', 'desc')
+      .orderBy('d.valor_liquido', 'desc')
 
-    if (ano) query.where('ano', Number(ano))
-    if (mes) query.where('mes', Number(mes))
+    if (ano) query.where('d.ano', Number(ano))
+    if (mes) query.where('d.mes', Number(mes))
 
     const result = await query.paginate(Number(page), limit)
     return response.ok(result)

@@ -1,6 +1,6 @@
-import { DateTime } from 'luxon'
 import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
 import type { HasMany } from '@adonisjs/lucid/types/relations'
+import { DateTime } from 'luxon'
 import Despesa from './despesa.js'
 
 export default class Parlamentar extends BaseModel {
@@ -23,7 +23,7 @@ export default class Parlamentar extends BaseModel {
   declare fotoUrl: string | null
 
   @column()
-  declare casa: 'camara' | 'senado'
+  declare casa: 'camara'
 
   @column()
   declare legislatura: number

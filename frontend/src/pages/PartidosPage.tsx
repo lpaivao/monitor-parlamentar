@@ -5,7 +5,6 @@ import { ANOS, formatBRL, formatCompact } from '../utils'
 
 export default function PartidosPage() {
   const [ano, setAno] = useState(ANOS[0])
-  const [casa, setCasa] = useState('')
   const [tab, setTab] = useState<'partidos' | 'categorias'>('partidos')
 
   const [partidos, setPartidos] = useState<RankingPartido[]>([])
@@ -14,7 +13,7 @@ export default function PartidosPage() {
 
   useEffect(() => {
     setLoading(true)
-    const base = { ano, casa }
+    const base = { ano }
     Promise.all([
       getRankingPartidos(base),
       getRankingCategorias(base),
@@ -22,7 +21,7 @@ export default function PartidosPage() {
       setPartidos(p.data)
       setCategorias(c.data)
     }).finally(() => setLoading(false))
-  }, [ano, casa])
+  }, [ano])
 
   const maxPartido = Math.max(...partidos.map(p => p.total), 1)
   const maxCategoria = Math.max(...categorias.map(c => c.total), 1)
@@ -37,11 +36,6 @@ export default function PartidosPage() {
       <div className="filter-bar">
         <select value={ano} onChange={e => setAno(Number(e.target.value))}>
           {ANOS.map(a => <option key={a} value={a}>{a}</option>)}
-        </select>
-        <select value={casa} onChange={e => setCasa(e.target.value)}>
-          <option value="">Câmara + Senado</option>
-          <option value="camara">Câmara</option>
-          <option value="senado">Senado</option>
         </select>
       </div>
 

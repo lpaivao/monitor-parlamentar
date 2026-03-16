@@ -72,9 +72,7 @@ export default function ParlamentarPage() {
             <div style={{ display: 'flex', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
               <span className="badge badge-partido">{parl.sigla_partido ?? '—'}</span>
               <span className="badge badge-partido">{parl.sigla_uf ?? '—'}</span>
-              <span className={`badge badge-${parl.casa}`}>
-                {parl.casa === 'camara' ? 'Câmara dos Deputados' : 'Senado Federal'}
-              </span>
+              <span className="badge badge-camara">Câmara dos Deputados</span>
             </div>
           </div>
           <select

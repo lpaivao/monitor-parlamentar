@@ -18,7 +18,7 @@ export default class extends BaseSchema {
       table.string('sigla_partido', 20)
       table.string('sigla_uf', 2)
       table.text('foto_url')
-      table.enu('casa', ['camara', 'senado']).notNullable()
+      table.enu('casa', ['camara']).notNullable()
       table.integer('legislatura').notNullable()
       table.timestamps(true, true)
 
@@ -31,7 +31,12 @@ export default class extends BaseSchema {
     // ── despesas ──────────────────────────────────────────
     this.schema.createTable('despesas', (table) => {
       table.increments('id')
-      table.integer('parlamentar_id').notNullable().references('id').inTable('parlamentares').onDelete('CASCADE')
+      table
+        .integer('parlamentar_id')
+        .notNullable()
+        .references('id')
+        .inTable('parlamentares')
+        .onDelete('CASCADE')
       table.integer('ano').notNullable()
       table.integer('mes')
       table.string('tipo_despesa', 300)
@@ -52,7 +57,7 @@ export default class extends BaseSchema {
     // ── sync_logs ─────────────────────────────────────────
     this.schema.createTable('sync_logs', (table) => {
       table.increments('id')
-      table.enu('casa', ['camara', 'senado']).notNullable()
+      table.enu('casa', ['camara']).notNullable()
       table.integer('ano').notNullable()
       table.enu('status', ['ok', 'erro']).notNullable()
       table.text('detalhes')

@@ -1,28 +1,42 @@
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 :root {
-  --brand:      #1d4ed8;
+  --brand: #1d4ed8;
   --brand-soft: #dbeafe;
-  --bg:         #f8fafc;
-  --surface:    #ffffff;
-  --border:     #e2e8f0;
-  --text:       #0f172a;
-  --muted:      #64748b;
-  --danger:     #dc2626;
-  --radius:     8px;
-  --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --muted: #64748b;
+  --danger: #dc2626;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 body {
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
   background: var(--bg);
   color: var(--text);
   font-size: 15px;
   line-height: 1.6;
 }
 
-a { color: var(--brand); text-decoration: none; }
-a:hover { text-decoration: underline; }
+a {
+  color: var(--brand);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
 
 /* ── Layout ─────────────────────────────────── */
 .app-shell {
@@ -50,7 +64,10 @@ a:hover { text-decoration: underline; }
   white-space: nowrap;
 }
 
-.topbar nav { display: flex; gap: 4px; }
+.topbar nav {
+  display: flex;
+  gap: 4px;
+}
 
 .topbar nav a {
   padding: 6px 12px;
@@ -67,14 +84,25 @@ a:hover { text-decoration: underline; }
   text-decoration: none;
 }
 
-.page { padding: 24px; max-width: 1200px; margin: 0 auto; }
+.page {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
 
 .page-header {
   margin-bottom: 24px;
 }
 
-.page-header h1 { font-size: 22px; font-weight: 700; }
-.page-header p  { color: var(--muted); font-size: 14px; margin-top: 4px; }
+.page-header h1 {
+  font-size: 22px;
+  font-weight: 700;
+}
+.page-header p {
+  color: var(--muted);
+  font-size: 14px;
+  margin-top: 4px;
+}
 
 /* ── Cards ──────────────────────────────────── */
 .card {
@@ -84,7 +112,9 @@ a:hover { text-decoration: underline; }
   box-shadow: var(--shadow);
 }
 
-.card-body { padding: 20px; }
+.card-body {
+  padding: 20px;
+}
 
 /* ── Filter bar ─────────────────────────────── */
 .filter-bar {
@@ -107,9 +137,13 @@ a:hover { text-decoration: underline; }
 }
 
 .filter-bar input:focus,
-.filter-bar select:focus { border-color: var(--brand); }
+.filter-bar select:focus {
+  border-color: var(--brand);
+}
 
-.filter-bar input[name="nome"] { min-width: 220px; }
+.filter-bar input[name="nome"] {
+  min-width: 220px;
+}
 
 .btn {
   height: 36px;
@@ -121,17 +155,26 @@ a:hover { text-decoration: underline; }
   border: none;
 }
 
-.btn-primary { background: var(--brand); color: #fff; }
-.btn-primary:hover { background: #1e40af; }
+.btn-primary {
+  background: var(--brand);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: #1e40af;
+}
 .btn-ghost {
   background: transparent;
   border: 1px solid var(--border);
   color: var(--muted);
 }
-.btn-ghost:hover { background: var(--bg); }
+.btn-ghost:hover {
+  background: var(--bg);
+}
 
 /* ── Table ──────────────────────────────────── */
-.table-wrap { overflow-x: auto; }
+.table-wrap {
+  overflow-x: auto;
+}
 
 table {
   width: 100%;
@@ -145,7 +188,7 @@ thead th {
   font-weight: 600;
   font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: .04em;
+  letter-spacing: 0.04em;
   color: var(--muted);
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
@@ -157,8 +200,12 @@ tbody td {
   vertical-align: middle;
 }
 
-tbody tr:last-child td { border-bottom: none; }
-tbody tr:hover { background: var(--bg); }
+tbody tr:last-child td {
+  border-bottom: none;
+}
+tbody tr:hover {
+  background: var(--bg);
+}
 
 /* ── Badges ─────────────────────────────────── */
 .badge {
@@ -167,12 +214,17 @@ tbody tr:hover { background: var(--bg); }
   border-radius: 99px;
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: .02em;
+  letter-spacing: 0.02em;
 }
 
-.badge-camara  { background: #dbeafe; color: #1d4ed8; }
-.badge-senado  { background: #fce7f3; color: #9d174d; }
-.badge-partido { background: #f1f5f9; color: #334155; }
+.badge-camara {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+.badge-partido {
+  background: #f1f5f9;
+  color: #334155;
+}
 
 /* ── Avatar ─────────────────────────────────── */
 .avatar {
@@ -224,7 +276,7 @@ tbody tr:hover { background: var(--bg); }
   height: 100%;
   background: var(--brand);
   border-radius: 3px;
-  transition: width .3s;
+  transition: width 0.3s;
 }
 
 /* ── Pagination ─────────────────────────────── */
@@ -237,7 +289,9 @@ tbody tr:hover { background: var(--bg); }
   font-size: 14px;
 }
 
-.pagination span { color: var(--muted); }
+.pagination span {
+  color: var(--muted);
+}
 
 /* ── Stats row ──────────────────────────────── */
 .stats-grid {
@@ -254,9 +308,23 @@ tbody tr:hover { background: var(--bg); }
   padding: 18px 20px;
 }
 
-.stat-card .label { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
-.stat-card .value { font-size: 22px; font-weight: 700; margin-top: 4px; }
-.stat-card .sub   { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.stat-card .label {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.stat-card .value {
+  font-size: 22px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+.stat-card .sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
 
 /* ── Tabs ───────────────────────────────────── */
 .tabs {
@@ -293,14 +361,19 @@ tbody tr:hover { background: var(--bg); }
 
 .spinner {
   display: inline-block;
-  width: 20px; height: 20px;
+  width: 20px;
+  height: 20px;
   border: 2px solid var(--border);
   border-top-color: var(--brand);
   border-radius: 50%;
-  animation: spin .7s linear infinite;
+  animation: spin 0.7s linear infinite;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 .loading-row td {
   padding: 32px;
@@ -308,7 +381,11 @@ tbody tr:hover { background: var(--bg); }
 }
 
 /* ── Chart bars (CSS only) ──────────────────── */
-.bar-chart { display: flex; flex-direction: column; gap: 10px; }
+.bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
 .bar-row {
   display: grid;
@@ -318,12 +395,28 @@ tbody tr:hover { background: var(--bg); }
   font-size: 13px;
 }
 
-.bar-label { color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.bar-amount { text-align: right; font-weight: 600; white-space: nowrap; }
+.bar-label {
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bar-amount {
+  text-align: right;
+  font-weight: 600;
+  white-space: nowrap;
+}
 
 /* ── Responsive ─────────────────────────────── */
 @media (max-width: 640px) {
-  .page { padding: 16px; }
-  .bar-row { grid-template-columns: 1fr; gap: 4px; }
-  .topbar nav a span { display: none; }
+  .page {
+    padding: 16px;
+  }
+  .bar-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .topbar nav a span {
+    display: none;
+  }
 }

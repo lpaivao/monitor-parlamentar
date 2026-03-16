@@ -188,7 +188,7 @@ export default function ParlamentarPage() {
                     <th>Categoria</th>
                     <th>Fornecedor</th>
                     <th>Documento</th>
-                    <th>Valor</th>
+                    <th>Valor (R$)</th>
                   </tr>
                 </thead>
                 <tbody>

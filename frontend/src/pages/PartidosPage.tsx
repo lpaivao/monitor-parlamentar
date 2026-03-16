@@ -86,9 +86,9 @@ export default function PartidosPage() {
                   <div className="partidos-grid-header">
                     <span>Partido</span>
                     <span />
-                    <span style={{ textAlign: "right" }}>Total</span>
+                    <span style={{ textAlign: "right" }}>Total (R$)</span>
                     <span style={{ textAlign: "right" }}>Deputados</span>
-                    <span style={{ textAlign: "right" }}>Média/dep.</span>
+                    <span style={{ textAlign: "right" }}>Média/dep. (R$)</span>
                   </div>
 
                   <div style={{ display: "flex", flexDirection: "column" }}>

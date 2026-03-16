@@ -104,7 +104,7 @@ export default function RankingPage() {
                 <th>Parlamentar</th>
                 <th>Partido / UF</th>
                 <th>Despesas</th>
-                <th>Total gasto</th>
+                <th>Total gasto (R$)</th>
                 <th style={{ width: 180 }}>Proporção</th>
               </tr>
             </thead>

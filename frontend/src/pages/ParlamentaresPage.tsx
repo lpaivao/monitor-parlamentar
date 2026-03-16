@@ -77,7 +77,7 @@ export default function ParlamentaresPage() {
                 <th>Parlamentar</th>
                 <th>Partido</th>
                 <th>UF</th>
-                <th>Total gasto em {ano}</th>
+                <th>Total gasto em {ano} (R$)</th>
                 <th></th>
               </tr>
             </thead>

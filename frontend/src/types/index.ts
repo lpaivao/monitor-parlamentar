@@ -60,13 +60,30 @@ export interface RankingCategoria {
   qtd_despesas: number;
 }
 
+export interface PaginationMeta {
+  total: number;
+  perPage: number;
+  currentPage: number;
+  lastPage: number;
+  firstPage: number;
+}
+
 export interface Paginated<T> {
+  meta: PaginationMeta;
+  data: T[];
+}
+
+export interface ApiPaginated<T> {
   meta: {
-    total: number;
-    per_page: number;
-    current_page: number;
-    last_page: number;
-    first_page: number;
+    total?: number;
+    per_page?: number;
+    perPage?: number;
+    current_page?: number;
+    currentPage?: number;
+    last_page?: number;
+    lastPage?: number;
+    first_page?: number;
+    firstPage?: number;
   };
   data: T[];
 }
@@ -77,4 +94,5 @@ export interface Filters {
   uf?: string;
   ano?: number;
   page?: number;
+  perPage?: number;
 }

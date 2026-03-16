@@ -1,32 +1,56 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { getRanking } from '../services/api'
-import type { RankingItem } from '../types'
-import { ANOS, formatBRL, formatCompact, UFS } from '../utils'
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { ParlamentarAvatar } from "../components/ui/Avatar";
+import { Pagination } from "../components/ui/Pagination";
+import { SelectField } from "../components/ui/SelectField";
+import { getRanking } from "../services/api";
+import type { RankingItem } from "../types";
+import { ANOS, formatBRL, formatCompact, UFS } from "../utils";
+
+const CLIENT_PER_PAGE = 20;
+
+function getSlice<T>(items: T[], page: number) {
+  const start = (page - 1) * CLIENT_PER_PAGE;
+  return items.slice(start, start + CLIENT_PER_PAGE);
+}
 
 export default function RankingPage() {
-  const [items, setItems] = useState<RankingItem[]>([])
-  const [loading, setLoading] = useState(true)
+  const [items, setItems] = useState<RankingItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const [ano, setAno] = useState(ANOS[0])
-  const [partido, setPartido] = useState('')
-  const [uf, setUf] = useState('')
+  const [ano, setAno] = useState(ANOS[0]);
+  const [partido, setPartido] = useState("");
+  const [uf, setUf] = useState("");
+  const [page, setPage] = useState(1);
+
+  const ufOptions = useMemo(
+    () => [{ label: "Todos os estados", value: "" }, ...UFS.map((item) => ({ label: item, value: item }))],
+    [],
+  );
+  const anoOptions = useMemo(() => ANOS.map((item) => ({ label: String(item), value: String(item) })), []);
 
   const load = useCallback(async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await getRanking({ ano, partido, uf, limit: 100 })
-      setItems(res.data)
+      const response = await getRanking({ ano, partido, uf, limit: 100 });
+      setItems(response.data);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [ano, partido, uf])
+  }, [ano, partido, uf]);
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    setPage(1);
+  }, [ano, partido, uf]);
 
-  const max = items[0]?.total_gasto ?? 1
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  const totalGeral = items.reduce((s, i) => s + i.total_gasto, 0)
+  const max = items[0]?.total_gasto ?? 1;
+  const totalGeral = items.reduce((sum, item) => sum + item.total_gasto, 0);
+  const lastPage = Math.max(1, Math.ceil(items.length / CLIENT_PER_PAGE));
+  const currentItems = getSlice(items, page);
 
   return (
     <div className="page">
@@ -35,27 +59,25 @@ export default function RankingPage() {
         <p>Top parlamentares por total da cota parlamentar utilizada</p>
       </div>
 
-      {/* Filtros */}
       <div className="filter-bar">
-        <select value={ano} onChange={e => setAno(Number(e.target.value))}>
-          {ANOS.map(a => <option key={a} value={a}>{a}</option>)}
-        </select>
+        <SelectField
+          value={String(ano)}
+          onValueChange={(value) => setAno(Number(value))}
+          options={anoOptions}
+          className="w-120"
+        />
 
         <input
           placeholder="Partido (ex: PT)"
           value={partido}
-          onChange={e => setPartido(e.target.value.toUpperCase())}
+          onChange={(event) => setPartido(event.target.value.toUpperCase())}
           style={{ width: 140 }}
           maxLength={10}
         />
 
-        <select value={uf} onChange={e => setUf(e.target.value)}>
-          <option value="">Todos os estados</option>
-          {UFS.map(u => <option key={u} value={u}>{u}</option>)}
-        </select>
+        <SelectField value={uf} onValueChange={setUf} options={ufOptions} className="w-160" />
       </div>
 
-      {/* Stat */}
       <div className="stats-grid" style={{ marginBottom: 20 }}>
         <div className="stat-card">
           <div className="label">Parlamentares</div>
@@ -68,12 +90,11 @@ export default function RankingPage() {
         </div>
         <div className="stat-card">
           <div className="label">Maior gasto individual</div>
-          <div className="value">{items[0] ? formatCompact(items[0].total_gasto) : '—'}</div>
-          <div className="sub">{items[0]?.nome ?? ''}</div>
+          <div className="value">{items[0] ? formatCompact(items[0].total_gasto) : "-"}</div>
+          <div className="sub">{items[0]?.nome ?? ""}</div>
         </div>
       </div>
 
-      {/* Tabela */}
       <div className="card">
         <div className="table-wrap">
           <table>
@@ -84,59 +105,56 @@ export default function RankingPage() {
                 <th>Partido / UF</th>
                 <th>Despesas</th>
                 <th>Total gasto</th>
-                <th style={{ width: 160 }}>Proporção</th>
+                <th style={{ width: 160 }}>Proporcao</th>
               </tr>
             </thead>
             <tbody>
               {loading && (
                 <tr className="loading-row">
-                  <td colSpan={6}><span className="spinner" /></td>
+                  <td colSpan={6}>
+                    <span className="spinner" />
+                  </td>
                 </tr>
               )}
               {!loading && items.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="empty">Nenhum resultado encontrado.</td>
+                  <td colSpan={6} className="empty">
+                    Nenhum resultado encontrado.
+                  </td>
                 </tr>
               )}
-              {!loading && items.map((item) => (
-                <tr key={item.id}>
-                  <td style={{ color: 'var(--muted)', fontWeight: 600 }}>{item.posicao}</td>
-                  <td>
-                    <div className="parlamentar-cell">
-                      <Avatar nome={item.nome} foto={item.foto_url} />
-                      <Link to={`/parlamentares/${item.id}`}>{item.nome}</Link>
-                    </div>
-                  </td>
-                  <td>
-                    <span className="badge badge-partido">
-                      {item.sigla_partido ?? '—'} / {item.sigla_uf ?? '—'}
-                    </span>
-                  </td>
-                  <td style={{ color: 'var(--muted)' }}>{item.qtd_despesas.toLocaleString('pt-BR')}</td>
-                  <td style={{ fontWeight: 600 }}>{formatBRL(item.total_gasto)}</td>
-                  <td>
-                    <div className="gasto-bar-wrap">
-                      <div className="gasto-bar-bg">
-                        <div
-                          className="gasto-bar-fill"
-                          style={{ width: `${(item.total_gasto / max) * 100}%` }}
-                        />
+              {!loading &&
+                currentItems.map((item) => (
+                  <tr key={item.id}>
+                    <td style={{ color: "var(--muted)", fontWeight: 600 }}>{item.posicao}</td>
+                    <td>
+                      <div className="parlamentar-cell">
+                        <ParlamentarAvatar nome={item.nome} foto={item.foto_url} />
+                        <Link to={`/parlamentares/${item.id}`}>{item.nome}</Link>
                       </div>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td>
+                      <span className="badge badge-partido">
+                        {item.sigla_partido ?? "-"} / {item.sigla_uf ?? "-"}
+                      </span>
+                    </td>
+                    <td style={{ color: "var(--muted)" }}>{item.qtd_despesas.toLocaleString("pt-BR")}</td>
+                    <td style={{ fontWeight: 600 }}>{formatBRL(item.total_gasto)}</td>
+                    <td>
+                      <div className="gasto-bar-wrap">
+                        <div className="gasto-bar-bg">
+                          <div className="gasto-bar-fill" style={{ width: `${(item.total_gasto / max) * 100}%` }} />
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
+
+        {!loading && <Pagination currentPage={page} lastPage={lastPage} onPageChange={setPage} />}
       </div>
     </div>
-  )
-}
-
-function Avatar({ nome, foto }: { nome: string; foto: string | null }) {
-  if (foto) {
-    return <img src={foto} alt={nome} className="avatar" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
-  }
-  return <div className="avatar-placeholder">{nome[0]}</div>
+  );
 }

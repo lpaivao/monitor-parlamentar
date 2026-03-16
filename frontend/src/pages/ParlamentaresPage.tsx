@@ -1,34 +1,48 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { getParlamentares } from '../services/api'
-import type { Paginated, Parlamentar } from '../types'
-import { ANOS, formatBRL, UFS } from '../utils'
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { ParlamentarAvatar } from "../components/ui/Avatar";
+import { Pagination } from "../components/ui/Pagination";
+import { SelectField } from "../components/ui/SelectField";
+import { getParlamentares } from "../services/api";
+import type { Paginated, Parlamentar } from "../types";
+import { ANOS, formatBRL, UFS } from "../utils";
 
 export default function ParlamentaresPage() {
-  const [result, setResult] = useState<Paginated<Parlamentar> | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [result, setResult] = useState<Paginated<Parlamentar> | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const [nome, setNome] = useState('')
-  const [partido, setPartido] = useState('')
-  const [uf, setUf] = useState('')
-  const [ano, setAno] = useState(ANOS[0])
-  const [page, setPage] = useState(1)
+  const [nome, setNome] = useState("");
+  const [partido, setPartido] = useState("");
+  const [uf, setUf] = useState("");
+  const [ano, setAno] = useState(ANOS[0]);
+  const [page, setPage] = useState(1);
+
+  const ufOptions = useMemo(
+    () => [{ label: "Todos os estados", value: "" }, ...UFS.map((u) => ({ label: u, value: u }))],
+    [],
+  );
+  const anoOptions = useMemo(() => ANOS.map((a) => ({ label: String(a), value: String(a) })), []);
 
   const load = useCallback(async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await getParlamentares({ nome, partido, uf, ano, page, perPage: 50 } as any)
-      setResult(res)
+      const response = await getParlamentares({ nome, partido, uf, ano, page, perPage: 20 });
+      setResult(response);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [nome, partido, uf, ano, page])
+  }, [nome, partido, uf, ano, page]);
 
-  useEffect(() => { setPage(1) }, [nome, partido, uf, ano])
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    setPage(1);
+  }, [nome, partido, uf, ano]);
 
-  const meta = result?.meta
-  const data = result?.data ?? []
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const meta = result?.meta;
+  const data = result?.data ?? [];
 
   return (
     <div className="page">
@@ -42,25 +56,25 @@ export default function ParlamentaresPage() {
           name="nome"
           placeholder="Buscar por nome..."
           value={nome}
-          onChange={e => setNome(e.target.value)}
+          onChange={(event) => setNome(event.target.value)}
         />
 
         <input
           placeholder="Partido (ex: PT)"
           value={partido}
-          onChange={e => setPartido(e.target.value.toUpperCase())}
+          onChange={(event) => setPartido(event.target.value.toUpperCase())}
           style={{ width: 120 }}
           maxLength={10}
         />
 
-        <select value={uf} onChange={e => setUf(e.target.value)}>
-          <option value="">Todos os estados</option>
-          {UFS.map(u => <option key={u} value={u}>{u}</option>)}
-        </select>
+        <SelectField value={uf} onValueChange={setUf} options={ufOptions} className="w-160" />
 
-        <select value={ano} onChange={e => setAno(Number(e.target.value))}>
-          {ANOS.map(a => <option key={a} value={a}>{a}</option>)}
-        </select>
+        <SelectField
+          value={String(ano)}
+          onValueChange={(value) => setAno(Number(value))}
+          options={anoOptions}
+          className="w-120"
+        />
       </div>
 
       <div className="card">
@@ -72,69 +86,55 @@ export default function ParlamentaresPage() {
                 <th>Partido</th>
                 <th>UF</th>
                 <th>Total gasto em {ano}</th>
-                <th></th>
+                <th>Detalhes</th>
               </tr>
             </thead>
             <tbody>
               {loading && (
                 <tr className="loading-row">
-                  <td colSpan={6}><span className="spinner" /></td>
+                  <td colSpan={5}>
+                    <span className="spinner" />
+                  </td>
                 </tr>
               )}
               {!loading && data.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="empty">Nenhum parlamentar encontrado.</td>
+                  <td colSpan={5} className="empty">
+                    Nenhum parlamentar encontrado.
+                  </td>
                 </tr>
               )}
-              {!loading && data.map((p) => (
-                <tr key={p.id}>
-                  <td>
-                    <div className="parlamentar-cell">
-                      <Avatar nome={p.nome} foto={p.foto_url} />
-                      <span>{p.nome}</span>
-                    </div>
-                  </td>
-                  <td><span className="badge badge-partido">{p.sigla_partido ?? '—'}</span></td>
-                  <td>{p.sigla_uf ?? '—'}</td>
-                  <td style={{ fontWeight: 600 }}>
-                    {p.total_gasto !== undefined ? formatBRL(p.total_gasto) : '—'}
-                  </td>
-                  <td>
-                    <Link to={`/parlamentares/${p.id}`} className="btn btn-ghost" style={{ fontSize: 13 }}>
-                      Ver detalhes →
-                    </Link>
-                  </td>
-                </tr>
-              ))}
+              {!loading &&
+                data.map((parlamentar) => (
+                  <tr key={parlamentar.id}>
+                    <td>
+                      <div className="parlamentar-cell">
+                        <ParlamentarAvatar nome={parlamentar.nome} foto={parlamentar.foto_url} />
+                        <span>{parlamentar.nome}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="badge badge-partido">{parlamentar.sigla_partido ?? "-"}</span>
+                    </td>
+                    <td>{parlamentar.sigla_uf ?? "-"}</td>
+                    <td style={{ fontWeight: 600 }}>
+                      {parlamentar.total_gasto !== undefined ? formatBRL(parlamentar.total_gasto) : "-"}
+                    </td>
+                    <td>
+                      <Link to={`/parlamentares/${parlamentar.id}`} className="btn btn-ghost" style={{ fontSize: 13 }}>
+                        Ver detalhes
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
 
-        {meta && meta.last_page > 1 && (
-          <div className="pagination">
-            <button
-              className="btn btn-ghost"
-              disabled={page === 1}
-              onClick={() => setPage(p => p - 1)}
-            >
-              ← Anterior
-            </button>
-            <span>Página {meta.current_page} de {meta.last_page}</span>
-            <button
-              className="btn btn-ghost"
-              disabled={page === meta.last_page}
-              onClick={() => setPage(p => p + 1)}
-            >
-              Próxima →
-            </button>
-          </div>
+        {meta && (
+          <Pagination currentPage={meta.currentPage} lastPage={meta.lastPage} onPageChange={setPage} />
         )}
       </div>
     </div>
-  )
-}
-
-function Avatar({ nome, foto }: { nome: string; foto: string | null }) {
-  if (foto) return <img src={foto} alt={nome} className="avatar" />
-  return <div className="avatar-placeholder">{nome[0]}</div>
+  );
 }

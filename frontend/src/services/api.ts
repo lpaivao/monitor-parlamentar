@@ -1,4 +1,5 @@
 import type {
+  ApiPaginated,
   Despesa,
   Filters,
   Paginated,
@@ -9,7 +10,8 @@ import type {
   RankingPartido,
 } from "../types";
 
-const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3333/api";
+const envApiUrl = (import.meta.env.VITE_API_URL ?? "").trim();
+const BASE = envApiUrl || "/api";
 
 async function get<T>(
   path: string,
@@ -19,18 +21,38 @@ async function get<T>(
   for (const [k, v] of Object.entries(params)) {
     if (v !== undefined && v !== null && v !== "") qs.set(k, String(v));
   }
+
   const url = `${BASE}${path}${qs.size ? "?" + qs : ""}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`API error ${res.status} — ${url}`);
   return res.json();
 }
 
+function normalizePaginated<T>(payload: ApiPaginated<T>): Paginated<T> {
+  const meta = payload.meta ?? {};
+
+  return {
+    data: payload.data ?? [],
+    meta: {
+      total: Number(meta.total ?? 0),
+      perPage: Number(meta.perPage ?? meta.per_page ?? 0),
+      currentPage: Number(meta.currentPage ?? meta.current_page ?? 1),
+      lastPage: Number(meta.lastPage ?? meta.last_page ?? 1),
+      firstPage: Number(meta.firstPage ?? meta.first_page ?? 1),
+    },
+  };
+}
+
 // ── Parlamentares ─────────────────────────────────────────
-export function getParlamentares(filters: Filters) {
-  return get<Paginated<Parlamentar>>(
+export async function getParlamentares(
+  filters: Filters,
+): Promise<Paginated<Parlamentar>> {
+  const response = await get<ApiPaginated<Parlamentar>>(
     "/parlamentares",
     filters as Record<string, unknown>,
   );
+
+  return normalizePaginated(response);
 }
 
 export function getParlamentar(id: number, ano?: number) {
@@ -38,27 +60,31 @@ export function getParlamentar(id: number, ano?: number) {
 }
 
 // ── Despesas ──────────────────────────────────────────────
-export function getDespesas(
+export async function getDespesas(
   filters: Filters & {
     tipo_despesa?: string;
     fornecedor?: string;
     mes?: number;
   },
-) {
-  return get<Paginated<Despesa>>(
+): Promise<Paginated<Despesa>> {
+  const response = await get<ApiPaginated<Despesa>>(
     "/despesas",
     filters as Record<string, unknown>,
   );
+
+  return normalizePaginated(response);
 }
 
-export function getDespesasParlamentar(
+export async function getDespesasParlamentar(
   parlamentarId: number,
-  params: { ano?: number; mes?: number; page?: number },
-) {
-  return get<Paginated<Despesa>>(
+  params: { ano?: number; mes?: number; page?: number; perPage?: number },
+): Promise<Paginated<Despesa>> {
+  const response = await get<ApiPaginated<Despesa>>(
     `/despesas/${parlamentarId}`,
     params as Record<string, unknown>,
   );
+
+  return normalizePaginated(response);
 }
 
 // ── Ranking ───────────────────────────────────────────────

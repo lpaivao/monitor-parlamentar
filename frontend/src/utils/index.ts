@@ -1,11 +1,18 @@
-export function formatBRL(value: number): string {
-  return value.toLocaleString("pt-BR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+const brNumberFormatter = new Intl.NumberFormat("pt-BR", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+export function formatBRL(value: number | string | null | undefined): string {
+  const parsed = typeof value === "string" ? Number(value) : value;
+  const normalized = Number.isFinite(parsed) ? Number(parsed) : 0;
+
+  return brNumberFormatter.format(normalized);
 }
 
-export function formatCompact(value: number): string {
+export function formatCompact(
+  value: number | string | null | undefined,
+): string {
   return formatBRL(value);
 }
 

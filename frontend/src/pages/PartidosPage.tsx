@@ -32,15 +32,15 @@ export default function PartidosPage() {
     setCategoriasPage(1);
 
     Promise.all([getRankingPartidos({ ano }), getRankingCategorias({ ano })])
-      .then(([responsePartidos, responseCategorias]) => {
-        setPartidos(responsePartidos.data);
-        setCategorias(responseCategorias.data);
+      .then(([rp, rc]) => {
+        setPartidos(rp.data);
+        setCategorias(rc.data);
       })
       .finally(() => setLoading(false));
   }, [ano]);
 
-  const maxPartido = Math.max(...partidos.map((item) => item.total), 1);
-  const maxCategoria = Math.max(...categorias.map((item) => item.total), 1);
+  const maxPartido = Math.max(...partidos.map((p) => p.total), 1);
+  const maxCategoria = Math.max(...categorias.map((c) => c.total), 1);
 
   const partidosLastPage = Math.max(1, Math.ceil(partidos.length / CLIENT_PER_PAGE));
   const categoriasLastPage = Math.max(1, Math.ceil(categorias.length / CLIENT_PER_PAGE));
@@ -58,22 +58,20 @@ export default function PartidosPage() {
       <div className="filter-bar">
         <SelectField
           value={String(ano)}
-          onValueChange={(value) => setAno(Number(value))}
+          onValueChange={(v) => setAno(Number(v))}
           options={anoOptions}
           className="w-120"
         />
       </div>
 
       {loading && (
-        <div className="empty">
-          <span className="spinner" />
-        </div>
+        <div className="empty"><span className="spinner" /></div>
       )}
 
       {!loading && (
         <TabsField
           value={tab}
-          onValueChange={(value) => setTab(value as "partidos" | "categorias")}
+          onValueChange={(v) => setTab(v as "partidos" | "categorias")}
           items={[
             { value: "partidos", label: "Por partido" },
             { value: "categorias", label: "Por categoria de gasto" },
@@ -82,27 +80,44 @@ export default function PartidosPage() {
           <TabPanel value="partidos">
             <div className="card card-body">
               {partidos.length === 0 ? (
-                <p className="empty">Sem dados para o periodo selecionado.</p>
+                <p className="empty">Sem dados para o período selecionado.</p>
               ) : (
                 <>
                   <div className="partidos-grid-header">
                     <span>Partido</span>
                     <span />
                     <span style={{ textAlign: "right" }}>Total</span>
-                    <span style={{ textAlign: "right" }}>Parlamentares</span>
-                    <span style={{ textAlign: "right" }}>Media/parlamentar</span>
+                    <span style={{ textAlign: "right" }}>Deputados</span>
+                    <span style={{ textAlign: "right" }}>Média/dep.</span>
                   </div>
 
-                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                    {partidosCurrent.map((partido) => (
-                      <div key={partido.partido} className="partidos-grid-row">
-                        <span style={{ fontWeight: 700, fontSize: 15 }}>{partido.partido}</span>
-                        <div className="gasto-bar-bg" style={{ height: 8 }}>
-                          <div className="gasto-bar-fill" style={{ width: `${(partido.total / maxPartido) * 100}%` }} />
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    {partidosCurrent.map((p, i) => (
+                      <div key={p.partido} className="partidos-grid-row" style={{
+                        animationDelay: `${i * 25}ms`,
+                        animation: 'fadeUp 0.3s ease both',
+                      }}>
+                        <span style={{
+                          fontFamily: 'var(--heading)',
+                          fontWeight: 800,
+                          fontSize: 15,
+                          color: 'var(--text-h)',
+                          letterSpacing: '-0.01em',
+                        }}>
+                          {p.partido}
+                        </span>
+                        <div className="gasto-bar-bg" style={{ height: 6 }}>
+                          <div className="gasto-bar-fill" style={{ width: `${(p.total / maxPartido) * 100}%` }} />
                         </div>
-                        <span style={{ textAlign: "right", fontWeight: 600, fontSize: 13 }}>{formatCompact(partido.total)}</span>
-                        <span style={{ textAlign: "right", color: "var(--muted)", fontSize: 13 }}>{partido.qtd_parlamentares}</span>
-                        <span style={{ textAlign: "right", fontSize: 13 }}>{formatBRL(partido.media_por_parlamentar)}</span>
+                        <span style={{ textAlign: "right", fontFamily: 'var(--mono)', fontWeight: 600, fontSize: 12, color: 'var(--accent)' }}>
+                          {formatCompact(p.total)}
+                        </span>
+                        <span style={{ textAlign: "right", fontFamily: 'var(--mono)', color: 'var(--text-muted)', fontSize: 12 }}>
+                          {p.qtd_parlamentares}
+                        </span>
+                        <span style={{ textAlign: "right", fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--text-strong)' }}>
+                          {formatBRL(p.media_por_parlamentar)}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -116,19 +131,22 @@ export default function PartidosPage() {
           <TabPanel value="categorias">
             <div className="card card-body">
               {categorias.length === 0 ? (
-                <p className="empty">Sem dados para o periodo selecionado.</p>
+                <p className="empty">Sem dados para o período selecionado.</p>
               ) : (
                 <>
                   <div className="bar-chart">
-                    {categoriasCurrent.map((categoria) => (
-                      <div key={categoria.categoria} className="bar-row">
-                        <span className="bar-label" title={categoria.categoria}>
-                          {categoria.categoria}
+                    {categoriasCurrent.map((cat, i) => (
+                      <div key={cat.categoria} className="bar-row" style={{
+                        animationDelay: `${i * 25}ms`,
+                        animation: 'fadeUp 0.3s ease both',
+                      }}>
+                        <span className="bar-label" title={cat.categoria}>
+                          {cat.categoria}
                         </span>
                         <div className="gasto-bar-bg" style={{ height: 8 }}>
-                          <div className="gasto-bar-fill" style={{ width: `${(categoria.total / maxCategoria) * 100}%` }} />
+                          <div className="gasto-bar-fill" style={{ width: `${(cat.total / maxCategoria) * 100}%` }} />
                         </div>
-                        <span className="bar-amount">{formatCompact(categoria.total)}</span>
+                        <span className="bar-amount">{formatCompact(cat.total)}</span>
                       </div>
                     ))}
                   </div>

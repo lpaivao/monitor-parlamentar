@@ -10,7 +10,7 @@ export default function App() {
     <BrowserRouter>
       <div className="app-shell">
         <header className="topbar">
-          <span className="topbar-brand">🏛 Monitor Parlamentar</span>
+          <span className="topbar-brand">Monitor Parlamentar</span>
           <nav>
             <NavLink to="/" end>Ranking</NavLink>
             <NavLink to="/parlamentares">Parlamentares</NavLink>

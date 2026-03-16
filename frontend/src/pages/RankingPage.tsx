@@ -14,6 +14,13 @@ function getSlice<T>(items: T[], page: number) {
   return items.slice(start, start + CLIENT_PER_PAGE);
 }
 
+function getRankMedal(pos: number) {
+  if (pos === 1) return { icon: "🥇", color: "#fbbf24" };
+  if (pos === 2) return { icon: "🥈", color: "#94a3b8" };
+  if (pos === 3) return { icon: "🥉", color: "#cd7c4e" };
+  return null;
+}
+
 export default function RankingPage() {
   const [items, setItems] = useState<RankingItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,13 +46,8 @@ export default function RankingPage() {
     }
   }, [ano, partido, uf]);
 
-  useEffect(() => {
-    setPage(1);
-  }, [ano, partido, uf]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+  useEffect(() => { setPage(1); }, [ano, partido, uf]);
+  useEffect(() => { load(); }, [load]);
 
   const max = items[0]?.total_gasto ?? 1;
   const totalGeral = items.reduce((sum, item) => sum + item.total_gasto, 0);
@@ -66,31 +68,29 @@ export default function RankingPage() {
           options={anoOptions}
           className="w-120"
         />
-
         <input
           placeholder="Partido (ex: PT)"
           value={partido}
-          onChange={(event) => setPartido(event.target.value.toUpperCase())}
+          onChange={(e) => setPartido(e.target.value.toUpperCase())}
           style={{ width: 140 }}
           maxLength={10}
         />
-
         <SelectField value={uf} onValueChange={setUf} options={ufOptions} className="w-160" />
       </div>
 
-      <div className="stats-grid" style={{ marginBottom: 20 }}>
+      <div className="stats-grid" style={{ marginBottom: 24 }}>
         <div className="stat-card">
           <div className="label">Parlamentares</div>
-          <div className="value">{items.length}</div>
+          <div className="value">{loading ? "—" : items.length}</div>
         </div>
         <div className="stat-card">
           <div className="label">Total gasto em {ano}</div>
-          <div className="value">{formatCompact(totalGeral)}</div>
-          <div className="sub">{formatBRL(totalGeral)}</div>
+          <div className="value" style={{ fontSize: 22 }}>{loading ? "—" : formatCompact(totalGeral)}</div>
+          <div className="sub">{!loading && formatBRL(totalGeral)}</div>
         </div>
         <div className="stat-card">
           <div className="label">Maior gasto individual</div>
-          <div className="value">{items[0] ? formatCompact(items[0].total_gasto) : "-"}</div>
+          <div className="value" style={{ fontSize: 20 }}>{!loading && items[0] ? formatCompact(items[0].total_gasto) : "—"}</div>
           <div className="sub">{items[0]?.nome ?? ""}</div>
         </div>
       </div>
@@ -100,33 +100,44 @@ export default function RankingPage() {
           <table>
             <thead>
               <tr>
-                <th style={{ width: 48 }}>#</th>
+                <th style={{ width: 56 }}>#</th>
                 <th>Parlamentar</th>
                 <th>Partido / UF</th>
                 <th>Despesas</th>
                 <th>Total gasto</th>
-                <th style={{ width: 160 }}>Proporcao</th>
+                <th style={{ width: 180 }}>Proporção</th>
               </tr>
             </thead>
             <tbody>
               {loading && (
                 <tr className="loading-row">
-                  <td colSpan={6}>
-                    <span className="spinner" />
-                  </td>
+                  <td colSpan={6}><span className="spinner" /></td>
                 </tr>
               )}
               {!loading && items.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="empty">
-                    Nenhum resultado encontrado.
-                  </td>
+                  <td colSpan={6} className="empty">Nenhum resultado encontrado.</td>
                 </tr>
               )}
-              {!loading &&
-                currentItems.map((item) => (
+              {!loading && currentItems.map((item) => {
+                const medal = getRankMedal(item.posicao);
+                const pct = (item.total_gasto / max) * 100;
+                return (
                   <tr key={item.id}>
-                    <td style={{ color: "var(--muted)", fontWeight: 600 }}>{item.posicao}</td>
+                    <td>
+                      {medal ? (
+                        <span style={{ fontSize: 18 }} title={`#${item.posicao}`}>{medal.icon}</span>
+                      ) : (
+                        <span style={{
+                          fontFamily: 'var(--mono)',
+                          fontSize: 12,
+                          fontWeight: 600,
+                          color: 'var(--text-dim)',
+                        }}>
+                          {item.posicao}
+                        </span>
+                      )}
+                    </td>
                     <td>
                       <div className="parlamentar-cell">
                         <ParlamentarAvatar nome={item.nome} foto={item.foto_url} />
@@ -134,25 +145,37 @@ export default function RankingPage() {
                       </div>
                     </td>
                     <td>
-                      <span className="badge badge-partido">
-                        {item.sigla_partido ?? "-"} / {item.sigla_uf ?? "-"}
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                        <span className="badge badge-partido">{item.sigla_partido ?? "-"}</span>
+                        <span className="badge badge-partido">{item.sigla_uf ?? "-"}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--text-muted)' }}>
+                        {item.qtd_despesas.toLocaleString("pt-BR")}
                       </span>
                     </td>
-                    <td style={{ color: "var(--muted)" }}>{item.qtd_despesas.toLocaleString("pt-BR")}</td>
-                    <td style={{ fontWeight: 600 }}>{formatBRL(item.total_gasto)}</td>
                     <td>
-                      <div className="gasto-bar-wrap">
-                        <div className="gasto-bar-bg">
-                          <div className="gasto-bar-fill" style={{ width: `${(item.total_gasto / max) * 100}%` }} />
+                      <span style={{ fontFamily: 'var(--mono)', fontSize: 13, fontWeight: 600, color: 'var(--text-h)' }}>
+                        {formatBRL(item.total_gasto)}
+                      </span>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div className="gasto-bar-bg" style={{ flex: 1, height: 6 }}>
+                          <div className="gasto-bar-fill" style={{ width: `${pct}%` }} />
                         </div>
+                        <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--text-dim)', width: 36, textAlign: 'right' }}>
+                          {pct.toFixed(0)}%
+                        </span>
                       </div>
                     </td>
                   </tr>
-                ))}
+                );
+              })}
             </tbody>
           </table>
         </div>
-
         {!loading && <Pagination currentPage={page} lastPage={lastPage} onPageChange={setPage} />}
       </div>
     </div>

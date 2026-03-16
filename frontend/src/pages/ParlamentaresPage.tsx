@@ -33,13 +33,8 @@ export default function ParlamentaresPage() {
     }
   }, [nome, partido, uf, ano, page]);
 
-  useEffect(() => {
-    setPage(1);
-  }, [nome, partido, uf, ano]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+  useEffect(() => { setPage(1); }, [nome, partido, uf, ano]);
+  useEffect(() => { load(); }, [load]);
 
   const meta = result?.meta;
   const data = result?.data ?? [];
@@ -53,25 +48,22 @@ export default function ParlamentaresPage() {
 
       <div className="filter-bar">
         <input
-          name="nome"
           placeholder="Buscar por nome..."
           value={nome}
-          onChange={(event) => setNome(event.target.value)}
+          onChange={(e) => setNome(e.target.value)}
+          style={{ flex: 1, maxWidth: 300 }}
         />
-
         <input
           placeholder="Partido (ex: PT)"
           value={partido}
-          onChange={(event) => setPartido(event.target.value.toUpperCase())}
-          style={{ width: 120 }}
+          onChange={(e) => setPartido(e.target.value.toUpperCase())}
+          style={{ width: 130 }}
           maxLength={10}
         />
-
         <SelectField value={uf} onValueChange={setUf} options={ufOptions} className="w-160" />
-
         <SelectField
           value={String(ano)}
-          onValueChange={(value) => setAno(Number(value))}
+          onValueChange={(v) => setAno(Number(v))}
           options={anoOptions}
           className="w-120"
         />
@@ -86,47 +78,48 @@ export default function ParlamentaresPage() {
                 <th>Partido</th>
                 <th>UF</th>
                 <th>Total gasto em {ano}</th>
-                <th>Detalhes</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               {loading && (
                 <tr className="loading-row">
-                  <td colSpan={5}>
-                    <span className="spinner" />
-                  </td>
+                  <td colSpan={5}><span className="spinner" /></td>
                 </tr>
               )}
               {!loading && data.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="empty">
-                    Nenhum parlamentar encontrado.
-                  </td>
+                  <td colSpan={5} className="empty">Nenhum parlamentar encontrado.</td>
                 </tr>
               )}
-              {!loading &&
-                data.map((parlamentar) => (
-                  <tr key={parlamentar.id}>
-                    <td>
-                      <div className="parlamentar-cell">
-                        <ParlamentarAvatar nome={parlamentar.nome} foto={parlamentar.foto_url} />
-                        <span>{parlamentar.nome}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <span className="badge badge-partido">{parlamentar.sigla_partido ?? "-"}</span>
-                    </td>
-                    <td>{parlamentar.sigla_uf ?? "-"}</td>
-                    <td style={{ fontWeight: 600 }}>
-                      {parlamentar.total_gasto !== undefined ? formatBRL(parlamentar.total_gasto) : "-"}
-                    </td>
-                    <td>
-                      <Link to={`/parlamentares/${parlamentar.id}`} className="btn btn-ghost" style={{ fontSize: 13 }}>
-                        Ver detalhes
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
+              {!loading && data.map((p) => (
+                <tr key={p.id}>
+                  <td>
+                    <div className="parlamentar-cell">
+                      <ParlamentarAvatar nome={p.nome} foto={p.foto_url} />
+                      <span style={{ color: 'var(--text-strong)', fontWeight: 500 }}>{p.nome}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span className="badge badge-partido">{p.sigla_partido ?? "-"}</span>
+                  </td>
+                  <td>
+                    <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--text-muted)' }}>
+                      {p.sigla_uf ?? "-"}
+                    </span>
+                  </td>
+                  <td>
+                    <span style={{ fontFamily: 'var(--mono)', fontSize: 13, fontWeight: 600, color: 'var(--accent)' }}>
+                      {p.total_gasto !== undefined ? formatBRL(p.total_gasto) : "-"}
+                    </span>
+                  </td>
+                  <td>
+                    <Link to={`/parlamentares/${p.id}`} className="btn btn-ghost" style={{ fontSize: 12 }}>
+                      Ver detalhes →
+                    </Link>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

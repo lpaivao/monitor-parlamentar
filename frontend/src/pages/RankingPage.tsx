@@ -5,7 +5,7 @@ import { Pagination } from "../components/ui/Pagination";
 import { SelectField } from "../components/ui/SelectField";
 import { getRanking } from "../services/api";
 import type { RankingItem } from "../types";
-import { ANOS, formatBRL, formatCompact, UFS } from "../utils";
+import { ANOS, formatBRL, UFS } from "../utils";
 
 const CLIENT_PER_PAGE = 20;
 
@@ -85,12 +85,12 @@ export default function RankingPage() {
         </div>
         <div className="stat-card">
           <div className="label">Total gasto em {ano}</div>
-          <div className="value" style={{ fontSize: 22 }}>{loading ? "—" : formatCompact(totalGeral)}</div>
+          <div className="value" style={{ fontSize: 22 }}>{loading ? "—" : formatBRL(totalGeral)}</div>
           <div className="sub">{!loading && formatBRL(totalGeral)}</div>
         </div>
         <div className="stat-card">
           <div className="label">Maior gasto individual</div>
-          <div className="value" style={{ fontSize: 20 }}>{!loading && items[0] ? formatCompact(items[0].total_gasto) : "—"}</div>
+          <div className="value" style={{ fontSize: 20 }}>{!loading && items[0] ? formatBRL(items[0].total_gasto) : "—"}</div>
           <div className="sub">{items[0]?.nome ?? ""}</div>
         </div>
       </div>

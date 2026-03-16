@@ -4,7 +4,7 @@ import { SelectField } from "../components/ui/SelectField";
 import { TabPanel, TabsField } from "../components/ui/Tabs";
 import { getRankingCategorias, getRankingPartidos } from "../services/api";
 import type { RankingCategoria, RankingPartido } from "../types";
-import { ANOS, formatBRL, formatCompact } from "../utils";
+import { ANOS, formatBRL } from "../utils";
 
 const CLIENT_PER_PAGE = 12;
 
@@ -110,7 +110,7 @@ export default function PartidosPage() {
                           <div className="gasto-bar-fill" style={{ width: `${(p.total / maxPartido) * 100}%` }} />
                         </div>
                         <span style={{ textAlign: "right", fontFamily: 'var(--mono)', fontWeight: 600, fontSize: 12, color: 'var(--accent)' }}>
-                          {formatCompact(p.total)}
+                          {formatBRL(p.total)}
                         </span>
                         <span style={{ textAlign: "right", fontFamily: 'var(--mono)', color: 'var(--text-muted)', fontSize: 12 }}>
                           {p.qtd_parlamentares}
@@ -146,7 +146,7 @@ export default function PartidosPage() {
                         <div className="gasto-bar-bg" style={{ height: 8 }}>
                           <div className="gasto-bar-fill" style={{ width: `${(cat.total / maxCategoria) * 100}%` }} />
                         </div>
-                        <span className="bar-amount">{formatCompact(cat.total)}</span>
+                        <span className="bar-amount">{formatBRL(cat.total)}</span>
                       </div>
                     ))}
                   </div>

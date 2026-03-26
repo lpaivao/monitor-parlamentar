@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Onest:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 /* ─── Design Tokens ─────────────────────────────────────────────────────── */
 :root {
@@ -6,42 +6,48 @@
   --bg-surface:    #0d1120;
   --bg-raised:     #111628;
   --bg-hover:      #161c30;
-  --border:        #1a1f35;
-  --border-strong: #252c47;
-  --border-accent: rgba(34, 211, 160, 0.25);
+  /* ── Brazilian palette ── */
+  --br-green:       #009C3B;
+  --br-yellow:      #FFDF00;
+  --br-blue:        #002776;
+  --br-white:       #FFFFFF;
+
+  --border:        #1a2035;
+  --border-strong: #253050;
+  --border-accent: rgba(0, 156, 59, 0.30);
 
   --text-dim:    #3d4462;
-  --text-muted:  #5c6380;
+  --text-muted:  #5c6a80;
   --text:        #8892b5;
   --text-strong: #c2cae8;
   --text-h:      #eaedff;
 
-  --accent:         #22d3a0;
-  --accent-dim:     rgba(34, 211, 160, 0.08);
-  --accent-glow:    rgba(34, 211, 160, 0.18);
-  --accent-border:  rgba(34, 211, 160, 0.35);
+  --accent:         #009C3B;
+  --accent-dim:     rgba(0, 156, 59, 0.10);
+  --accent-glow:    rgba(0, 156, 59, 0.20);
+  --accent-border:  rgba(0, 156, 59, 0.40);
 
-  --orange:         #f97316;
-  --orange-dim:     rgba(249, 115, 22, 0.1);
+  --orange:         #FFDF00;
+  --orange-dim:     rgba(255, 223, 0, 0.12);
 
   --red:            #f87171;
   --red-dim:        rgba(248, 113, 113, 0.1);
 
-  --gold:           #fbbf24;
-  --gold-dim:       rgba(251, 191, 36, 0.1);
+  --gold:           #FFDF00;
+  --gold-dim:       rgba(255, 223, 0, 0.12);
 
   --shadow-sm:   0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
   --shadow-md:   0 4px 16px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.3);
   --shadow-lg:   0 10px 40px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.4);
-  --shadow-glow: 0 0 20px rgba(34, 211, 160, 0.15);
+  --shadow-glow: 0 0 20px rgba(0, 156, 59, 0.18);
 
   --radius-sm:  6px;
   --radius-md:  10px;
   --radius-lg:  16px;
   --radius-xl:  20px;
 
-  --sans:    'Onest', system-ui, sans-serif;
-  --heading: 'Syne', system-ui, sans-serif;
+  --sans:    'Inter', system-ui, sans-serif;
+  --heading: 'Inter', system-ui, sans-serif;
   --mono:    'JetBrains Mono', ui-monospace, monospace;
 
   --transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -64,8 +70,8 @@ body {
   margin: 0;
   background: var(--bg);
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(34,211,160,0.04) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(99,102,241,0.04) 0%, transparent 60%);
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,156,59,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(0,39,118,0.06) 0%, transparent 60%);
   background-attachment: fixed;
 }
 
@@ -88,13 +94,10 @@ a:hover { opacity: 0.8; }
 
 /* ─── Root Layout ────────────────────────────────────────────────────────── */
 #root {
-  width: 1200px;
-  max-width: 100%;
-  margin: 0 auto;
+  width: 100%;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
-  border-inline: 1px solid var(--border);
 }
 
 /* ─── App Shell ──────────────────────────────────────────────────────────── */
@@ -140,14 +143,14 @@ a:hover { opacity: 0.8; }
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 8px var(--accent);
+  background: var(--br-yellow);
+  box-shadow: 0 0 8px var(--br-yellow);
   animation: pulse 2s ease-in-out infinite;
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--accent); }
-  50% { opacity: 0.6; box-shadow: 0 0 16px var(--accent); }
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--br-yellow); }
+  50% { opacity: 0.6; box-shadow: 0 0 16px var(--br-yellow); }
 }
 
 .topbar nav {
@@ -208,7 +211,7 @@ main {
   font-size: 42px;
   font-weight: 800;
   letter-spacing: -0.04em;
-  background: linear-gradient(135deg, var(--text-h) 0%, var(--text-strong) 60%, var(--accent) 100%);
+  background: linear-gradient(135deg, var(--text-h) 0%, var(--text-strong) 55%, var(--br-green) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -294,7 +297,7 @@ main {
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--accent), transparent);
+  background: linear-gradient(90deg, var(--br-green), var(--br-yellow), transparent);
   opacity: 0;
   transition: opacity var(--transition-slow);
 }
@@ -335,6 +338,8 @@ main {
 /* ─── Table ──────────────────────────────────────────────────────────────── */
 .table-wrap {
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: calc(100svh - 260px);
 }
 
 table {
@@ -357,6 +362,7 @@ thead th {
   background: var(--bg-surface);
   position: sticky;
   top: 0;
+  z-index: 1;
 }
 
 tbody tr {
@@ -516,7 +522,7 @@ tbody td {
   height: 100%;
   min-width: 3px;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--accent) 0%, rgba(34,211,160,0.7) 100%);
+  background: linear-gradient(90deg, var(--br-green) 0%, rgba(0,156,59,0.65) 100%);
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 

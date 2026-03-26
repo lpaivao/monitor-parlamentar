@@ -55,7 +55,7 @@ export default function RankingPage() {
   const currentItems = getSlice(items, page);
 
   return (
-    <div className="px-8 py-10 pb-16 max-w-full animate-[fadeUp_0.35s_ease_both]">
+    <div className="px-8 pt-10 pb-4 max-w-full animate-[fadeUp_0.35s_ease_both] flex flex-col flex-1 min-h-0">
       <div className="mb-8">
         <h1 className="page-title-gradient text-[42px] font-extrabold tracking-[-0.04em] mb-2">Ranking de Gastos</h1>
         <p className="text-[var(--text-muted)] text-sm tracking-wide">Top parlamentares por total da cota parlamentar utilizada</p>
@@ -94,8 +94,8 @@ export default function RankingPage() {
         </div>
       </div>
 
-      <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] overflow-hidden transition-colors duration-300 hover:border-[var(--border-strong)]">
-        <div className="overflow-x-auto overflow-y-auto max-h-[calc(100svh-260px)]">
+      <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] overflow-hidden transition-colors duration-300 hover:border-[var(--border-strong)] flex flex-col flex-1 min-h-0">
+        <div className="overflow-x-auto overflow-y-auto flex-1 min-h-0">
           <table className="w-full border-collapse text-[13.5px]">
             <thead>
               <tr>

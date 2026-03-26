@@ -18,7 +18,7 @@ export default function App() {
           </nav>
         </header>
 
-        <main className="flex-1 flex flex-col">
+        <main className="flex-1 flex flex-col overflow-hidden">
           <Routes>
             <Route path="/" element={<RankingPage />} />
             <Route path="/parlamentares" element={<ParlamentaresPage />} />

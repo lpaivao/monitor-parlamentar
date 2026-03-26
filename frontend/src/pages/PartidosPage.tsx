@@ -49,23 +49,25 @@ export default function PartidosPage() {
   const categoriasCurrent = getSlice(categorias, categoriasPage);
 
   return (
-    <div className="page">
-      <div className="page-header">
-        <h1>Gastos por Partido</h1>
-        <p>Comparativo do uso da cota parlamentar entre partidos e categorias</p>
+    <div className="px-8 py-10 pb-16 max-w-full animate-[fadeUp_0.35s_ease_both]">
+      <div className="mb-8">
+        <h1 className="page-title-gradient text-[42px] font-extrabold tracking-[-0.04em] mb-2">Gastos por Partido</h1>
+        <p className="text-[var(--text-muted)] text-sm tracking-wide">Comparativo do uso da cota parlamentar entre partidos e categorias</p>
       </div>
 
-      <div className="filter-bar">
+      <div className="flex items-center gap-2.5 mb-6 flex-wrap">
         <SelectField
           value={String(ano)}
           onValueChange={(v) => setAno(Number(v))}
           options={anoOptions}
-          className="w-120"
+          className="w-[120px]"
         />
       </div>
 
       {loading && (
-        <div className="empty"><span className="spinner" /></div>
+        <div className="py-14 text-center">
+          <span className="inline-block w-[22px] h-[22px] border-2 border-[var(--border-strong)] border-t-[var(--accent)] rounded-full animate-spin" />
+        </div>
       )}
 
       {!loading && (
@@ -78,44 +80,39 @@ export default function PartidosPage() {
           ]}
         >
           <TabPanel value="partidos">
-            <div className="card card-body">
+            <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] overflow-hidden p-6">
               {partidos.length === 0 ? (
-                <p className="empty">Sem dados para o período selecionado.</p>
+                <p className="py-14 text-center text-[var(--text-muted)] text-sm">Sem dados para o período selecionado.</p>
               ) : (
                 <>
-                  <div className="partidos-grid-header">
+                  <div className="grid items-center gap-4 pb-3 mb-1 border-b border-[var(--border)] text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-widest" style={{ gridTemplateColumns: '80px 1fr 110px 100px 140px' }}>
                     <span>Partido</span>
                     <span />
-                    <span style={{ textAlign: "right" }}>Total (R$)</span>
-                    <span style={{ textAlign: "right" }}>Deputados</span>
-                    <span style={{ textAlign: "right" }}>Média/dep. (R$)</span>
+                    <span className="text-right">Total (R$)</span>
+                    <span className="text-right">Deputados</span>
+                    <span className="text-right">Média/dep. (R$)</span>
                   </div>
 
-                  <div style={{ display: "flex", flexDirection: "column" }}>
+                  <div className="flex flex-col">
                     {partidosCurrent.map((p, i) => (
-                      <div key={p.partido} className="partidos-grid-row" style={{
-                        animationDelay: `${i * 25}ms`,
-                        animation: 'fadeUp 0.3s ease both',
-                      }}>
-                        <span style={{
-                          fontFamily: 'var(--heading)',
-                          fontWeight: 800,
-                          fontSize: 15,
-                          color: 'var(--text-h)',
-                          letterSpacing: '-0.01em',
-                        }}>
+                      <div
+                        key={p.partido}
+                        className="grid items-center gap-4 py-2.5 px-1.5 border-b border-[var(--border)] last:border-b-0 rounded-[var(--radius-sm)] hover:bg-[var(--bg-hover)] transition-colors"
+                        style={{ gridTemplateColumns: '80px 1fr 110px 100px 140px', animationDelay: `${i * 25}ms`, animation: 'fadeUp 0.3s ease both' }}
+                      >
+                        <span className="font-sans font-extrabold text-[15px] text-[var(--text-h)] tracking-[-0.01em]">
                           {p.partido}
                         </span>
-                        <div className="gasto-bar-bg" style={{ height: 6 }}>
+                        <div className="h-1.5 bg-[var(--bg-raised)] rounded-full overflow-hidden border border-[var(--border)]">
                           <div className="gasto-bar-fill" style={{ width: `${(p.total / maxPartido) * 100}%` }} />
                         </div>
-                        <span style={{ textAlign: "right", fontFamily: 'var(--mono)', fontWeight: 600, fontSize: 12, color: 'var(--accent)' }}>
+                        <span className="text-right font-mono font-semibold text-[12px] text-[var(--accent)]">
                           {formatBRL(p.total)}
                         </span>
-                        <span style={{ textAlign: "right", fontFamily: 'var(--mono)', color: 'var(--text-muted)', fontSize: 12 }}>
+                        <span className="text-right font-mono text-[12px] text-[var(--text-muted)]">
                           {p.qtd_parlamentares}
                         </span>
-                        <span style={{ textAlign: "right", fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--text-strong)' }}>
+                        <span className="text-right font-mono text-[12px] text-[var(--text-strong)]">
                           {formatBRL(p.media_por_parlamentar)}
                         </span>
                       </div>
@@ -129,24 +126,25 @@ export default function PartidosPage() {
           </TabPanel>
 
           <TabPanel value="categorias">
-            <div className="card card-body">
+            <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] overflow-hidden p-6">
               {categorias.length === 0 ? (
-                <p className="empty">Sem dados para o período selecionado.</p>
+                <p className="py-14 text-center text-[var(--text-muted)] text-sm">Sem dados para o período selecionado.</p>
               ) : (
                 <>
-                  <div className="bar-chart">
+                  <div className="flex flex-col gap-3.5">
                     {categoriasCurrent.map((cat, i) => (
-                      <div key={cat.categoria} className="bar-row" style={{
-                        animationDelay: `${i * 25}ms`,
-                        animation: 'fadeUp 0.3s ease both',
-                      }}>
-                        <span className="bar-label" title={cat.categoria}>
+                      <div
+                        key={cat.categoria}
+                        className="grid items-center gap-3.5"
+                        style={{ gridTemplateColumns: '200px 1fr 110px', animationDelay: `${i * 25}ms`, animation: 'fadeUp 0.3s ease both' }}
+                      >
+                        <span className="text-[12px] font-medium text-[var(--text)] overflow-hidden text-ellipsis whitespace-nowrap" title={cat.categoria}>
                           {cat.categoria}
                         </span>
-                        <div className="gasto-bar-bg" style={{ height: 8 }}>
+                        <div className="h-2 bg-[var(--bg-raised)] rounded-full overflow-hidden border border-[var(--border)]">
                           <div className="gasto-bar-fill" style={{ width: `${(cat.total / maxCategoria) * 100}%` }} />
                         </div>
-                        <span className="bar-amount">{formatBRL(cat.total)}</span>
+                        <span className="font-mono text-[12px] font-semibold text-[var(--text-strong)] text-right whitespace-nowrap">{formatBRL(cat.total)}</span>
                       </div>
                     ))}
                   </div>

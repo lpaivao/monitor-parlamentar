@@ -19,12 +19,17 @@ export function Pagination({ currentPage, lastPage, onPageChange }: PaginationPr
 
   const pages = buildPageWindow(currentPage, lastPage);
 
+  const btnBase = "inline-flex items-center font-sans text-[13px] font-medium px-4 py-2 rounded-[var(--radius-sm)] border cursor-pointer outline-none transition-all whitespace-nowrap leading-none gap-1";
+  const btnGhost = `${btnBase} text-[var(--text-muted)] bg-transparent border-[var(--border)] hover:text-[var(--text-strong)] hover:bg-[var(--bg-raised)] hover:border-[var(--border-strong)] disabled:opacity-30 disabled:cursor-not-allowed disabled:pointer-events-none`;
+  const numBase = "font-mono text-[13px] font-medium w-[34px] h-[34px] inline-flex items-center justify-center rounded-[var(--radius-sm)] border cursor-pointer outline-none transition-all";
+  const numActive = `${numBase} bg-[var(--accent-dim)] text-[var(--accent)] border-[var(--accent-border)] font-bold`;
+  const numInactive = `${numBase} bg-transparent text-[var(--text-muted)] border-transparent hover:bg-[var(--bg-raised)] hover:text-[var(--text-strong)] hover:border-[var(--border)]`;
+
   return (
-    <div className="pagination" role="navigation" aria-label="Paginação">
+    <div className="flex items-center justify-center gap-1.5 px-4 py-4.5 border-t border-[var(--border)] flex-wrap" role="navigation" aria-label="Paginação">
       <button
         type="button"
-        className="btn btn-ghost"
-        style={{ gap: 4, fontSize: 13 }}
+        className={btnGhost}
         disabled={currentPage <= 1}
         onClick={() => onPageChange(currentPage - 1)}
       >
@@ -32,11 +37,11 @@ export function Pagination({ currentPage, lastPage, onPageChange }: PaginationPr
         Anterior
       </button>
 
-      <div className="pagination-pages">
+      <div className="flex items-center gap-1">
         {pages[0] !== 1 && (
           <>
-            <button type="button" className="pagination-number" onClick={() => onPageChange(1)}>1</button>
-            {pages[0] > 2 && <span className="pagination-ellipsis">…</span>}
+            <button type="button" className={numInactive} onClick={() => onPageChange(1)}>1</button>
+            {pages[0] > 2 && <span className="text-[var(--text-dim)] text-[13px] px-1 select-none">…</span>}
           </>
         )}
 
@@ -44,7 +49,7 @@ export function Pagination({ currentPage, lastPage, onPageChange }: PaginationPr
           <button
             key={p}
             type="button"
-            className={`pagination-number${p === currentPage ? " is-active" : ""}`}
+            className={p === currentPage ? numActive : numInactive}
             onClick={() => onPageChange(p)}
           >
             {p}
@@ -53,8 +58,8 @@ export function Pagination({ currentPage, lastPage, onPageChange }: PaginationPr
 
         {pages.at(-1) !== lastPage && (
           <>
-            {pages.at(-1)! < lastPage - 1 && <span className="pagination-ellipsis">…</span>}
-            <button type="button" className="pagination-number" onClick={() => onPageChange(lastPage)}>
+            {pages.at(-1)! < lastPage - 1 && <span className="text-[var(--text-dim)] text-[13px] px-1 select-none">…</span>}
+            <button type="button" className={numInactive} onClick={() => onPageChange(lastPage)}>
               {lastPage}
             </button>
           </>
@@ -63,8 +68,7 @@ export function Pagination({ currentPage, lastPage, onPageChange }: PaginationPr
 
       <button
         type="button"
-        className="btn btn-ghost"
-        style={{ gap: 4, fontSize: 13 }}
+        className={btnGhost}
         disabled={currentPage >= lastPage}
         onClick={() => onPageChange(currentPage + 1)}
       >

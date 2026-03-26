@@ -42,16 +42,16 @@ export default function ParlamentarPage() {
 
   if (loadingParlamentar) {
     return (
-      <div className="page">
-        <div className="empty"><span className="spinner" /></div>
+      <div className="px-8 py-10">
+        <div className="py-14 text-center"><span className="inline-block w-[22px] h-[22px] border-2 border-[var(--border-strong)] border-t-[var(--accent)] rounded-full animate-spin" /></div>
       </div>
     );
   }
 
   if (!parlamentar) {
     return (
-      <div className="page">
-        <div className="empty">
+      <div className="px-8 py-10">
+        <div className="py-14 text-center text-[var(--text-muted)] text-sm">
           Parlamentar não encontrado.{" "}
           <Link to="/parlamentares">← Voltar</Link>
         </div>
@@ -63,81 +63,67 @@ export default function ParlamentarPage() {
   const mediaMensal = formatBRL(parlamentar.total_gasto / Math.max(parlamentar.por_mes?.length ?? 1, 1));
 
   return (
-    <div className="page">
+    <div className="px-8 py-10 pb-16 max-w-full animate-[fadeUp_0.35s_ease_both]">
       {/* Back link */}
-      <div style={{ marginBottom: 24 }}>
+      <div className="mb-6">
         <Link
           to="/parlamentares"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            fontSize: 13,
-            color: 'var(--text-muted)',
-            fontWeight: 500,
-          }}
+          className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[var(--text-muted)] hover:text-[var(--text-strong)] transition-colors"
         >
           ← Parlamentares
         </Link>
       </div>
 
       {/* Hero card */}
-      <div className="card card-body" style={{ marginBottom: 20 }}>
-        <div style={{ display: "flex", gap: 20, alignItems: "center", flexWrap: "wrap", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", gap: 20, alignItems: "center", flexWrap: "wrap" }}>
+      <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] overflow-hidden p-6 mb-5">
+        <div className="flex gap-5 items-center flex-wrap justify-between">
+          <div className="flex gap-5 items-center flex-wrap">
             <ParlamentarAvatar nome={parlamentar.nome} foto={parlamentar.foto_url} size="lg" />
             <div>
-              <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 10 }}>
+              <h1 className="text-[26px] font-extrabold tracking-[-0.03em] mb-2.5 text-[var(--text-h)]">
                 {parlamentar.nome}
               </h1>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                <span className="badge badge-partido">{parlamentar.sigla_partido ?? "-"}</span>
-                <span className="badge badge-partido">{parlamentar.sigla_uf ?? "-"}</span>
-                <span className="badge badge-camara">Câmara dos Deputados</span>
+              <div className="flex gap-2 flex-wrap">
+                <span className="inline-flex items-center font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap tracking-[0.04em] text-[var(--text-strong)] bg-[var(--bg-raised)] border border-[var(--border-strong)]">{parlamentar.sigla_partido ?? "-"}</span>
+                <span className="inline-flex items-center font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap tracking-[0.04em] text-[var(--text-strong)] bg-[var(--bg-raised)] border border-[var(--border-strong)]">{parlamentar.sigla_uf ?? "-"}</span>
+                <span className="inline-flex items-center font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap tracking-[0.04em] text-[var(--accent)] bg-[var(--accent-dim)] border border-[var(--accent-border)]">Câmara dos Deputados</span>
               </div>
             </div>
           </div>
-
           <SelectField
             value={String(ano)}
             onValueChange={(v) => setAno(Number(v))}
             options={anoOptions}
-            className="w-120"
+            className="w-[120px]"
           />
         </div>
       </div>
 
       {/* Stats */}
-      <div className="stats-grid" style={{ marginBottom: 20 }}>
-        <div className="stat-card">
-          <div className="label">Total gasto em {ano}</div>
-          <div className="value" style={{ fontSize: 20, color: 'var(--accent)' }}>
-            {formatBRL(parlamentar.total_gasto)}
-          </div>
+      <div className="grid gap-3.5 mb-5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
+        <div className="stat-card bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-md)] px-5 py-5 relative overflow-hidden transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
+          <div className="text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-widest mb-2.5">Total gasto em {ano}</div>
+          <div className="font-sans text-[20px] font-extrabold text-[var(--accent)] tracking-[-0.03em] leading-none">{formatBRL(parlamentar.total_gasto)}</div>
         </div>
-        <div className="stat-card">
-          <div className="label">Categorias utilizadas</div>
-          <div className="value">{parlamentar.por_categoria?.length ?? 0}</div>
+        <div className="stat-card bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-md)] px-5 py-5 relative overflow-hidden transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
+          <div className="text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-widest mb-2.5">Categorias utilizadas</div>
+          <div className="font-sans text-[28px] font-extrabold text-[var(--text-h)] tracking-[-0.03em] leading-none">{parlamentar.por_categoria?.length ?? 0}</div>
         </div>
-        <div className="stat-card">
-          <div className="label">Maior categoria</div>
-          <div className="value" style={{ fontSize: 13, fontWeight: 600, marginTop: 6, lineHeight: 1.3 }}>
-            {parlamentar.por_categoria?.[0]?.tipo_despesa ?? "-"}
-          </div>
-          <div className="sub">
-            {parlamentar.por_categoria?.[0] ? formatBRL(parlamentar.por_categoria[0].total) : ""}
-          </div>
+        <div className="stat-card bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-md)] px-5 py-5 relative overflow-hidden transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
+          <div className="text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-widest mb-2.5">Maior categoria</div>
+          <div className="font-sans text-[13px] font-semibold text-[var(--text-h)] leading-snug mt-1.5">{parlamentar.por_categoria?.[0]?.tipo_despesa ?? "-"}</div>
+          <div className="font-mono text-[11px] text-[var(--text-muted)] mt-1.5">{parlamentar.por_categoria?.[0] ? formatBRL(parlamentar.por_categoria[0].total) : ""}</div>
         </div>
-        <div className="stat-card">
-          <div className="label">Média mensal</div>
-          <div className="value" style={{ fontSize: 20 }}>{mediaMensal}</div>
+        <div className="stat-card bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-md)] px-5 py-5 relative overflow-hidden transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
+          <div className="text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-widest mb-2.5">Média mensal</div>
+          <div className="font-sans text-[20px] font-extrabold text-[var(--text-h)] tracking-[-0.03em] leading-none">{mediaMensal}</div>
         </div>
       </div>
 
       {/* Monthly chart */}
       {parlamentar.por_mes && parlamentar.por_mes.length > 0 && (
-        <div className="card card-body" style={{ marginBottom: 20 }}>
-          <h3 style={{ fontFamily: 'var(--heading)', fontWeight: 700, marginBottom: 20, fontSize: 14, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+        <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] overflow-hidden p-6 mb-5">
+          <h3 className="font-sans font-bold mb-5 text-[14px] text-[var(--text-muted)] uppercase tracking-[0.08em]">
             Gasto mensal — {ano}
           </h3>
           <MesChart data={parlamentar.por_mes} />
@@ -154,23 +140,24 @@ export default function ParlamentarPage() {
         ]}
       >
         <TabPanel value="categorias">
-          <div className="card card-body">
+          <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] overflow-hidden p-6">
             {!parlamentar.por_categoria?.length ? (
-              <p className="empty">Nenhuma despesa encontrada para {ano}.</p>
+              <p className="py-14 text-center text-[var(--text-muted)] text-sm">Nenhuma despesa encontrada para {ano}.</p>
             ) : (
-              <div className="bar-chart">
+              <div className="flex flex-col gap-3.5">
                 {parlamentar.por_categoria.map((cat, i) => (
-                  <div key={cat.tipo_despesa} className="bar-row" style={{
-                    animationDelay: `${i * 30}ms`,
-                    animation: 'fadeUp 0.3s ease both',
-                  }}>
-                    <span className="bar-label" title={cat.tipo_despesa ?? "-"}>
+                  <div
+                    key={cat.tipo_despesa}
+                    className="grid items-center gap-3.5"
+                    style={{ gridTemplateColumns: '200px 1fr 110px', animationDelay: `${i * 30}ms`, animation: 'fadeUp 0.3s ease both' }}
+                  >
+                    <span className="text-[12px] font-medium text-[var(--text)] overflow-hidden text-ellipsis whitespace-nowrap" title={cat.tipo_despesa ?? "-"}>
                       {cat.tipo_despesa ?? "-"}
                     </span>
-                    <div className="gasto-bar-bg" style={{ height: 8 }}>
+                    <div className="h-2 bg-[var(--bg-raised)] rounded-full overflow-hidden border border-[var(--border)]">
                       <div className="gasto-bar-fill" style={{ width: `${(cat.total / maxCategoria) * 100}%` }} />
                     </div>
-                    <span className="bar-amount">{formatBRL(cat.total)}</span>
+                    <span className="font-mono text-[12px] font-semibold text-[var(--text-strong)] text-right whitespace-nowrap">{formatBRL(cat.total)}</span>
                   </div>
                 ))}
               </div>
@@ -179,51 +166,53 @@ export default function ParlamentarPage() {
         </TabPanel>
 
         <TabPanel value="despesas">
-          <div className="card">
-            <div className="table-wrap">
-              <table>
+          <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] overflow-hidden">
+            <div className="overflow-x-auto overflow-y-auto max-h-[calc(100svh-260px)]">
+              <table className="w-full border-collapse text-[13.5px]">
                 <thead>
                   <tr>
-                    <th>Data</th>
-                    <th>Categoria</th>
-                    <th>Fornecedor</th>
-                    <th>Documento</th>
-                    <th>Valor (R$)</th>
+                    <th className="px-4 py-3.5 text-left font-sans text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-widest border-b border-[var(--border)] whitespace-nowrap bg-[var(--bg-surface)] sticky top-0 z-10">Data</th>
+                    <th className="px-4 py-3.5 text-left font-sans text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-widest border-b border-[var(--border)] whitespace-nowrap bg-[var(--bg-surface)] sticky top-0 z-10">Categoria</th>
+                    <th className="px-4 py-3.5 text-left font-sans text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-widest border-b border-[var(--border)] whitespace-nowrap bg-[var(--bg-surface)] sticky top-0 z-10">Fornecedor</th>
+                    <th className="px-4 py-3.5 text-left font-sans text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-widest border-b border-[var(--border)] whitespace-nowrap bg-[var(--bg-surface)] sticky top-0 z-10">Documento</th>
+                    <th className="px-4 py-3.5 text-left font-sans text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-widest border-b border-[var(--border)] whitespace-nowrap bg-[var(--bg-surface)] sticky top-0 z-10">Valor (R$)</th>
                   </tr>
                 </thead>
                 <tbody>
                   {loadingDespesas && (
-                    <tr className="loading-row">
-                      <td colSpan={5}><span className="spinner" /></td>
+                    <tr>
+                      <td colSpan={5} className="py-12 text-center">
+                        <span className="inline-block w-[22px] h-[22px] border-2 border-[var(--border-strong)] border-t-[var(--accent)] rounded-full animate-spin" />
+                      </td>
                     </tr>
                   )}
                   {!loadingDespesas && (despesas?.data ?? []).length === 0 && (
                     <tr>
-                      <td colSpan={5} className="empty">Nenhuma despesa encontrada.</td>
+                      <td colSpan={5} className="py-14 text-center text-[var(--text-muted)] text-sm">Nenhuma despesa encontrada.</td>
                     </tr>
                   )}
                   {!loadingDespesas && (despesas?.data ?? []).map((d) => (
-                    <tr key={d.id}>
-                      <td style={{ whiteSpace: "nowrap" }}>
-                        <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--text-muted)' }}>
+                    <tr key={d.id} className="border-b border-[var(--border)] last:border-b-0 hover:bg-[var(--bg-hover)] transition-colors">
+                      <td className="px-4 py-3.5 align-middle whitespace-nowrap">
+                        <span className="font-mono text-[12px] text-[var(--text-muted)]">
                           {d.data_emissao
                             ? new Date(d.data_emissao).toLocaleDateString("pt-BR")
                             : `${MESES[(d.mes ?? 1) - 1]}/${ano}`}
                         </span>
                       </td>
-                      <td style={{ fontSize: 13 }}>{d.tipo_despesa ?? "-"}</td>
-                      <td style={{ fontSize: 13, color: 'var(--text-strong)' }}>{d.fornecedor ?? "-"}</td>
-                      <td>
+                      <td className="px-4 py-3.5 align-middle text-[13px] text-[var(--text)]">{d.tipo_despesa ?? "-"}</td>
+                      <td className="px-4 py-3.5 align-middle text-[13px] text-[var(--text-strong)]">{d.fornecedor ?? "-"}</td>
+                      <td className="px-4 py-3.5 align-middle">
                         {d.url_documento ? (
-                          <a href={d.url_documento} target="_blank" rel="noreferrer" style={{ fontSize: 12 }}>
+                          <a href={d.url_documento} target="_blank" rel="noreferrer" className="text-[12px] text-[var(--accent)] hover:opacity-80 transition-opacity">
                             Ver nota ↗
                           </a>
                         ) : (
-                          <span style={{ fontSize: 12, color: 'var(--text-dim)' }}>{d.numero_documento ?? "-"}</span>
+                          <span className="text-[12px] text-[var(--text-dim)]">{d.numero_documento ?? "-"}</span>
                         )}
                       </td>
-                      <td style={{ whiteSpace: "nowrap" }}>
-                        <span style={{ fontFamily: 'var(--mono)', fontWeight: 600, color: 'var(--accent)', fontSize: 13 }}>
+                      <td className="px-4 py-3.5 align-middle whitespace-nowrap">
+                        <span className="font-mono font-semibold text-[13px] text-[var(--accent)]">
                           {formatBRL(d.valor_liquido)}
                         </span>
                       </td>
@@ -232,7 +221,6 @@ export default function ParlamentarPage() {
                 </tbody>
               </table>
             </div>
-
             {despesas?.meta && (
               <Pagination
                 currentPage={despesas.meta.currentPage}
@@ -251,33 +239,27 @@ function MesChart({ data }: { data: { mes: number; total: number }[] }) {
   const max = Math.max(...data.map((d) => d.total), 1);
 
   return (
-    <div style={{ display: "flex", alignItems: "flex-end", gap: 8, height: 100, padding: '0 4px' }}>
+    <div className="flex items-end gap-2 h-[100px] px-1">
       {Array.from({ length: 12 }, (_, i) => {
         const found = data.find((d) => d.mes === i + 1);
         const pct = found ? (found.total / max) * 100 : 0;
 
         return (
-          <div
-            key={i}
-            style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6, height: '100%', justifyContent: 'flex-end' }}
-          >
+          <div key={i} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
             <div
               title={found ? formatBRL(found.total) : "Sem dados"}
+              className="w-full rounded-t min-h-[3px] transition-[height] duration-500"
               style={{
-                width: "100%",
                 height: `${Math.max(pct, 3)}%`,
                 background: pct > 0
-                  ? 'linear-gradient(180deg, rgba(34,211,160,0.9) 0%, rgba(34,211,160,0.5) 100%)'
+                  ? 'linear-gradient(180deg, rgba(0,156,59,0.9) 0%, rgba(0,156,59,0.5) 100%)'
                   : 'var(--border)',
-                borderRadius: "4px 4px 0 0",
-                minHeight: 3,
-                transition: "height 0.5s cubic-bezier(0.4,0,0.2,1)",
-                cursor: found ? "pointer" : "default",
-                border: pct > 0 ? '1px solid rgba(34,211,160,0.3)' : '1px solid var(--border)',
+                cursor: found ? 'pointer' : 'default',
+                border: pct > 0 ? '1px solid rgba(0,156,59,0.3)' : '1px solid var(--border)',
                 borderBottom: 'none',
               }}
             />
-            <span style={{ fontSize: 9, fontFamily: 'var(--mono)', color: 'var(--text-dim)', textTransform: 'uppercase' }}>
+            <span className="font-mono text-[9px] text-[var(--text-dim)] uppercase">
               {MESES[i].slice(0, 3)}
             </span>
           </div>

@@ -55,117 +55,113 @@ export default function RankingPage() {
   const currentItems = getSlice(items, page);
 
   return (
-    <div className="page">
-      <div className="page-header">
-        <h1>Ranking de Gastos</h1>
-        <p>Top parlamentares por total da cota parlamentar utilizada</p>
+    <div className="px-8 py-10 pb-16 max-w-full animate-[fadeUp_0.35s_ease_both]">
+      <div className="mb-8">
+        <h1 className="page-title-gradient text-[42px] font-extrabold tracking-[-0.04em] mb-2">Ranking de Gastos</h1>
+        <p className="text-[var(--text-muted)] text-sm tracking-wide">Top parlamentares por total da cota parlamentar utilizada</p>
       </div>
 
-      <div className="filter-bar">
+      <div className="flex items-center gap-2.5 mb-6 flex-wrap">
         <SelectField
           value={String(ano)}
           onValueChange={(value) => setAno(Number(value))}
           options={anoOptions}
-          className="w-120"
+          className="w-[120px]"
         />
         <input
           placeholder="Partido (ex: PT)"
           value={partido}
           onChange={(e) => setPartido(e.target.value.toUpperCase())}
-          style={{ width: 140 }}
+          className="font-sans text-[13px] font-medium text-[var(--text-strong)] bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-sm)] px-3.5 py-2 outline-none transition-all placeholder:text-[var(--text-dim)] focus:border-[var(--accent-border)] focus:bg-[var(--bg-raised)] focus:shadow-[0_0_0_3px_var(--accent-dim)] w-[140px]"
           maxLength={10}
         />
-        <SelectField value={uf} onValueChange={setUf} options={ufOptions} className="w-160" />
+        <SelectField value={uf} onValueChange={setUf} options={ufOptions} className="w-[160px]" />
       </div>
 
-      <div className="stats-grid" style={{ marginBottom: 24 }}>
-        <div className="stat-card">
-          <div className="label">Parlamentares</div>
-          <div className="value">{loading ? "—" : items.length}</div>
+      <div className="grid gap-3.5 mb-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
+        <div className="stat-card bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-md)] px-5 py-5 relative overflow-hidden transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
+          <div className="text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-[0.1em] mb-2.5">Parlamentares</div>
+          <div className="font-sans text-[28px] font-extrabold text-[var(--text-h)] tracking-[-0.03em] leading-none">{loading ? "—" : items.length}</div>
         </div>
-        <div className="stat-card">
-          <div className="label">Total gasto em {ano}</div>
-          <div className="value" style={{ fontSize: 22 }}>{loading ? "—" : formatBRL(totalGeral)}</div>
-          <div className="sub">{!loading && formatBRL(totalGeral)}</div>
+        <div className="stat-card bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-md)] px-5 py-5 relative overflow-hidden transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
+          <div className="text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-[0.1em] mb-2.5">Total gasto em {ano}</div>
+          <div className="font-sans text-[22px] font-extrabold text-[var(--text-h)] tracking-[-0.03em] leading-none">{loading ? "—" : formatBRL(totalGeral)}</div>
         </div>
-        <div className="stat-card">
-          <div className="label">Maior gasto individual</div>
-          <div className="value" style={{ fontSize: 20 }}>{!loading && items[0] ? formatBRL(items[0].total_gasto) : "—"}</div>
-          <div className="sub">{items[0]?.nome ?? ""}</div>
+        <div className="stat-card bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-md)] px-5 py-5 relative overflow-hidden transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
+          <div className="text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-[0.1em] mb-2.5">Maior gasto individual</div>
+          <div className="font-sans text-[20px] font-extrabold text-[var(--text-h)] tracking-[-0.03em] leading-none">{!loading && items[0] ? formatBRL(items[0].total_gasto) : "—"}</div>
+          <div className="font-mono text-[11px] text-[var(--text-muted)] mt-1.5">{items[0]?.nome ?? ""}</div>
         </div>
       </div>
 
-      <div className="card">
-        <div className="table-wrap">
-          <table>
+      <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] overflow-hidden transition-colors duration-300 hover:border-[var(--border-strong)]">
+        <div className="overflow-x-auto overflow-y-auto max-h-[calc(100svh-260px)]">
+          <table className="w-full border-collapse text-[13.5px]">
             <thead>
               <tr>
-                <th style={{ width: 56 }}>#</th>
-                <th>Parlamentar</th>
-                <th>Partido / UF</th>
-                <th>Despesas</th>
-                <th>Total gasto (R$)</th>
-                <th style={{ width: 180 }}>Proporção</th>
+                <th className="px-4 py-3.5 text-left font-sans text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-[0.1em] border-b border-[var(--border)] whitespace-nowrap bg-[var(--bg-surface)] sticky top-0 z-10 w-14">#</th>
+                <th className="px-4 py-3.5 text-left font-sans text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-[0.1em] border-b border-[var(--border)] whitespace-nowrap bg-[var(--bg-surface)] sticky top-0 z-10">Parlamentar</th>
+                <th className="px-4 py-3.5 text-left font-sans text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-[0.1em] border-b border-[var(--border)] whitespace-nowrap bg-[var(--bg-surface)] sticky top-0 z-10">Partido / UF</th>
+                <th className="px-4 py-3.5 text-left font-sans text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-[0.1em] border-b border-[var(--border)] whitespace-nowrap bg-[var(--bg-surface)] sticky top-0 z-10">Despesas</th>
+                <th className="px-4 py-3.5 text-left font-sans text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-[0.1em] border-b border-[var(--border)] whitespace-nowrap bg-[var(--bg-surface)] sticky top-0 z-10">Total gasto (R$)</th>
+                <th className="px-4 py-3.5 text-left font-sans text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-[0.1em] border-b border-[var(--border)] whitespace-nowrap bg-[var(--bg-surface)] sticky top-0 z-10 w-[180px]">Proporção</th>
               </tr>
             </thead>
             <tbody>
               {loading && (
-                <tr className="loading-row">
-                  <td colSpan={6}><span className="spinner" /></td>
+                <tr>
+                  <td colSpan={6} className="py-12 text-center">
+                    <span className="inline-block w-[22px] h-[22px] border-2 border-[var(--border-strong)] border-t-[var(--accent)] rounded-full animate-spin" />
+                  </td>
                 </tr>
               )}
               {!loading && items.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="empty">Nenhum resultado encontrado.</td>
+                  <td colSpan={6} className="py-14 text-center text-[var(--text-muted)] text-sm">Nenhum resultado encontrado.</td>
                 </tr>
               )}
               {!loading && currentItems.map((item) => {
                 const medal = getRankMedal(item.posicao);
                 const pct = (item.total_gasto / max) * 100;
                 return (
-                  <tr key={item.id}>
-                    <td>
+                  <tr key={item.id} className="border-b border-[var(--border)] last:border-b-0 hover:bg-[var(--bg-hover)] transition-colors">
+                    <td className="px-4 py-3.5 text-[var(--text)] align-middle">
                       {medal ? (
-                        <span style={{ fontSize: 18 }} title={`#${item.posicao}`}>{medal.icon}</span>
+                        <span className="text-[18px]" title={`#${item.posicao}`}>{medal.icon}</span>
                       ) : (
-                        <span style={{
-                          fontFamily: 'var(--mono)',
-                          fontSize: 12,
-                          fontWeight: 600,
-                          color: 'var(--text-dim)',
-                        }}>
+                        <span className="font-mono text-[12px] font-semibold text-[var(--text-dim)]">
                           {item.posicao}
                         </span>
                       )}
                     </td>
-                    <td>
-                      <div className="parlamentar-cell">
+                    <td className="px-4 py-3.5 text-[var(--text)] align-middle">
+                      <div className="flex items-center gap-2.5 text-[var(--text-strong)] font-medium">
                         <ParlamentarAvatar nome={item.nome} foto={item.foto_url} />
-                        <Link to={`/parlamentares/${item.id}`}>{item.nome}</Link>
+                        <Link to={`/parlamentares/${item.id}`} className="text-[var(--text-strong)] font-medium hover:text-[var(--accent)] transition-colors">{item.nome}</Link>
                       </div>
                     </td>
-                    <td>
-                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                        <span className="badge badge-partido">{item.sigla_partido ?? "-"}</span>
-                        <span className="badge badge-partido">{item.sigla_uf ?? "-"}</span>
+                    <td className="px-4 py-3.5 text-[var(--text)] align-middle">
+                      <div className="flex gap-1.5 flex-wrap">
+                        <span className="inline-flex items-center font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap tracking-[0.04em] text-[var(--text-strong)] bg-[var(--bg-raised)] border border-[var(--border-strong)]">{item.sigla_partido ?? "-"}</span>
+                        <span className="inline-flex items-center font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap tracking-[0.04em] text-[var(--text-strong)] bg-[var(--bg-raised)] border border-[var(--border-strong)]">{item.sigla_uf ?? "-"}</span>
                       </div>
                     </td>
-                    <td>
-                      <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--text-muted)' }}>
+                    <td className="px-4 py-3.5 text-[var(--text)] align-middle">
+                      <span className="font-mono text-[12px] text-[var(--text-muted)]">
                         {item.qtd_despesas.toLocaleString("pt-BR")}
                       </span>
                     </td>
-                    <td>
-                      <span style={{ fontFamily: 'var(--mono)', fontSize: 13, fontWeight: 600, color: 'var(--text-h)' }}>
+                    <td className="px-4 py-3.5 text-[var(--text)] align-middle">
+                      <span className="font-mono text-[13px] font-semibold text-[var(--text-h)]">
                         {formatBRL(item.total_gasto)}
                       </span>
                     </td>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <div className="gasto-bar-bg" style={{ flex: 1, height: 6 }}>
+                    <td className="px-4 py-3.5 text-[var(--text)] align-middle">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-1.5 bg-[var(--bg-raised)] rounded-full overflow-hidden border border-[var(--border)]">
                           <div className="gasto-bar-fill" style={{ width: `${pct}%` }} />
                         </div>
-                        <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--text-dim)', width: 36, textAlign: 'right' }}>
+                        <span className="font-mono text-[10px] text-[var(--text-dim)] w-9 text-right">
                           {pct.toFixed(0)}%
                         </span>
                       </div>

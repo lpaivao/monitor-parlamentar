@@ -8,7 +8,7 @@ import './styles/index.css'
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="flex flex-col min-h-svh flex-1">
+      <div className="flex flex-col h-svh">
         <header className="sticky top-0 z-100 flex items-center justify-between px-8 h-15 gap-6 border-b border-[var(--border)] bg-[rgba(8,11,20,0.85)] backdrop-blur-xl">
           <span className="topbar-brand font-sans text-[17px] font-extrabold text-[var(--text-h)] tracking-tight flex items-center gap-2.5 whitespace-nowrap">Monitor Parlamentar</span>
           <nav className="flex items-center gap-1">

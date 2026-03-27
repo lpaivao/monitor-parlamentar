@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { ParlamentarAvatar } from "../components/ui/Avatar";
 import { Pagination } from "../components/ui/Pagination";
 import { SelectField } from "../components/ui/SelectField";
+import { Table } from "../components/ui/Table";
 import { TabPanel, TabsField } from "../components/ui/Tabs";
 import { getDespesasParlamentar, getParlamentar } from "../services/api";
 import type { Despesa, Paginated, ParlamentarDetalhe } from "../types";
@@ -140,7 +141,7 @@ export default function ParlamentarPage() {
         ]}
       >
         <TabPanel value="categorias">
-          <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] overflow-hidden p-6">
+          <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
             {!parlamentar.por_categoria?.length ? (
               <p className="py-14 text-center text-[var(--text-muted)] text-sm">Nenhuma despesa encontrada para {ano}.</p>
             ) : (
@@ -167,60 +168,58 @@ export default function ParlamentarPage() {
 
         <TabPanel value="despesas">
           <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] overflow-hidden">
-            <div className="overflow-x-auto overflow-y-auto max-h-[calc(100svh-260px)]">
-              <table className="w-full border-collapse text-[13.5px]">
-                <thead>
-                  <tr>
-                    <th className="px-4 py-3.5 text-left font-sans text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-widest border-b border-[var(--border)] whitespace-nowrap bg-[var(--bg-surface)] sticky top-0 z-10">Data</th>
-                    <th className="px-4 py-3.5 text-left font-sans text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-widest border-b border-[var(--border)] whitespace-nowrap bg-[var(--bg-surface)] sticky top-0 z-10">Categoria</th>
-                    <th className="px-4 py-3.5 text-left font-sans text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-widest border-b border-[var(--border)] whitespace-nowrap bg-[var(--bg-surface)] sticky top-0 z-10">Fornecedor</th>
-                    <th className="px-4 py-3.5 text-left font-sans text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-widest border-b border-[var(--border)] whitespace-nowrap bg-[var(--bg-surface)] sticky top-0 z-10">Documento</th>
-                    <th className="px-4 py-3.5 text-left font-sans text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-widest border-b border-[var(--border)] whitespace-nowrap bg-[var(--bg-surface)] sticky top-0 z-10">Valor (R$)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {loadingDespesas && (
-                    <tr>
-                      <td colSpan={5} className="py-12 text-center">
-                        <span className="inline-block w-[22px] h-[22px] border-2 border-[var(--border-strong)] border-t-[var(--accent)] rounded-full animate-spin" />
-                      </td>
-                    </tr>
-                  )}
-                  {!loadingDespesas && (despesas?.data ?? []).length === 0 && (
-                    <tr>
-                      <td colSpan={5} className="py-14 text-center text-[var(--text-muted)] text-sm">Nenhuma despesa encontrada.</td>
-                    </tr>
-                  )}
-                  {!loadingDespesas && (despesas?.data ?? []).map((d) => (
-                    <tr key={d.id} className="border-b border-[var(--border)] last:border-b-0 hover:bg-[var(--bg-hover)] transition-colors">
-                      <td className="px-4 py-3.5 align-middle whitespace-nowrap">
-                        <span className="font-mono text-[12px] text-[var(--text-muted)]">
-                          {d.data_emissao
-                            ? new Date(d.data_emissao).toLocaleDateString("pt-BR")
-                            : `${MESES[(d.mes ?? 1) - 1]}/${ano}`}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3.5 align-middle text-[13px] text-[var(--text)]">{d.tipo_despesa ?? "-"}</td>
-                      <td className="px-4 py-3.5 align-middle text-[13px] text-[var(--text-strong)]">{d.fornecedor ?? "-"}</td>
-                      <td className="px-4 py-3.5 align-middle">
-                        {d.url_documento ? (
-                          <a href={d.url_documento} target="_blank" rel="noreferrer" className="text-[12px] text-[var(--accent)] hover:opacity-80 transition-opacity">
-                            Ver nota ↗
-                          </a>
-                        ) : (
-                          <span className="text-[12px] text-[var(--text-dim)]">{d.numero_documento ?? "-"}</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3.5 align-middle whitespace-nowrap">
-                        <span className="font-mono font-semibold text-[13px] text-[var(--accent)]">
-                          {formatBRL(d.valor_liquido)}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <Table.Root containerClassName="max-h-[700px]">
+              <Table.Header>
+                <Table.Row className="hover:bg-transparent">
+                  <Table.ColumnHeaderCell>Data</Table.ColumnHeaderCell>
+                  <Table.ColumnHeaderCell>Categoria</Table.ColumnHeaderCell>
+                  <Table.ColumnHeaderCell>Fornecedor</Table.ColumnHeaderCell>
+                  <Table.ColumnHeaderCell>Documento</Table.ColumnHeaderCell>
+                  <Table.ColumnHeaderCell>Valor (R$)</Table.ColumnHeaderCell>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {loadingDespesas && (
+                  <Table.Row className="hover:bg-transparent border-b-0">
+                    <Table.Cell colSpan={5} className="py-12 text-center">
+                      <span className="inline-block w-[22px] h-[22px] border-2 border-[var(--border-strong)] border-t-[var(--accent)] rounded-full animate-spin" />
+                    </Table.Cell>
+                  </Table.Row>
+                )}
+                {!loadingDespesas && (despesas?.data ?? []).length === 0 && (
+                  <Table.Row className="hover:bg-transparent border-b-0">
+                    <Table.Cell colSpan={5} className="py-14 text-center text-[var(--text-muted)] text-sm">Nenhuma despesa encontrada.</Table.Cell>
+                  </Table.Row>
+                )}
+                {!loadingDespesas && (despesas?.data ?? []).map((d) => (
+                  <Table.Row key={d.id}>
+                    <Table.Cell className="whitespace-nowrap">
+                      <span className="font-mono text-[12px] text-[var(--text-muted)]">
+                        {d.data_emissao
+                          ? new Date(d.data_emissao).toLocaleDateString("pt-BR")
+                          : `${MESES[(d.mes ?? 1) - 1]}/${ano}`}
+                      </span>
+                    </Table.Cell>
+                    <Table.Cell>{d.tipo_despesa ?? "-"}</Table.Cell>
+                    <Table.RowHeaderCell>{d.fornecedor ?? "-"}</Table.RowHeaderCell>
+                    <Table.Cell>
+                      {d.url_documento ? (
+                        <a href={d.url_documento} target="_blank" rel="noreferrer" className="text-[12px] text-[var(--accent)] hover:opacity-80 transition-opacity">
+                          Ver nota ↗
+                        </a>
+                      ) : (
+                        <span className="text-[12px] text-[var(--text-dim)]">{d.numero_documento ?? "-"}</span>
+                      )}
+                    </Table.Cell>
+                    <Table.Cell className="whitespace-nowrap">
+                      <span className="font-mono font-semibold text-[13px] text-[var(--accent)]">
+                        {formatBRL(d.valor_liquido)}
+                      </span>
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table.Root>
             {despesas?.meta && (
               <Pagination
                 currentPage={despesas.meta.currentPage}

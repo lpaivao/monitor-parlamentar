@@ -80,12 +80,12 @@ export default function PartidosPage() {
           ]}
         >
           <TabPanel value="partidos">
-            <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] overflow-hidden p-6">
+            <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] overflow-hidden p-6 max-h-[calc(100vh-350px)] flex flex-col">
               {partidos.length === 0 ? (
                 <p className="py-14 text-center text-[var(--text-muted)] text-sm">Sem dados para o período selecionado.</p>
               ) : (
                 <>
-                  <div className="grid items-center gap-4 pb-3 mb-1 border-b border-[var(--border)] text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-widest" style={{ gridTemplateColumns: '80px 1fr 110px 100px 140px' }}>
+                  <div className="grid items-center gap-4 pb-3 mb-1 border-b border-[var(--border)] text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-widest flex-shrink-0" style={{ gridTemplateColumns: '80px 1fr 110px 100px 140px' }}>
                     <span>Partido</span>
                     <span />
                     <span className="text-right">Total (R$)</span>
@@ -93,14 +93,14 @@ export default function PartidosPage() {
                     <span className="text-right">Média/dep. (R$)</span>
                   </div>
 
-                  <div className="flex flex-col">
+                  <div className="flex flex-col overflow-y-auto flex-1">
                     {partidosCurrent.map((p, i) => (
                       <div
                         key={p.partido}
                         className="grid items-center gap-4 py-2.5 px-1.5 border-b border-[var(--border)] last:border-b-0 rounded-[var(--radius-sm)] hover:bg-[var(--bg-hover)] transition-colors"
                         style={{ gridTemplateColumns: '80px 1fr 110px 100px 140px', animationDelay: `${i * 25}ms`, animation: 'fadeUp 0.3s ease both' }}
                       >
-                        <span className="font-sans font-extrabold text-[15px] text-[var(--text-h)] tracking-[-0.01em]">
+                        <span className="font-sans font-extrabold text-[15px] text-[var(--text-h)] tracking-[-0.01em] overflow-hidden text-ellipsis whitespace-nowrap" title={p.partido}>
                           {p.partido}
                         </span>
                         <div className="h-1.5 bg-[var(--bg-raised)] rounded-full overflow-hidden border border-[var(--border)]">
@@ -119,19 +119,21 @@ export default function PartidosPage() {
                     ))}
                   </div>
 
-                  <Pagination currentPage={partidosPage} lastPage={partidosLastPage} onPageChange={setPartidosPage} />
+                  <div className="flex-shrink-0">
+                    <Pagination currentPage={partidosPage} lastPage={partidosLastPage} onPageChange={setPartidosPage} />
+                  </div>
                 </>
               )}
             </div>
           </TabPanel>
 
           <TabPanel value="categorias">
-            <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] overflow-hidden p-6">
+            <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] overflow-hidden p-6 max-h-[calc(100vh-350px)] flex flex-col">
               {categorias.length === 0 ? (
                 <p className="py-14 text-center text-[var(--text-muted)] text-sm">Sem dados para o período selecionado.</p>
               ) : (
                 <>
-                  <div className="flex flex-col gap-3.5">
+                  <div className="flex flex-col gap-3.5 overflow-y-auto flex-1">
                     {categoriasCurrent.map((cat, i) => (
                       <div
                         key={cat.categoria}
@@ -149,11 +151,13 @@ export default function PartidosPage() {
                     ))}
                   </div>
 
-                  <Pagination
-                    currentPage={categoriasPage}
-                    lastPage={categoriasLastPage}
-                    onPageChange={setCategoriasPage}
-                  />
+                  <div className="flex-shrink-0">
+                    <Pagination
+                      currentPage={categoriasPage}
+                      lastPage={categoriasLastPage}
+                      onPageChange={setCategoriasPage}
+                    />
+                  </div>
                 </>
               )}
             </div>

@@ -92,7 +92,7 @@ export default class RankingController {
       .join('parlamentares as p', 'p.id', 'd.parlamentar_id')
       .select('p.sigla_partido')
       .sum('d.valor_liquido as total')
-      .count('distinct p.id as qtd_parlamentares')
+      .countDistinct('p.id as qtd_parlamentares')
       .where('d.ano', Number(ano))
       .where('p.casa', 'camara')
       .whereNotNull('p.sigla_partido')

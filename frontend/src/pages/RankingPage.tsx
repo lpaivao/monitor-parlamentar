@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ParlamentarAvatar } from "../components/ui/Avatar";
 import { Pagination } from "../components/ui/Pagination";
 import { SelectField } from "../components/ui/SelectField";
+import { Table } from "../components/ui/Table";
 import { getRanking } from "../services/api";
 import type { RankingItem } from "../types";
 import { ANOS, formatBRL, UFS } from "../utils";
@@ -95,83 +96,81 @@ export default function RankingPage() {
       </div>
 
       <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] overflow-hidden transition-colors duration-300 hover:border-[var(--border-strong)] flex flex-col flex-1 min-h-0">
-        <div className="overflow-x-auto overflow-y-auto flex-1 min-h-0">
-          <table className="w-full border-collapse text-[13.5px]">
-            <thead>
-              <tr>
-                <th className="px-4 py-3.5 text-left font-sans text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-[0.1em] border-b border-[var(--border)] whitespace-nowrap bg-[var(--bg-surface)] sticky top-0 z-10 w-14">#</th>
-                <th className="px-4 py-3.5 text-left font-sans text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-[0.1em] border-b border-[var(--border)] whitespace-nowrap bg-[var(--bg-surface)] sticky top-0 z-10">Parlamentar</th>
-                <th className="px-4 py-3.5 text-left font-sans text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-[0.1em] border-b border-[var(--border)] whitespace-nowrap bg-[var(--bg-surface)] sticky top-0 z-10">Partido / UF</th>
-                <th className="px-4 py-3.5 text-left font-sans text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-[0.1em] border-b border-[var(--border)] whitespace-nowrap bg-[var(--bg-surface)] sticky top-0 z-10">Despesas</th>
-                <th className="px-4 py-3.5 text-left font-sans text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-[0.1em] border-b border-[var(--border)] whitespace-nowrap bg-[var(--bg-surface)] sticky top-0 z-10">Total gasto (R$)</th>
-                <th className="px-4 py-3.5 text-left font-sans text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-[0.1em] border-b border-[var(--border)] whitespace-nowrap bg-[var(--bg-surface)] sticky top-0 z-10 w-[180px]">Proporção</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading && (
-                <tr>
-                  <td colSpan={6} className="py-12 text-center">
-                    <span className="inline-block w-[22px] h-[22px] border-2 border-[var(--border-strong)] border-t-[var(--accent)] rounded-full animate-spin" />
-                  </td>
-                </tr>
-              )}
-              {!loading && items.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="py-14 text-center text-[var(--text-muted)] text-sm">Nenhum resultado encontrado.</td>
-                </tr>
-              )}
-              {!loading && currentItems.map((item) => {
-                const medal = getRankMedal(item.posicao);
-                const pct = (item.total_gasto / max) * 100;
-                return (
-                  <tr key={item.id} className="border-b border-[var(--border)] last:border-b-0 hover:bg-[var(--bg-hover)] transition-colors">
-                    <td className="px-4 py-3.5 text-[var(--text)] align-middle">
-                      {medal ? (
-                        <span className="text-[18px]" title={`#${item.posicao}`}>{medal.icon}</span>
-                      ) : (
-                        <span className="font-mono text-[12px] font-semibold text-[var(--text-dim)]">
-                          {item.posicao}
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3.5 text-[var(--text)] align-middle">
-                      <div className="flex items-center gap-2.5 text-[var(--text-strong)] font-medium">
-                        <ParlamentarAvatar nome={item.nome} foto={item.foto_url} />
-                        <Link to={`/parlamentares/${item.id}`} className="text-[var(--text-strong)] font-medium hover:text-[var(--accent)] transition-colors">{item.nome}</Link>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3.5 text-[var(--text)] align-middle">
-                      <div className="flex gap-1.5 flex-wrap">
-                        <span className="inline-flex items-center font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap tracking-[0.04em] text-[var(--text-strong)] bg-[var(--bg-raised)] border border-[var(--border-strong)]">{item.sigla_partido ?? "-"}</span>
-                        <span className="inline-flex items-center font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap tracking-[0.04em] text-[var(--text-strong)] bg-[var(--bg-raised)] border border-[var(--border-strong)]">{item.sigla_uf ?? "-"}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3.5 text-[var(--text)] align-middle">
-                      <span className="font-mono text-[12px] text-[var(--text-muted)]">
-                        {item.qtd_despesas.toLocaleString("pt-BR")}
+        <Table.Root containerClassName="flex-1 min-h-0">
+          <Table.Header>
+            <Table.Row className="hover:bg-transparent">
+              <Table.ColumnHeaderCell className="w-14">#</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell>Parlamentar</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell>Partido / UF</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell>Despesas</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell>Total gasto (R$)</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell className="w-[180px]">Proporcao</Table.ColumnHeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {loading && (
+              <Table.Row className="hover:bg-transparent border-b-0">
+                <Table.Cell colSpan={6} className="py-12 text-center">
+                  <span className="inline-block w-[22px] h-[22px] border-2 border-[var(--border-strong)] border-t-[var(--accent)] rounded-full animate-spin" />
+                </Table.Cell>
+              </Table.Row>
+            )}
+            {!loading && items.length === 0 && (
+              <Table.Row className="hover:bg-transparent border-b-0">
+                <Table.Cell colSpan={6} className="py-14 text-center text-[var(--text-muted)] text-sm">Nenhum resultado encontrado.</Table.Cell>
+              </Table.Row>
+            )}
+            {!loading && currentItems.map((item) => {
+              const medal = getRankMedal(item.posicao);
+              const pct = (item.total_gasto / max) * 100;
+              return (
+                <Table.Row key={item.id}>
+                  <Table.Cell>
+                    {medal ? (
+                      <span className="text-[18px]" title={`#${item.posicao}`}>{medal.icon}</span>
+                    ) : (
+                      <span className="font-mono text-[12px] font-semibold text-[var(--text-dim)]">
+                        {item.posicao}
                       </span>
-                    </td>
-                    <td className="px-4 py-3.5 text-[var(--text)] align-middle">
-                      <span className="font-mono text-[13px] font-semibold text-[var(--text-h)]">
-                        {formatBRL(item.total_gasto)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5 text-[var(--text)] align-middle">
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 h-1.5 bg-[var(--bg-raised)] rounded-full overflow-hidden border border-[var(--border)]">
-                          <div className="gasto-bar-fill" style={{ width: `${pct}%` }} />
-                        </div>
-                        <span className="font-mono text-[10px] text-[var(--text-dim)] w-9 text-right">
-                          {pct.toFixed(0)}%
-                        </span>
+                    )}
+                  </Table.Cell>
+                  <Table.Cell>
+                    <div className="flex items-center gap-2.5 text-[var(--text-strong)] font-medium">
+                      <ParlamentarAvatar nome={item.nome} foto={item.foto_url} />
+                      <Link to={`/parlamentares/${item.id}`} className="text-[var(--text-strong)] font-medium hover:text-[var(--accent)] transition-colors">{item.nome}</Link>
+                    </div>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <div className="flex gap-1.5 flex-wrap">
+                      <span className="inline-flex items-center font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap tracking-[0.04em] text-[var(--text-strong)] bg-[var(--bg-raised)] border border-[var(--border-strong)]">{item.sigla_partido ?? "-"}</span>
+                      <span className="inline-flex items-center font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap tracking-[0.04em] text-[var(--text-strong)] bg-[var(--bg-raised)] border border-[var(--border-strong)]">{item.sigla_uf ?? "-"}</span>
+                    </div>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <span className="font-mono text-[12px] text-[var(--text-muted)]">
+                      {item.qtd_despesas.toLocaleString("pt-BR")}
+                    </span>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <span className="font-mono text-[13px] font-semibold text-[var(--text-h)]">
+                      {formatBRL(item.total_gasto)}
+                    </span>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-1.5 bg-[var(--bg-raised)] rounded-full overflow-hidden border border-[var(--border)]">
+                        <div className="gasto-bar-fill" style={{ width: `${pct}%` }} />
                       </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                      <span className="font-mono text-[10px] text-[var(--text-dim)] w-9 text-right">
+                        {pct.toFixed(0)}%
+                      </span>
+                    </div>
+                  </Table.Cell>
+                </Table.Row>
+              );
+            })}
+          </Table.Body>
+        </Table.Root>
         {!loading && <Pagination currentPage={page} lastPage={lastPage} onPageChange={setPage} />}
       </div>
     </div>

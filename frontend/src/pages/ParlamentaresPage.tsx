@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ParlamentarAvatar } from "../components/ui/Avatar";
+import { Badge } from "../components/ui/badge";
+import { Card } from "../components/ui/card";
+import { Input } from "../components/ui/input";
 import { Pagination } from "../components/ui/Pagination";
 import { SelectField } from "../components/ui/SelectField";
+import { Spinner } from "../components/ui/spinner";
 import { Table } from "../components/ui/Table";
 import { getParlamentares } from "../services/api";
 import type { Paginated, Parlamentar } from "../types";
@@ -48,17 +52,17 @@ export default function ParlamentaresPage() {
       </div>
 
       <div className="flex items-center gap-2.5 mb-6 flex-wrap">
-        <input
+        <Input
           placeholder="Buscar por nome..."
           value={nome}
           onChange={(e) => setNome(e.target.value)}
-          className="font-sans text-[13px] font-medium text-[var(--text-strong)] bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-sm)] px-3.5 py-2 outline-none transition-all placeholder:text-[var(--text-dim)] focus:border-[var(--accent-border)] focus:bg-[var(--bg-raised)] focus:shadow-[0_0_0_3px_var(--accent-dim)] flex-1 min-w-0 max-w-[300px]"
+          className="flex-1 min-w-0 max-w-[300px]"
         />
-        <input
+        <Input
           placeholder="Partido (ex: PT)"
           value={partido}
           onChange={(e) => setPartido(e.target.value.toUpperCase())}
-          className="font-sans text-[13px] font-medium text-[var(--text-strong)] bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-sm)] px-3.5 py-2 outline-none transition-all placeholder:text-[var(--text-dim)] focus:border-[var(--accent-border)] focus:bg-[var(--bg-raised)] focus:shadow-[0_0_0_3px_var(--accent-dim)] w-[130px]"
+          className="w-[130px]"
           maxLength={10}
         />
         <SelectField value={uf} onValueChange={setUf} options={ufOptions} className="w-[160px]" />
@@ -70,7 +74,7 @@ export default function ParlamentaresPage() {
         />
       </div>
 
-      <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] overflow-hidden transition-colors duration-300 hover:border-[var(--border-strong)] flex flex-col flex-1 min-h-0">
+      <Card className="transition-colors duration-300 hover:border-[var(--border-strong)] flex flex-col flex-1 min-h-0">
         <Table.Root containerClassName="flex-1 min-h-0">
           <Table.Header>
             <Table.Row className="hover:bg-transparent">
@@ -85,7 +89,7 @@ export default function ParlamentaresPage() {
             {loading && (
               <Table.Row className="hover:bg-transparent border-b-0">
                 <Table.Cell colSpan={5} className="py-12 text-center">
-                  <span className="inline-block w-[22px] h-[22px] border-2 border-[var(--border-strong)] border-t-[var(--accent)] rounded-full animate-spin" />
+                  <Spinner className="mx-auto" />
                 </Table.Cell>
               </Table.Row>
             )}
@@ -103,7 +107,7 @@ export default function ParlamentaresPage() {
                   </div>
                 </Table.Cell>
                 <Table.Cell>
-                  <span className="inline-flex items-center font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap tracking-[0.04em] text-[var(--text-strong)] bg-[var(--bg-raised)] border border-[var(--border-strong)]">{p.sigla_partido ?? "-"}</span>
+                  <Badge>{p.sigla_partido ?? "-"}</Badge>
                 </Table.Cell>
                 <Table.Cell>
                   <span className="font-mono text-[12px] text-[var(--text-muted)]">
@@ -131,7 +135,7 @@ export default function ParlamentaresPage() {
         {meta && (
           <Pagination currentPage={meta.currentPage} lastPage={meta.lastPage} onPageChange={setPage} />
         )}
-      </div>
+      </Card>
     </div>
   );
 }

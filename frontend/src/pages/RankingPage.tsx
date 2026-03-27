@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ParlamentarAvatar } from "../components/ui/Avatar";
+import { Badge } from "../components/ui/badge";
+import { Card } from "../components/ui/card";
+import { Input } from "../components/ui/input";
 import { Pagination } from "../components/ui/Pagination";
 import { SelectField } from "../components/ui/SelectField";
+import { Spinner } from "../components/ui/spinner";
 import { Table } from "../components/ui/Table";
 import { getRanking } from "../services/api";
 import type { RankingItem } from "../types";
@@ -69,33 +73,33 @@ export default function RankingPage() {
           options={anoOptions}
           className="w-[120px]"
         />
-        <input
+        <Input
           placeholder="Partido (ex: PT)"
           value={partido}
           onChange={(e) => setPartido(e.target.value.toUpperCase())}
-          className="font-sans text-[13px] font-medium text-[var(--text-strong)] bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-sm)] px-3.5 py-2 outline-none transition-all placeholder:text-[var(--text-dim)] focus:border-[var(--accent-border)] focus:bg-[var(--bg-raised)] focus:shadow-[0_0_0_3px_var(--accent-dim)] w-[140px]"
+          className="w-[140px]"
           maxLength={10}
         />
         <SelectField value={uf} onValueChange={setUf} options={ufOptions} className="w-[160px]" />
       </div>
 
       <div className="grid gap-3.5 mb-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
-        <div className="stat-card bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-md)] px-5 py-5 relative overflow-hidden transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
+        <Card className="stat-card rounded-[var(--radius-md)] px-5 py-5 relative transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
           <div className="text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-[0.1em] mb-2.5">Parlamentares</div>
           <div className="font-sans text-[28px] font-extrabold text-[var(--text-h)] tracking-[-0.03em] leading-none">{loading ? "—" : items.length}</div>
-        </div>
-        <div className="stat-card bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-md)] px-5 py-5 relative overflow-hidden transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
+        </Card>
+        <Card className="stat-card rounded-[var(--radius-md)] px-5 py-5 relative transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
           <div className="text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-[0.1em] mb-2.5">Total gasto em {ano}</div>
           <div className="font-sans text-[22px] font-extrabold text-[var(--text-h)] tracking-[-0.03em] leading-none">{loading ? "—" : formatBRL(totalGeral)}</div>
-        </div>
-        <div className="stat-card bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-md)] px-5 py-5 relative overflow-hidden transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
+        </Card>
+        <Card className="stat-card rounded-[var(--radius-md)] px-5 py-5 relative transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
           <div className="text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-[0.1em] mb-2.5">Maior gasto individual</div>
           <div className="font-sans text-[20px] font-extrabold text-[var(--text-h)] tracking-[-0.03em] leading-none">{!loading && items[0] ? formatBRL(items[0].total_gasto) : "—"}</div>
           <div className="font-mono text-[11px] text-[var(--text-muted)] mt-1.5">{items[0]?.nome ?? ""}</div>
-        </div>
+        </Card>
       </div>
 
-      <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] overflow-hidden transition-colors duration-300 hover:border-[var(--border-strong)] flex flex-col flex-1 min-h-0">
+      <Card className="transition-colors duration-300 hover:border-[var(--border-strong)] flex flex-col flex-1 min-h-0">
         <Table.Root containerClassName="flex-1 min-h-0">
           <Table.Header>
             <Table.Row className="hover:bg-transparent">
@@ -111,7 +115,7 @@ export default function RankingPage() {
             {loading && (
               <Table.Row className="hover:bg-transparent border-b-0">
                 <Table.Cell colSpan={6} className="py-12 text-center">
-                  <span className="inline-block w-[22px] h-[22px] border-2 border-[var(--border-strong)] border-t-[var(--accent)] rounded-full animate-spin" />
+                  <Spinner className="mx-auto" />
                 </Table.Cell>
               </Table.Row>
             )}
@@ -142,8 +146,8 @@ export default function RankingPage() {
                   </Table.Cell>
                   <Table.Cell>
                     <div className="flex gap-1.5 flex-wrap">
-                      <span className="inline-flex items-center font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap tracking-[0.04em] text-[var(--text-strong)] bg-[var(--bg-raised)] border border-[var(--border-strong)]">{item.sigla_partido ?? "-"}</span>
-                      <span className="inline-flex items-center font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap tracking-[0.04em] text-[var(--text-strong)] bg-[var(--bg-raised)] border border-[var(--border-strong)]">{item.sigla_uf ?? "-"}</span>
+                      <Badge>{item.sigla_partido ?? "-"}</Badge>
+                      <Badge>{item.sigla_uf ?? "-"}</Badge>
                     </div>
                   </Table.Cell>
                   <Table.Cell>
@@ -172,7 +176,7 @@ export default function RankingPage() {
           </Table.Body>
         </Table.Root>
         {!loading && <Pagination currentPage={page} lastPage={lastPage} onPageChange={setPage} />}
-      </div>
+      </Card>
     </div>
   );
 }

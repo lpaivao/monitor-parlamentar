@@ -1,4 +1,6 @@
-import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "../../lib/utils";
+import { Button } from "./button";
 
 interface PaginationProps {
   currentPage: number;
@@ -19,62 +21,65 @@ export function Pagination({ currentPage, lastPage, onPageChange }: PaginationPr
 
   const pages = buildPageWindow(currentPage, lastPage);
 
-  const btnBase = "inline-flex items-center font-sans text-[13px] font-medium px-4 py-2 rounded-[var(--radius-sm)] border cursor-pointer outline-none transition-all whitespace-nowrap leading-none gap-1";
-  const btnGhost = `${btnBase} text-[var(--text-muted)] bg-transparent border-[var(--border)] hover:text-[var(--text-strong)] hover:bg-[var(--bg-raised)] hover:border-[var(--border-strong)] disabled:opacity-30 disabled:cursor-not-allowed disabled:pointer-events-none`;
-  const numBase = "font-mono text-[13px] font-medium w-[34px] h-[34px] inline-flex items-center justify-center rounded-[var(--radius-sm)] border cursor-pointer outline-none transition-all";
-  const numActive = `${numBase} bg-[var(--accent-dim)] text-[var(--accent)] border-[var(--accent-border)] font-bold`;
-  const numInactive = `${numBase} bg-transparent text-[var(--text-muted)] border-transparent hover:bg-[var(--bg-raised)] hover:text-[var(--text-strong)] hover:border-[var(--border)]`;
-
   return (
     <div className="flex items-center justify-center gap-1.5 px-4 py-4.5 border-t border-[var(--border)] flex-wrap" role="navigation" aria-label="Paginação">
-      <button
+      <Button
         type="button"
-        className={btnGhost}
+        variant="outline"
+        size="sm"
+        className="gap-1"
         disabled={currentPage <= 1}
         onClick={() => onPageChange(currentPage - 1)}
       >
-        <ChevronLeftIcon />
+        <ChevronLeft className="h-4 w-4" />
         Anterior
-      </button>
+      </Button>
 
       <div className="flex items-center gap-1">
         {pages[0] !== 1 && (
           <>
-            <button type="button" className={numInactive} onClick={() => onPageChange(1)}>1</button>
+            <Button type="button" variant="ghost" size="icon" className="font-mono" onClick={() => onPageChange(1)}>1</Button>
             {pages[0] > 2 && <span className="text-[var(--text-dim)] text-[13px] px-1 select-none">…</span>}
           </>
         )}
 
         {pages.map((p) => (
-          <button
+          <Button
             key={p}
             type="button"
-            className={p === currentPage ? numActive : numInactive}
+            variant="ghost"
+            size="icon"
+            className={cn(
+              "font-mono",
+              p === currentPage && "border border-[var(--accent-border)] bg-[var(--accent-dim)] text-[var(--accent)]",
+            )}
             onClick={() => onPageChange(p)}
           >
             {p}
-          </button>
+          </Button>
         ))}
 
         {pages.at(-1) !== lastPage && (
           <>
             {pages.at(-1)! < lastPage - 1 && <span className="text-[var(--text-dim)] text-[13px] px-1 select-none">…</span>}
-            <button type="button" className={numInactive} onClick={() => onPageChange(lastPage)}>
+            <Button type="button" variant="ghost" size="icon" className="font-mono" onClick={() => onPageChange(lastPage)}>
               {lastPage}
-            </button>
+            </Button>
           </>
         )}
       </div>
 
-      <button
+      <Button
         type="button"
-        className={btnGhost}
+        variant="outline"
+        size="sm"
+        className="gap-1"
         disabled={currentPage >= lastPage}
         onClick={() => onPageChange(currentPage + 1)}
       >
         Próxima
-        <ChevronRightIcon />
-      </button>
+        <ChevronRight className="h-4 w-4" />
+      </Button>
     </div>
   );
 }

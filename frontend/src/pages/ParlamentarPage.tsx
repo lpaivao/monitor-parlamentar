@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ParlamentarAvatar } from "../components/ui/Avatar";
+import { Badge } from "../components/ui/badge";
+import { Card } from "../components/ui/card";
 import { Pagination } from "../components/ui/Pagination";
 import { SelectField } from "../components/ui/SelectField";
+import { Spinner } from "../components/ui/spinner";
 import { Table } from "../components/ui/Table";
 import { TabPanel, TabsField } from "../components/ui/Tabs";
 import { getDespesasParlamentar, getParlamentar } from "../services/api";
@@ -25,26 +28,50 @@ export default function ParlamentarPage() {
 
   useEffect(() => {
     if (!id) return;
-    setLoadingParlamentar(true);
-    getParlamentar(Number(id), ano)
-      .then(setParlamentar)
-      .finally(() => setLoadingParlamentar(false));
+    let mounted = true;
+
+    const loadParlamentar = async () => {
+      setLoadingParlamentar(true);
+      try {
+        const data = await getParlamentar(Number(id), ano);
+        if (mounted) setParlamentar(data);
+      } finally {
+        if (mounted) setLoadingParlamentar(false);
+      }
+    };
+
+    void loadParlamentar();
+
+    return () => {
+      mounted = false;
+    };
   }, [id, ano]);
 
   useEffect(() => {
     if (!id || tab !== "despesas") return;
-    setLoadingDespesas(true);
-    getDespesasParlamentar(Number(id), { ano, page, perPage: 15 })
-      .then(setDespesas)
-      .finally(() => setLoadingDespesas(false));
-  }, [id, tab, ano, page]);
+    let mounted = true;
 
-  useEffect(() => { setPage(1); }, [ano]);
+    const loadDespesas = async () => {
+      setLoadingDespesas(true);
+      try {
+        const data = await getDespesasParlamentar(Number(id), { ano, page, perPage: 15 });
+        if (mounted) setDespesas(data);
+      } finally {
+        if (mounted) setLoadingDespesas(false);
+      }
+    };
+
+    void loadDespesas();
+
+    return () => {
+      mounted = false;
+    };
+  }, [id, tab, ano, page]);
 
   if (loadingParlamentar) {
     return (
       <div className="px-8 py-10">
-        <div className="py-14 text-center"><span className="inline-block w-[22px] h-[22px] border-2 border-[var(--border-strong)] border-t-[var(--accent)] rounded-full animate-spin" /></div>
+        <div className="py-14 text-center"><Spinner className="mx-auto" /></div>
       </div>
     );
   }
@@ -76,7 +103,7 @@ export default function ParlamentarPage() {
       </div>
 
       {/* Hero card */}
-      <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] overflow-hidden p-6 mb-5">
+      <Card className="p-6 mb-5">
         <div className="flex gap-5 items-center flex-wrap justify-between">
           <div className="flex gap-5 items-center flex-wrap">
             <ParlamentarAvatar nome={parlamentar.nome} foto={parlamentar.foto_url} size="lg" />
@@ -85,50 +112,53 @@ export default function ParlamentarPage() {
                 {parlamentar.nome}
               </h1>
               <div className="flex gap-2 flex-wrap">
-                <span className="inline-flex items-center font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap tracking-[0.04em] text-[var(--text-strong)] bg-[var(--bg-raised)] border border-[var(--border-strong)]">{parlamentar.sigla_partido ?? "-"}</span>
-                <span className="inline-flex items-center font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap tracking-[0.04em] text-[var(--text-strong)] bg-[var(--bg-raised)] border border-[var(--border-strong)]">{parlamentar.sigla_uf ?? "-"}</span>
-                <span className="inline-flex items-center font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap tracking-[0.04em] text-[var(--accent)] bg-[var(--accent-dim)] border border-[var(--accent-border)]">Câmara dos Deputados</span>
+                <Badge>{parlamentar.sigla_partido ?? "-"}</Badge>
+                <Badge>{parlamentar.sigla_uf ?? "-"}</Badge>
+                <Badge variant="accent">Câmara dos Deputados</Badge>
               </div>
             </div>
           </div>
           <SelectField
             value={String(ano)}
-            onValueChange={(v) => setAno(Number(v))}
+            onValueChange={(v) => {
+              setAno(Number(v));
+              setPage(1);
+            }}
             options={anoOptions}
             className="w-[120px]"
           />
         </div>
-      </div>
+      </Card>
 
       {/* Stats */}
       <div className="grid gap-3.5 mb-5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
-        <div className="stat-card bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-md)] px-5 py-5 relative overflow-hidden transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
+        <Card className="stat-card rounded-[var(--radius-md)] px-5 py-5 relative transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
           <div className="text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-widest mb-2.5">Total gasto em {ano}</div>
           <div className="font-sans text-[20px] font-extrabold text-[var(--accent)] tracking-[-0.03em] leading-none">{formatBRL(parlamentar.total_gasto)}</div>
-        </div>
-        <div className="stat-card bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-md)] px-5 py-5 relative overflow-hidden transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
+        </Card>
+        <Card className="stat-card rounded-[var(--radius-md)] px-5 py-5 relative transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
           <div className="text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-widest mb-2.5">Categorias utilizadas</div>
           <div className="font-sans text-[28px] font-extrabold text-[var(--text-h)] tracking-[-0.03em] leading-none">{parlamentar.por_categoria?.length ?? 0}</div>
-        </div>
-        <div className="stat-card bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-md)] px-5 py-5 relative overflow-hidden transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
+        </Card>
+        <Card className="stat-card rounded-[var(--radius-md)] px-5 py-5 relative transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
           <div className="text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-widest mb-2.5">Maior categoria</div>
           <div className="font-sans text-[13px] font-semibold text-[var(--text-h)] leading-snug mt-1.5">{parlamentar.por_categoria?.[0]?.tipo_despesa ?? "-"}</div>
           <div className="font-mono text-[11px] text-[var(--text-muted)] mt-1.5">{parlamentar.por_categoria?.[0] ? formatBRL(parlamentar.por_categoria[0].total) : ""}</div>
-        </div>
-        <div className="stat-card bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-md)] px-5 py-5 relative overflow-hidden transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
+        </Card>
+        <Card className="stat-card rounded-[var(--radius-md)] px-5 py-5 relative transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
           <div className="text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-widest mb-2.5">Média mensal</div>
           <div className="font-sans text-[20px] font-extrabold text-[var(--text-h)] tracking-[-0.03em] leading-none">{mediaMensal}</div>
-        </div>
+        </Card>
       </div>
 
       {/* Monthly chart */}
       {parlamentar.por_mes && parlamentar.por_mes.length > 0 && (
-        <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] overflow-hidden p-6 mb-5">
+        <Card className="p-6 mb-5">
           <h3 className="font-sans font-bold mb-5 text-[14px] text-[var(--text-muted)] uppercase tracking-[0.08em]">
             Gasto mensal — {ano}
           </h3>
           <MesChart data={parlamentar.por_mes} />
-        </div>
+        </Card>
       )}
 
       {/* Tabs */}
@@ -141,7 +171,7 @@ export default function ParlamentarPage() {
         ]}
       >
         <TabPanel value="categorias">
-          <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
+          <Card className="p-6">
             {!parlamentar.por_categoria?.length ? (
               <p className="py-14 text-center text-[var(--text-muted)] text-sm">Nenhuma despesa encontrada para {ano}.</p>
             ) : (
@@ -163,11 +193,11 @@ export default function ParlamentarPage() {
                 ))}
               </div>
             )}
-          </div>
+          </Card>
         </TabPanel>
 
         <TabPanel value="despesas">
-          <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] overflow-hidden">
+          <Card>
             <Table.Root containerClassName="max-h-[700px]">
               <Table.Header>
                 <Table.Row className="hover:bg-transparent">
@@ -182,7 +212,7 @@ export default function ParlamentarPage() {
                 {loadingDespesas && (
                   <Table.Row className="hover:bg-transparent border-b-0">
                     <Table.Cell colSpan={5} className="py-12 text-center">
-                      <span className="inline-block w-[22px] h-[22px] border-2 border-[var(--border-strong)] border-t-[var(--accent)] rounded-full animate-spin" />
+                      <Spinner className="mx-auto" />
                     </Table.Cell>
                   </Table.Row>
                 )}
@@ -227,7 +257,7 @@ export default function ParlamentarPage() {
                 onPageChange={setPage}
               />
             )}
-          </div>
+          </Card>
         </TabPanel>
       </TabsField>
     </div>

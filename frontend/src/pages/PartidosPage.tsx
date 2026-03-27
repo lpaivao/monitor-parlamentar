@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
+import { Card } from "../components/ui/card";
 import { Pagination } from "../components/ui/Pagination";
 import { SelectField } from "../components/ui/SelectField";
+import { Spinner } from "../components/ui/spinner";
 import { TabPanel, TabsField } from "../components/ui/Tabs";
 import { getRankingCategorias, getRankingPartidos } from "../services/api";
 import type { RankingCategoria, RankingPartido } from "../types";
@@ -27,16 +29,29 @@ export default function PartidosPage() {
   const anoOptions = useMemo(() => ANOS.map((item) => ({ label: String(item), value: String(item) })), []);
 
   useEffect(() => {
-    setLoading(true);
-    setPartidosPage(1);
-    setCategoriasPage(1);
+    let mounted = true;
 
-    Promise.all([getRankingPartidos({ ano }), getRankingCategorias({ ano })])
-      .then(([rp, rc]) => {
-        setPartidos(rp.data);
-        setCategorias(rc.data);
-      })
-      .finally(() => setLoading(false));
+    const loadData = async () => {
+      setLoading(true);
+      setPartidosPage(1);
+      setCategoriasPage(1);
+
+      try {
+        const [rp, rc] = await Promise.all([getRankingPartidos({ ano }), getRankingCategorias({ ano })]);
+        if (mounted) {
+          setPartidos(rp.data);
+          setCategorias(rc.data);
+        }
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    void loadData();
+
+    return () => {
+      mounted = false;
+    };
   }, [ano]);
 
   const maxPartido = Math.max(...partidos.map((p) => p.total), 1);
@@ -66,7 +81,7 @@ export default function PartidosPage() {
 
       {loading && (
         <div className="py-14 text-center">
-          <span className="inline-block w-[22px] h-[22px] border-2 border-[var(--border-strong)] border-t-[var(--accent)] rounded-full animate-spin" />
+          <Spinner className="mx-auto" />
         </div>
       )}
 
@@ -80,7 +95,7 @@ export default function PartidosPage() {
           ]}
         >
           <TabPanel value="partidos">
-            <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] overflow-hidden p-6 max-h-[calc(100vh-350px)] flex flex-col">
+            <Card className="p-6 max-h-[calc(100vh-350px)] flex flex-col">
               {partidos.length === 0 ? (
                 <p className="py-14 text-center text-[var(--text-muted)] text-sm">Sem dados para o período selecionado.</p>
               ) : (
@@ -124,11 +139,11 @@ export default function PartidosPage() {
                   </div>
                 </>
               )}
-            </div>
+            </Card>
           </TabPanel>
 
           <TabPanel value="categorias">
-            <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] overflow-hidden p-6 max-h-[calc(100vh-350px)] flex flex-col">
+            <Card className="p-6 max-h-[calc(100vh-350px)] flex flex-col">
               {categorias.length === 0 ? (
                 <p className="py-14 text-center text-[var(--text-muted)] text-sm">Sem dados para o período selecionado.</p>
               ) : (
@@ -160,7 +175,7 @@ export default function PartidosPage() {
                   </div>
                 </>
               )}
-            </div>
+            </Card>
           </TabPanel>
         </TabsField>
       )}

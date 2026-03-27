@@ -1,40 +1,40 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
 /* ─── Tailwind v4 Theme ──────────────────────────────────────────────────── */
 @theme {
   /* Brazilian palette */
-  --color-br-green:  #009C3B;
-  --color-br-yellow: #FFDF00;
-  --color-br-blue:   #002776;
+  --color-br-green: #009c3b;
+  --color-br-yellow: #ffdf00;
+  --color-br-blue: #002776;
 
   /* Background scale */
-  --color-bg:         #080b14;
-  --color-surface:    #0d1120;
-  --color-raised:     #111628;
-  --color-hover:      #161c30;
+  --color-bg: #080b14;
+  --color-surface: #0d1120;
+  --color-raised: #111628;
+  --color-hover: #161c30;
 
   /* Border scale */
-  --color-border:        #1a2035;
+  --color-border: #1a2035;
   --color-border-strong: #253050;
-  --color-border-accent: rgba(0,156,59,0.30);
+  --color-border-accent: rgba(0, 156, 59, 0.3);
 
   /* Text scale */
-  --color-dim:    #3d4462;
-  --color-muted:  #5c6a80;
-  --color-base:   #8892b5;
+  --color-dim: #3d4462;
+  --color-muted: #5c6a80;
+  --color-base: #8892b5;
   --color-strong: #c2cae8;
-  --color-heading:#eaedff;
+  --color-heading: #eaedff;
 
   /* Accent (green) */
-  --color-accent:        #009C3B;
-  --color-accent-dim:    rgba(0,156,59,0.10);
-  --color-accent-glow:   rgba(0,156,59,0.20);
-  --color-accent-border: rgba(0,156,59,0.40);
+  --color-accent: #009c3b;
+  --color-accent-dim: rgba(0, 156, 59, 0.1);
+  --color-accent-glow: rgba(0, 156, 59, 0.2);
+  --color-accent-border: rgba(0, 156, 59, 0.4);
 
   /* Fonts */
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   /* Radius */
   --radius-sm: 6px;
@@ -45,33 +45,35 @@
 
 /* ─── CSS vars for things Tailwind can't inline ──────────────────────────── */
 :root {
-  --bg:            #080b14;
-  --bg-surface:    #0d1120;
-  --bg-raised:     #111628;
-  --bg-hover:      #161c30;
-  --br-green:      #009C3B;
-  --br-yellow:     #FFDF00;
-  --br-blue:       #002776;
-  --border:        #1a2035;
+  --bg: #080b14;
+  --bg-surface: #0d1120;
+  --bg-raised: #111628;
+  --bg-hover: #161c30;
+  --br-green: #009c3b;
+  --br-yellow: #ffdf00;
+  --br-blue: #002776;
+  --border: #1a2035;
   --border-strong: #253050;
-  --border-accent: rgba(0,156,59,0.30);
-  --text-dim:      #3d4462;
-  --text-muted:    #5c6a80;
-  --text:          #8892b5;
-  --text-strong:   #c2cae8;
-  --text-h:        #eaedff;
-  --accent:        #009C3B;
-  --accent-dim:    rgba(0,156,59,0.10);
-  --accent-glow:   rgba(0,156,59,0.20);
-  --accent-border: rgba(0,156,59,0.40);
-  --sans:    'Inter', system-ui, sans-serif;
-  --heading: 'Inter', system-ui, sans-serif;
-  --mono:    'JetBrains Mono', ui-monospace, monospace;
-  --radius-sm: 6px; --radius-md: 10px; --radius-lg: 16px;
-  --transition: 150ms cubic-bezier(0.4,0,0.2,1);
-  --transition-slow: 300ms cubic-bezier(0.4,0,0.2,1);
-  --shadow-glow: 0 0 20px rgba(0,156,59,0.18);
-  --shadow-lg: 0 10px 40px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.4);
+  --border-accent: rgba(0, 156, 59, 0.3);
+  --text-dim: #3d4462;
+  --text-muted: #5c6a80;
+  --text: #8892b5;
+  --text-strong: #c2cae8;
+  --text-h: #eaedff;
+  --accent: #009c3b;
+  --accent-dim: rgba(0, 156, 59, 0.1);
+  --accent-glow: rgba(0, 156, 59, 0.2);
+  --accent-border: rgba(0, 156, 59, 0.4);
+  --sans: "Inter", system-ui, sans-serif;
+  --heading: "Inter", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow-glow: 0 0 20px rgba(0, 156, 59, 0.18);
+  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
 
   font: 15px/1.6 var(--sans);
   letter-spacing: 0.01em;
@@ -84,42 +86,97 @@
 }
 
 /* ─── Reset ──────────────────────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
   background: var(--bg);
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,156,59,0.05) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(0,39,118,0.06) 0%, transparent 60%);
+    radial-gradient(
+      ellipse 80% 50% at 50% -10%,
+      rgba(0, 156, 59, 0.05) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 80% 100%,
+      rgba(0, 39, 118, 0.06) 0%,
+      transparent 60%
+    );
   background-attachment: fixed;
 }
 
-h1, h2, h3, h4 { font-family: var(--heading); font-weight: 700; color: var(--text-h); margin: 0; line-height: 1.1; }
-p { margin: 0; }
-a { color: var(--accent); text-decoration: none; transition: color var(--transition), opacity var(--transition); }
-a:hover { opacity: 0.8; }
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--heading);
+  font-weight: 700;
+  color: var(--text-h);
+  margin: 0;
+  line-height: 1.1;
+}
+p {
+  margin: 0;
+}
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition:
+    color var(--transition),
+    opacity var(--transition);
+}
+a:hover {
+  opacity: 0.8;
+}
 
 /* ─── Animations ─────────────────────────────────────────────────────────── */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 @keyframes pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--br-yellow); }
-  50%       { opacity: 0.6; box-shadow: 0 0 16px var(--br-yellow); }
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 8px var(--br-yellow);
+  }
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 16px var(--br-yellow);
+  }
 }
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 @keyframes dropIn {
-  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* ─── Topbar brand dot ───────────────────────────────────────────────────── */
 .topbar-brand::before {
-  content: '';
+  content: "";
   display: inline-block;
-  width: 8px; height: 8px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--br-yellow);
   box-shadow: 0 0 8px var(--br-yellow);
@@ -128,7 +185,12 @@ a:hover { opacity: 0.8; }
 
 /* ─── Page title gradient ────────────────────────────────────────────────── */
 .page-title-gradient {
-  background: linear-gradient(135deg, var(--text-h) 0%, var(--text-strong) 55%, var(--br-green) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--text-h) 0%,
+    var(--text-strong) 55%,
+    var(--br-green) 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -136,98 +198,34 @@ a:hover { opacity: 0.8; }
 
 /* ─── Stat card top-border animation ────────────────────────────────────── */
 .stat-card::before {
-  content: '';
+  content: "";
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--br-green), var(--br-yellow), transparent);
+  background: linear-gradient(
+    90deg,
+    var(--br-green),
+    var(--br-yellow),
+    transparent
+  );
   opacity: 0;
   transition: opacity var(--transition-slow);
 }
-.stat-card:hover::before { opacity: 1; }
+.stat-card:hover::before {
+  opacity: 1;
+}
 
 /* ─── Bar fill gradient ──────────────────────────────────────────────────── */
 .gasto-bar-fill {
   height: 100%;
   min-width: 3px;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--br-green) 0%, rgba(0,156,59,0.65) 100%);
-  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  background: linear-gradient(
+    90deg,
+    var(--br-green) 0%,
+    rgba(0, 156, 59, 0.65) 100%
+  );
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
-/* ─── Radix Avatar ───────────────────────────────────────────────────────── */
-.radix-avatar {
-  display: inline-flex; align-items: center; justify-content: center;
-  vertical-align: middle; overflow: hidden; user-select: none;
-  border-radius: 50%; flex-shrink: 0;
-  border: 2px solid var(--border);
-  transition: border-color var(--transition);
-}
-.radix-avatar:hover { border-color: var(--accent-border); }
-.radix-avatar-sm { width: 32px; height: 32px; }
-.radix-avatar-lg { width: 72px; height: 72px; border-width: 3px; }
-.radix-avatar-image { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
-.radix-avatar-fallback {
-  width: 100%; height: 100%;
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--heading); font-weight: 700;
-  background: var(--bg-raised); color: var(--text-strong);
-  font-size: 13px; text-transform: uppercase;
-}
-.radix-avatar-lg .radix-avatar-fallback { font-size: 24px; }
-
-/* ─── Radix Select ───────────────────────────────────────────────────────── */
-.radix-select-trigger {
-  display: inline-flex; align-items: center; justify-content: space-between;
-  gap: 8px; font-family: var(--sans); font-size: 13px; font-weight: 500;
-  color: var(--text-strong); background: var(--bg-surface);
-  border: 1px solid var(--border); border-radius: var(--radius-sm);
-  padding: 8px 12px; cursor: pointer; outline: none;
-  transition: all var(--transition); white-space: nowrap; min-width: 0;
-}
-.radix-select-trigger:hover { border-color: var(--border-strong); background: var(--bg-raised); }
-.radix-select-trigger:focus { border-color: var(--accent-border); box-shadow: 0 0 0 3px var(--accent-dim); }
-.radix-select-trigger[data-placeholder] { color: var(--text-dim); }
-.radix-select-icon { color: var(--text-muted); flex-shrink: 0; transition: transform var(--transition); }
-.radix-select-trigger[data-state='open'] .radix-select-icon { transform: rotate(180deg); }
-.radix-select-content {
-  background: var(--bg-raised); border: 1px solid var(--border-strong);
-  border-radius: var(--radius-md); box-shadow: var(--shadow-lg);
-  overflow: hidden; z-index: 200; animation: dropIn 0.15s ease;
-  min-width: var(--radix-select-trigger-width);
-  max-height: var(--radix-select-content-available-height);
-}
-.radix-select-viewport { padding: 6px; }
-.radix-select-item {
-  font-family: var(--sans); font-size: 13px; font-weight: 500;
-  color: var(--text); padding: 8px 10px 8px 32px;
-  border-radius: var(--radius-sm); cursor: pointer; outline: none;
-  position: relative; transition: all var(--transition); user-select: none;
-}
-.radix-select-item:hover,
-.radix-select-item[data-highlighted] { background: var(--bg-hover); color: var(--text-h); outline: none; }
-.radix-select-item[data-state='checked'] { color: var(--accent); background: var(--accent-dim); }
-.radix-select-item-indicator {
-  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
-  color: var(--accent); display: flex; align-items: center;
-}
-.radix-select-scroll {
-  display: flex; align-items: center; justify-content: center;
-  padding: 6px; color: var(--text-muted); cursor: default; background: var(--bg-raised);
-}
-
-/* ─── Radix Tabs ─────────────────────────────────────────────────────────── */
-.radix-tabs-list {
-  display: flex; gap: 4px; margin-bottom: 16px;
-  background: var(--bg-surface); border: 1px solid var(--border);
-  padding: 5px; border-radius: var(--radius-md); width: fit-content;
-}
-.radix-tabs-trigger {
-  font-family: var(--sans); font-size: 13px; font-weight: 500;
-  color: var(--text-muted); background: transparent;
-  border: 1px solid transparent; border-radius: var(--radius-sm);
-  padding: 7px 16px; cursor: pointer; outline: none;
-  transition: all var(--transition); letter-spacing: 0.02em; white-space: nowrap;
-}
-.radix-tabs-trigger:hover { color: var(--text-strong); background: var(--bg-raised); }
-.radix-tabs-trigger[data-state='active'] { color: var(--accent); background: var(--accent-dim); border-color: var(--accent-border); }

@@ -67,7 +67,6 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       LEGISLATURA: ${LEGISLATURA:-57}
-      ANO: ${ANO:-2024}
     depends_on:
       db:
         condition: service_healthy

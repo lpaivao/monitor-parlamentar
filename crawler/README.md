@@ -12,6 +12,6 @@ cp .env.example .env
 ## Execucao
 
 ```bash
-python main.py
-python main.py --casa camara --ano 2024
+python main.py                           # executa 2022..2026
+python main.py --casa camara --ano 2024 # executa somente 2024
 ```

@@ -24,17 +24,26 @@ logging.basicConfig(
     ]
 )
 
+DEFAULT_START_YEAR = 2022
+DEFAULT_END_YEAR = 2026
+
 def main():
     parser = argparse.ArgumentParser(description="Monitor Parlamentar - Crawler")
     parser.add_argument("--casa", choices=["camara"], default="camara")
-    parser.add_argument("--ano", type=int, default=int(os.getenv("ANO", 2024)))
+    parser.add_argument("--ano", type=int)
     parser.add_argument("--legislatura", type=int, default=int(os.getenv("LEGISLATURA", 57)))
     args = parser.parse_args()
 
     import camara_crawler
 
+    if args.ano is not None:
+        anos = [args.ano]
+    else:
+        anos = list(range(DEFAULT_START_YEAR, DEFAULT_END_YEAR + 1))
+
     if args.casa == "camara":
-        camara_crawler.run(args.legislatura, args.ano)
+        for ano in anos:
+            camara_crawler.run(args.legislatura, ano)
 
 if __name__ == "__main__":
     main()

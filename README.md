@@ -30,7 +30,7 @@ cp .env.example .env   # configure DB_HOST, DB_PASSWORD etc.
 Rodar a migration do banco **antes** do primeiro crawl — veja passo 3.
 
 ```bash
-# Coleta da Câmara (ano atual)
+# Coleta da Câmara (intervalo fixo de 2022 a 2026)
 python main.py
 
 # Só Câmara, ano específico

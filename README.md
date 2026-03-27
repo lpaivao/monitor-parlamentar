@@ -35,13 +35,18 @@ python main.py
 
 # Só Câmara, ano específico
 python main.py --casa camara --ano 2024
+
+# Atualização diária via API (somente despesas da data atual)
+python main.py --modo diario
 ```
 
-Recomendado: agendar via cron para execução diária.
+Recomendado: usar o modo de serviço para manter carga histórica inicial + agendamento automático.
 
-```cron
-0 4 * * * cd /path/to/crawler && python main.py >> /var/log/crawler.log 2>&1
+```bash
+python main.py --modo servico
 ```
+
+No ambiente Docker Compose deste projeto, o serviço crawler já sobe com agendamento APScheduler (10h, 16h e 22h) após concluir a carga histórica inicial.
 
 ---
 

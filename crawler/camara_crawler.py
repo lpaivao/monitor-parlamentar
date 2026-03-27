@@ -12,6 +12,7 @@ import requests
 import json
 import importlib
 import unicodedata
+from datetime import date, datetime
 from typing import Optional
 from db import get_conn, upsert_parlamentar, insert_despesas_batch, log_sync
 
@@ -82,6 +83,10 @@ def fetch_despesas(api_id: int, ano: int) -> list:
     return get_all_pages(f"/deputados/{api_id}/despesas", {"ano": ano})
 
 
+def fetch_despesas_mes(api_id: int, ano: int, mes: int) -> list:
+    return get_all_pages(f"/deputados/{api_id}/despesas", {"ano": ano, "mes": mes})
+
+
 def _normalize_text(value: Optional[str]) -> str:
     if not value:
         return ""
@@ -127,6 +132,35 @@ def _normalize_despesa(item: dict, ano: int) -> dict:
         "urlDocumento": item.get("urlDocumento"),
         "dataEmissao": item.get("datEmissao") or item.get("dataEmissao"),
     }
+
+
+def _parse_data_emissao(raw: Optional[str]) -> Optional[date]:
+    if not raw:
+        return None
+
+    value = str(raw).strip()
+    if not value:
+        return None
+
+    candidates = [value]
+    if "T" in value:
+        candidates.append(value.split("T", 1)[0])
+    if " " in value:
+        candidates.append(value.split(" ", 1)[0])
+
+    for candidate in candidates:
+        for fmt in ("%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%d/%m/%Y"):
+            try:
+                return datetime.strptime(candidate, fmt).date()
+            except ValueError:
+                continue
+
+    return None
+
+
+def _is_despesa_do_dia(item: dict, alvo: date) -> bool:
+    despesa_data = _parse_data_emissao(item.get("datEmissao") or item.get("dataEmissao"))
+    return despesa_data == alvo
 
 
 def fetch_despesas_zip_ano(ano: int, retries: int = 3) -> tuple[dict[int, list[dict]], dict[str, list[dict]]]:
@@ -278,6 +312,74 @@ def run(legislatura: int, ano: int):
         log_sync(conn, "camara", ano, "erro", str(e))
         conn.commit()
         log.error(f"[Câmara] Erro: {e}")
+        raise
+    finally:
+        conn.close()
+
+
+def run_atualizacao_diaria(legislatura: int, alvo: Optional[date] = None):
+    alvo = alvo or date.today()
+
+    log.info("=" * 50)
+    log.info(
+        f"[Câmara] Iniciando atualização diária via API | "
+        f"Legislatura {legislatura} | Data {alvo.isoformat()}"
+    )
+    log.info("=" * 50)
+
+    conn = get_conn()
+    try:
+        deputados = fetch_deputados(legislatura)
+        log.info(f"[Câmara] {len(deputados)} deputados encontrados")
+
+        total_despesas = 0
+        for i, dep in enumerate(deputados, 1):
+            api_id = dep["id"]
+            log.info(
+                f"  [{i}/{len(deputados)}] {dep['nome']} "
+                f"({dep.get('siglaPartido','?')}/{dep.get('siglaUf','?')})"
+            )
+
+            parlamentar_id = upsert_parlamentar(conn, {
+                "api_id": api_id,
+                "nome": dep["nome"],
+                "sigla_partido": dep.get("siglaPartido"),
+                "sigla_uf": dep.get("siglaUf"),
+                "foto_url": dep.get("urlFoto"),
+                "casa": "camara",
+                "legislatura": legislatura,
+            })
+
+            despesas_mes = fetch_despesas_mes(api_id, alvo.year, alvo.month)
+            despesas_dia = [
+                _normalize_despesa(item, alvo.year)
+                for item in despesas_mes
+                if _is_despesa_do_dia(item, alvo)
+            ]
+
+            insert_despesas_batch(conn, parlamentar_id, despesas_dia)
+            total_despesas += len(despesas_dia)
+            conn.commit()
+
+        log_sync(
+            conn,
+            "camara",
+            alvo.year,
+            "ok",
+            f"atualizacao diaria {alvo.isoformat()}: "
+            f"{len(deputados)} parlamentares, {total_despesas} despesas",
+        )
+        conn.commit()
+        log.info(
+            f"[Câmara] Atualização diária concluída. "
+            f"{total_despesas} despesas do dia processadas."
+        )
+
+    except Exception as e:
+        conn.rollback()
+        log_sync(conn, "camara", alvo.year, "erro", f"atualizacao diaria {alvo.isoformat()}: {e}")
+        conn.commit()
+        log.error(f"[Câmara] Erro na atualização diária: {e}")
         raise
     finally:
         conn.close()

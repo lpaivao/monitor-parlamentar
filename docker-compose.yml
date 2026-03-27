@@ -55,11 +55,12 @@ services:
     depends_on:
       - api
 
-  # ── Crawler (roda e sai — executado manualmente ou via cron) ─────
+  # ── Crawler (carga inicial + agendamento APScheduler) ────────────
   crawler:
     build:
       context: ./crawler
       dockerfile: Dockerfile
+    restart: unless-stopped
     environment:
       DB_HOST: db
       DB_PORT: 5432
@@ -67,11 +68,10 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       LEGISLATURA: ${LEGISLATURA:-57}
+      TZ: ${TZ:-America/Sao_Paulo}
     depends_on:
       db:
         condition: service_healthy
-    profiles:
-      - crawler # não sobe junto com o `docker compose up`
 
 volumes:
   pgdata:

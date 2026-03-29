@@ -1,23 +1,16 @@
+import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ParlamentarAvatar } from "../components/ui/Avatar";
-import { Badge } from "../components/ui/badge";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
-import { Pagination } from "../components/ui/Pagination";
 import { SelectField } from "../components/ui/SelectField";
-import { Spinner } from "../components/ui/spinner";
-import { Table } from "../components/ui/Table";
+import { muiPtBrLocaleText } from "../lib/muiGridLocale";
 import { getRanking } from "../services/api";
 import type { RankingItem } from "../types";
 import { ANOS, formatBRL, UFS } from "../utils";
 
 const CLIENT_PER_PAGE = 20;
-
-function getSlice<T>(items: T[], page: number) {
-  const start = (page - 1) * CLIENT_PER_PAGE;
-  return items.slice(start, start + CLIENT_PER_PAGE);
-}
 
 function getRankMedal(pos: number) {
   if (pos === 1) return { icon: "🥇", color: "#fbbf24" };
@@ -33,7 +26,7 @@ export default function RankingPage() {
   const [ano, setAno] = useState(ANOS[0]);
   const [partido, setPartido] = useState("");
   const [uf, setUf] = useState("");
-  const [page, setPage] = useState(1);
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: CLIENT_PER_PAGE });
 
   const ufOptions = useMemo(
     () => [{ label: "Todos os estados", value: "" }, ...UFS.map((item) => ({ label: item, value: item }))],
@@ -51,13 +44,126 @@ export default function RankingPage() {
     }
   }, [ano, partido, uf]);
 
-  useEffect(() => { setPage(1); }, [ano, partido, uf]);
+  useEffect(() => {
+    setPaginationModel((prev) => ({ ...prev, page: 0 }));
+  }, [ano, partido, uf]);
   useEffect(() => { load(); }, [load]);
 
   const max = items[0]?.total_gasto ?? 1;
   const totalGeral = items.reduce((sum, item) => sum + item.total_gasto, 0);
-  const lastPage = Math.max(1, Math.ceil(items.length / CLIENT_PER_PAGE));
-  const currentItems = getSlice(items, page);
+  const columns = useMemo<GridColDef<RankingItem>[]>(
+    () => [
+      {
+        field: "posicao",
+        headerName: "#",
+        width: 80,
+        sortable: false,
+        renderCell: (params) => {
+          const medal = getRankMedal(params.row.posicao);
+          return medal ? (
+            <span
+              className={[
+                "inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold",
+                params.row.posicao === 1
+                  ? "bg-tertiary-fixed text-tertiary"
+                  : params.row.posicao === 2
+                    ? "bg-slate-300 text-slate-700"
+                    : "bg-amber-700/20 text-amber-900",
+              ].join(" ")}
+              title={`#${params.row.posicao}`}
+            >
+              {params.row.posicao}
+            </span>
+          ) : (
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-surface-container text-xs font-semibold text-outline">
+              {params.row.posicao}
+            </span>
+          );
+        },
+      },
+      {
+        field: "nome",
+        headerName: "Parlamentar",
+        minWidth: 260,
+        flex: 1.5,
+        sortable: false,
+        renderCell: (params) => {
+          const parlamentarId = params.row.id;
+          return (
+            <div className="flex items-center gap-2.5 font-medium text-on-surface">
+              <ParlamentarAvatar nome={params.row.nome} foto={params.row.foto_url} />
+              <Link to={`/parlamentares/${parlamentarId}`} className="font-medium text-on-surface transition-colors hover:text-primary">
+                {params.row.nome}
+              </Link>
+            </div>
+          );
+        },
+      },
+      {
+        field: "sigla_partido",
+        headerName: "Partido",
+        minWidth: 110,
+        sortable: false,
+        renderCell: (params) => (
+          <span className="px-2 py-0 text-[10px]">{params.row.sigla_partido ?? "-"}</span>
+        ),
+      },
+      {
+        field: "sigla_uf",
+        headerName: "UF",
+        minWidth: 90,
+        sortable: false,
+        renderCell: (params) => (
+          <span className="px-2 py-0 text-[10px]">{params.row.sigla_uf ?? "-"}</span>
+        ),
+      },
+      {
+        field: "qtd_despesas",
+        headerName: "Despesas",
+        minWidth: 120,
+        sortable: false,
+        renderCell: (params) => (
+          <span className="tabular-nums font-mono text-[12px] text-outline">
+            {params.row.qtd_despesas.toLocaleString("pt-BR")}
+          </span>
+        ),
+      },
+      {
+        field: "total_gasto",
+        headerName: "Total gasto (R$)",
+        minWidth: 160,
+        align: "right",
+        headerAlign: "right",
+        sortable: false,
+        renderCell: (params) => (
+          <span className="tabular-nums font-mono text-[13px] font-bold text-primary">
+            {formatBRL(params.row.total_gasto)}
+          </span>
+        ),
+      },
+      {
+        field: "proporcao",
+        headerName: "Proporcao",
+        minWidth: 200,
+        flex: 1,
+        sortable: false,
+        renderCell: (params) => {
+          const pct = (params.row.total_gasto / max) * 100;
+          return (
+            <div className="flex w-full items-center gap-2">
+              <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-container">
+                <div className="h-full rounded-full bg-secondary" style={{ width: `${pct}%` }} />
+              </div>
+              <span className="tabular-nums w-9 text-right font-mono text-[10px] text-outline">
+                {pct.toFixed(0)}%
+              </span>
+            </div>
+          );
+        },
+      },
+    ],
+    [max],
+  );
 
   return (
     <div className="flex min-h-0 max-w-full flex-1 flex-col animate-[fadeUp_0.35s_ease_both]">
@@ -108,94 +214,23 @@ export default function RankingPage() {
       </div>
 
       <Card className="flex min-h-0 flex-1 flex-col rounded-xl border-outline-variant/40 bg-surface-container-lowest shadow-sm">
-        <Table.Root containerClassName="flex-1 min-h-0">
-          <Table.Header>
-            <Table.Row className="hover:bg-transparent">
-              <Table.ColumnHeaderCell className="w-14 bg-primary-container text-xs uppercase tracking-wider text-on-primary">#</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell className="bg-primary-container text-xs uppercase tracking-wider text-on-primary">Parlamentar</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell className="bg-primary-container text-xs uppercase tracking-wider text-on-primary">Partido / UF</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell className="bg-primary-container text-xs uppercase tracking-wider text-on-primary">Despesas</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell className="bg-primary-container text-xs uppercase tracking-wider text-on-primary">Total gasto (R$)</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell className="w-[180px] bg-primary-container text-xs uppercase tracking-wider text-on-primary">Proporcao</Table.ColumnHeaderCell>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {loading && (
-              <Table.Row className="hover:bg-transparent border-b-0">
-                <Table.Cell colSpan={6} className="py-12 text-center">
-                  <Spinner className="mx-auto" />
-                </Table.Cell>
-              </Table.Row>
-            )}
-            {!loading && items.length === 0 && (
-              <Table.Row className="hover:bg-transparent border-b-0">
-                <Table.Cell colSpan={6} className="py-14 text-center text-[var(--text-muted)] text-sm">Nenhum resultado encontrado.</Table.Cell>
-              </Table.Row>
-            )}
-            {!loading && currentItems.map((item) => {
-              const medal = getRankMedal(item.posicao);
-              const pct = (item.total_gasto / max) * 100;
-              return (
-                <Table.Row key={item.id} className="hover:bg-secondary-container/10">
-                  <Table.Cell>
-                    {medal ? (
-                      <span
-                        className={[
-                          "inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold",
-                          item.posicao === 1
-                            ? "bg-tertiary-fixed text-tertiary"
-                            : item.posicao === 2
-                              ? "bg-slate-300 text-slate-700"
-                              : "bg-amber-700/20 text-amber-900",
-                        ].join(" ")}
-                        title={`#${item.posicao}`}
-                      >
-                        {item.posicao}
-                      </span>
-                    ) : (
-                      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-surface-container text-xs font-semibold text-outline">
-                        {item.posicao}
-                      </span>
-                    )}
-                  </Table.Cell>
-                  <Table.Cell>
-                    <div className="flex items-center gap-2.5 font-medium text-on-surface">
-                      <ParlamentarAvatar nome={item.nome} foto={item.foto_url} />
-                      <Link to={`/parlamentares/${item.id}`} className="font-medium text-on-surface transition-colors hover:text-primary">{item.nome}</Link>
-                    </div>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <div className="flex gap-1.5 flex-wrap">
-                      <Badge>{item.sigla_partido ?? "-"}</Badge>
-                      <Badge>{item.sigla_uf ?? "-"}</Badge>
-                    </div>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span className="tabular-nums font-mono text-[12px] text-outline">
-                      {item.qtd_despesas.toLocaleString("pt-BR")}
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell className="text-right">
-                    <span className="tabular-nums font-mono text-[13px] font-bold text-primary">
-                      {formatBRL(item.total_gasto)}
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <div className="flex items-center gap-2">
-                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-container">
-                        <div className="h-full rounded-full bg-secondary" style={{ width: `${pct}%` }} />
-                      </div>
-                      <span className="tabular-nums w-9 text-right font-mono text-[10px] text-outline">
-                        {pct.toFixed(0)}%
-                      </span>
-                    </div>
-                  </Table.Cell>
-                </Table.Row>
-              );
-            })}
-          </Table.Body>
-        </Table.Root>
-        {!loading && <Pagination currentPage={page} lastPage={lastPage} onPageChange={setPage} />}
+        <div className="min-h-[520px] w-full">
+          <DataGrid
+            rows={items}
+            columns={columns}
+            loading={loading}
+            pagination
+            pageSizeOptions={[CLIENT_PER_PAGE]}
+            paginationModel={paginationModel}
+            onPaginationModelChange={setPaginationModel}
+            disableRowSelectionOnClick
+            localeText={{ ...muiPtBrLocaleText, noRowsLabel: "Nenhum resultado encontrado." }}
+            sx={{
+              border: 0,
+              "& .MuiDataGrid-columnHeaders": { borderRadius: 0 },
+            }}
+          />
+        </div>
       </Card>
 
       <Card className="mt-4 rounded-xl border-0 border-l-4 border-tertiary bg-primary-container/5 px-4 py-3 shadow-sm">

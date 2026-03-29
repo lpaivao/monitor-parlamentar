@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import * as React from "react";
 import * as RechartsPrimitive from "recharts";
 
@@ -68,7 +69,7 @@ function ChartStyle({ id, config }: { id: string; config: ChartConfig }) {
     return (
         <style
             dangerouslySetInnerHTML={{
-                __html: `[data-chart=\"${id}\"] {\n${css}\n}`,
+                __html: `[data-chart="${id}"] {\n${css}\n}`,
             }}
         />
     );

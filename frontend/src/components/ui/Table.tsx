@@ -1,59 +1,48 @@
 /* eslint-disable react-refresh/only-export-components */
-import type { ComponentPropsWithoutRef } from "react";
-import { cn } from "../../lib/utils";
+import MuiTable, { type TableProps as MuiTableProps } from "@mui/material/Table";
+import MuiTableBody, { type TableBodyProps as MuiTableBodyProps } from "@mui/material/TableBody";
+import MuiTableCell, { type TableCellProps as MuiTableCellProps } from "@mui/material/TableCell";
+import MuiTableContainer, { type TableContainerProps as MuiTableContainerProps } from "@mui/material/TableContainer";
+import MuiTableHead, { type TableHeadProps as MuiTableHeadProps } from "@mui/material/TableHead";
+import MuiTableRow, { type TableRowProps as MuiTableRowProps } from "@mui/material/TableRow";
 
-type TableRootProps = ComponentPropsWithoutRef<"table"> & {
+type TableRootProps = MuiTableProps & {
     containerClassName?: string;
+    containerProps?: MuiTableContainerProps;
 };
 
-function Root({ children, className, containerClassName, ...props }: TableRootProps) {
+function Root({ children, className, containerClassName, containerProps, ...props }: TableRootProps) {
     return (
-        <div className={cn("overflow-x-auto overflow-y-auto", containerClassName)}>
-            <table className={cn("w-full caption-bottom text-[13.5px]", className)} {...props}>
+        <MuiTableContainer className={containerClassName} {...containerProps}>
+            <MuiTable className={className} {...props}>
                 {children}
-            </table>
-        </div>
+            </MuiTable>
+        </MuiTableContainer>
     );
 }
 
-function Header(props: ComponentPropsWithoutRef<"thead">) {
-    return <thead {...props} />;
+function Header(props: MuiTableHeadProps) {
+    return <MuiTableHead {...props} />;
 }
 
-function Body(props: ComponentPropsWithoutRef<"tbody">) {
-    return <tbody {...props} />;
+function Body(props: MuiTableBodyProps) {
+    return <MuiTableBody {...props} />;
 }
 
-function Row({ className, ...props }: ComponentPropsWithoutRef<"tr">) {
-    return (
-        <tr
-            className={cn(
-                "border-b border-[var(--border)] last:border-b-0 transition-colors hover:bg-[var(--bg-hover)]",
-                className,
-            )}
-            {...props}
-        />
-    );
+function Row(props: MuiTableRowProps) {
+    return <MuiTableRow {...props} />;
 }
 
-function ColumnHeaderCell({ className, ...props }: ComponentPropsWithoutRef<"th">) {
-    return (
-        <th
-            className={cn(
-                "sticky top-0 z-10 border-b border-[var(--border)] bg-[var(--bg-surface)] px-4 py-3.5 text-left font-sans text-[11px] font-semibold tracking-widest text-[var(--text-dim)] uppercase whitespace-nowrap",
-                className,
-            )}
-            {...props}
-        />
-    );
+function ColumnHeaderCell(props: MuiTableCellProps) {
+    return <MuiTableCell {...props} />;
 }
 
-function Cell({ className, ...props }: ComponentPropsWithoutRef<"td">) {
-    return <td className={cn("px-4 py-3.5 align-middle text-[13px] text-[var(--text)]", className)} {...props} />;
+function Cell(props: MuiTableCellProps) {
+    return <MuiTableCell {...props} />;
 }
 
-function RowHeaderCell({ className, ...props }: ComponentPropsWithoutRef<"th">) {
-    return <th className={cn("px-4 py-3.5 align-middle text-left text-[13px] text-[var(--text-strong)]", className)} {...props} />;
+function RowHeaderCell({ scope = "row", ...props }: MuiTableCellProps) {
+    return <MuiTableCell component="th" scope={scope} {...props} />;
 }
 
 export const Table = {

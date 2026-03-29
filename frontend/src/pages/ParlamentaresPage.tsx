@@ -1,13 +1,11 @@
+import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ParlamentarAvatar } from "../components/ui/Avatar";
-import { Badge } from "../components/ui/badge";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
-import { Pagination } from "../components/ui/Pagination";
 import { SelectField } from "../components/ui/SelectField";
-import { Spinner } from "../components/ui/spinner";
-import { Table } from "../components/ui/Table";
+import { muiPtBrLocaleText } from "../lib/muiGridLocale";
 import { getParlamentares } from "../services/api";
 import type { Paginated, Parlamentar } from "../types";
 import { ANOS, formatBRL, UFS } from "../utils";
@@ -52,6 +50,75 @@ export default function ParlamentaresPage() {
 
   const meta = result?.meta;
   const data = result?.data ?? [];
+  const columns = useMemo<GridColDef<Parlamentar>[]>(
+    () => [
+      {
+        field: "nome",
+        headerName: "Parlamentar",
+        flex: 1.6,
+        minWidth: 260,
+        sortable: false,
+        renderCell: (params) => (
+          <div className="flex items-center gap-2.5 font-medium text-on-surface">
+            <ParlamentarAvatar nome={params.row.nome} foto={params.row.foto_url} />
+            <div>
+              <div className="font-medium text-on-surface">{params.row.nome}</div>
+              <div className="text-xs text-outline">{params.row.casa === "camara" ? "Deputado Federal" : "Parlamentar"}</div>
+            </div>
+          </div>
+        ),
+      },
+      {
+        field: "sigla_partido",
+        headerName: "Partido",
+        width: 130,
+        sortable: false,
+        renderCell: (params) => params.row.sigla_partido ?? "-",
+      },
+      {
+        field: "sigla_uf",
+        headerName: "UF",
+        width: 100,
+        sortable: false,
+        renderCell: (params) => (
+          params.row.sigla_uf ?? "-"
+        ),
+      },
+      {
+        field: "total_gasto",
+        headerName: `Total gasto em ${ano} (R$)`,
+        minWidth: 200,
+        flex: 1,
+        align: "right",
+        headerAlign: "right",
+        sortable: false,
+        renderCell: (params) => (
+          <span className="tabular-nums font-mono text-[13px] font-bold text-primary">
+            {params.row.total_gasto !== undefined ? formatBRL(params.row.total_gasto) : "-"}
+          </span>
+        ),
+      },
+      {
+        field: "acoes",
+        headerName: "",
+        width: 140,
+        sortable: false,
+        filterable: false,
+        renderCell: (params) => {
+          const parlamentarId = params.row.id ?? params.row.api_id;
+          return (
+            <Link
+              to={`/parlamentares/${parlamentarId}`}
+              className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 font-label text-[12px] font-medium text-primary transition-colors hover:bg-surface-container-low"
+            >
+              Ver detalhes →
+            </Link>
+          );
+        },
+      },
+    ],
+    [ano],
+  );
 
   return (
     <div className="flex min-h-0 max-w-full flex-1 flex-col animate-[fadeUp_0.35s_ease_both]">
@@ -108,69 +175,28 @@ export default function ParlamentaresPage() {
       </div>
 
       <Card className="flex min-h-0 flex-1 flex-col rounded-xl border-outline-variant/40 bg-surface-container-lowest shadow-sm">
-        <Table.Root containerClassName="flex-1 min-h-0">
-          <Table.Header>
-            <Table.Row className="hover:bg-transparent">
-              <Table.ColumnHeaderCell className="bg-primary-container text-xs uppercase tracking-wider text-on-primary">Parlamentar</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell className="bg-primary-container text-xs uppercase tracking-wider text-on-primary">Partido</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell className="bg-primary-container text-xs uppercase tracking-wider text-on-primary">UF</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell className="bg-primary-container text-xs uppercase tracking-wider text-on-primary">Total gasto em {ano} (R$)</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell className="bg-primary-container text-xs uppercase tracking-wider text-on-primary" aria-label="Acoes" />
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {loading && (
-              <Table.Row className="hover:bg-transparent border-b-0">
-                <Table.Cell colSpan={5} className="py-12 text-center">
-                  <Spinner className="mx-auto" />
-                </Table.Cell>
-              </Table.Row>
-            )}
-            {!loading && data.length === 0 && (
-              <Table.Row className="hover:bg-transparent border-b-0">
-                <Table.Cell colSpan={5} className="py-14 text-center text-[var(--text-muted)] text-sm">Nenhum parlamentar encontrado.</Table.Cell>
-              </Table.Row>
-            )}
-            {!loading && data.map((p) => (
-              <Table.Row key={p.id} className="hover:bg-secondary-container/10">
-                <Table.Cell>
-                  <div className="flex items-center gap-2.5 font-medium text-on-surface">
-                    <ParlamentarAvatar nome={p.nome} foto={p.foto_url} />
-                    <div>
-                      <div className="font-medium text-on-surface">{p.nome}</div>
-                      <div className="text-xs text-outline">{p.casa === "camara" ? "Deputado Federal" : "Parlamentar"}</div>
-                    </div>
-                  </div>
-                </Table.Cell>
-                <Table.Cell>
-                  <Badge>{p.sigla_partido ?? "-"}</Badge>
-                </Table.Cell>
-                <Table.Cell>
-                  <span className="font-mono text-[12px] text-outline">
-                    {p.sigla_uf ?? "-"}
-                  </span>
-                </Table.Cell>
-                <Table.Cell className="text-right">
-                  <span className="tabular-nums font-mono text-[13px] font-bold text-primary">
-                    {p.total_gasto !== undefined ? formatBRL(p.total_gasto) : "-"}
-                  </span>
-                </Table.Cell>
-                <Table.Cell>
-                  <Link
-                    to={`/parlamentares/${p.id}`}
-                    className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 font-label text-[12px] font-medium text-primary transition-colors hover:bg-surface-container-low"
-                  >
-                    Ver detalhes →
-                  </Link>
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table.Root>
-
-        {meta && (
-          <Pagination currentPage={meta.currentPage} lastPage={meta.lastPage} onPageChange={setPage} />
-        )}
+        <div className="min-h-[460px] w-full">
+          <DataGrid
+            rows={data}
+            columns={columns}
+            loading={loading}
+            pagination
+            paginationMode="server"
+            rowCount={meta?.total ?? 0}
+            pageSizeOptions={[20]}
+            paginationModel={{ page: Math.max(0, page - 1), pageSize: 20 }}
+            onPaginationModelChange={(model) => {
+              const nextPage = model.page + 1;
+              if (nextPage !== page) setPage(nextPage);
+            }}
+            disableRowSelectionOnClick
+            localeText={{ ...muiPtBrLocaleText, noRowsLabel: "Nenhum parlamentar encontrado." }}
+            sx={{
+              border: 0,
+              "& .MuiDataGrid-columnHeaders": { borderRadius: 0 },
+            }}
+          />
+        </div>
       </Card>
     </div>
   );

@@ -1,3 +1,4 @@
+import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { BadgeDollarSign, CalendarDays, ChevronLeft, Megaphone, Shapes } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -5,11 +6,10 @@ import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { Badge } from "../components/ui/badge";
 import { Card } from "../components/ui/card";
 import { ChartContainer, ChartTooltip, type ChartConfig } from "../components/ui/chart";
-import { Pagination } from "../components/ui/Pagination";
 import { SelectField } from "../components/ui/SelectField";
 import { Spinner } from "../components/ui/spinner";
-import { Table } from "../components/ui/Table";
 import { TabPanel, TabsField } from "../components/ui/Tabs";
+import { muiPtBrLocaleText } from "../lib/muiGridLocale";
 import { getDespesasParlamentar, getParlamentar } from "../services/api";
 import type { Despesa, Paginated, ParlamentarDetalhe } from "../types";
 import { ANOS, formatBRL, MESES } from "../utils";
@@ -23,27 +23,39 @@ const mesChartConfig = {
 
 export default function ParlamentarPage() {
   const { id } = useParams<{ id: string }>();
+  const parlamentarId = Number(id);
   const [ano, setAno] = useState(ANOS[0]);
   const [tab, setTab] = useState<"categorias" | "despesas">("categorias");
 
   const [parlamentar, setParlamentar] = useState<ParlamentarDetalhe | null>(null);
   const [loadingParlamentar, setLoadingParlamentar] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const [despesas, setDespesas] = useState<Paginated<Despesa> | null>(null);
   const [loadingDespesas, setLoadingDespesas] = useState(false);
-  const [page, setPage] = useState(1);
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 15 });
 
   const anoOptions = useMemo(() => ANOS.map((item) => ({ label: String(item), value: String(item) })), []);
 
   useEffect(() => {
-    if (!id) return;
+    if (!id || Number.isNaN(parlamentarId)) {
+      setLoadingParlamentar(false);
+      setLoadError("Parlamentar inválido.");
+      return;
+    }
     let mounted = true;
 
     const loadParlamentar = async () => {
       setLoadingParlamentar(true);
+      setLoadError(null);
       try {
-        const data = await getParlamentar(Number(id), ano);
+        const data = await getParlamentar(parlamentarId, ano);
         if (mounted) setParlamentar(data);
+      } catch {
+        if (mounted) {
+          setParlamentar(null);
+          setLoadError("Não foi possível carregar os dados do parlamentar.");
+        }
       } finally {
         if (mounted) setLoadingParlamentar(false);
       }
@@ -54,17 +66,19 @@ export default function ParlamentarPage() {
     return () => {
       mounted = false;
     };
-  }, [id, ano]);
+  }, [id, ano, parlamentarId]);
 
   useEffect(() => {
-    if (!id || tab !== "despesas") return;
+    if (!id || Number.isNaN(parlamentarId) || tab !== "despesas") return;
     let mounted = true;
 
     const loadDespesas = async () => {
       setLoadingDespesas(true);
       try {
-        const data = await getDespesasParlamentar(Number(id), { ano, page, perPage: 15 });
+        const data = await getDespesasParlamentar(parlamentarId, { ano, page: paginationModel.page + 1, perPage: paginationModel.pageSize });
         if (mounted) setDespesas(data);
+      } catch {
+        if (mounted) setDespesas({ data: [], meta: { total: 0, perPage: paginationModel.pageSize, currentPage: 1, lastPage: 1, firstPage: 1 } });
       } finally {
         if (mounted) setLoadingDespesas(false);
       }
@@ -75,7 +89,70 @@ export default function ParlamentarPage() {
     return () => {
       mounted = false;
     };
-  }, [id, tab, ano, page]);
+  }, [id, tab, ano, paginationModel.page, paginationModel.pageSize, parlamentarId]);
+
+  const despesaColumns = useMemo<GridColDef<Despesa>[]>(
+    () => [
+      {
+        field: "data_emissao",
+        headerName: "Data",
+        minWidth: 120,
+        sortable: false,
+        renderCell: (params) => (
+          <span className="font-mono text-[12px] text-outline">
+            {params.row.data_emissao
+              ? new Date(params.row.data_emissao).toLocaleDateString("pt-BR")
+              : `${MESES[(params.row.mes ?? 1) - 1]}/${ano}`}
+          </span>
+        ),
+      },
+      {
+        field: "tipo_despesa",
+        headerName: "Categoria",
+        minWidth: 220,
+        flex: 1,
+        sortable: false,
+        renderCell: (params) => <span>{params.row.tipo_despesa ?? "-"}</span>,
+      },
+      {
+        field: "fornecedor",
+        headerName: "Fornecedor",
+        minWidth: 220,
+        flex: 1,
+        sortable: false,
+        renderCell: (params) => <span>{params.row.fornecedor ?? "-"}</span>,
+      },
+      {
+        field: "documento",
+        headerName: "Documento",
+        minWidth: 130,
+        sortable: false,
+        renderCell: (params) => (
+          params.row.url_documento ? (
+            <a href={params.row.url_documento} target="_blank" rel="noreferrer" className="text-[12px] text-primary transition-opacity hover:opacity-80">
+              Ver nota ↗
+            </a>
+          ) : (
+            <span className="text-[12px] text-outline">{params.row.numero_documento ?? "-"}</span>
+          )
+        ),
+      },
+      {
+        field: "valor_liquido",
+        headerName: "Valor (R$)",
+        minWidth: 150,
+        align: "right",
+        headerAlign: "right",
+        sortable: false,
+        renderCell: (params) => (
+          <span className="tabular-nums font-mono text-[13px] font-bold text-primary">
+            {formatBRL(params.row.valor_liquido)}
+          </span>
+        ),
+      },
+    ],
+    [ano],
+  );
 
   if (loadingParlamentar) {
     return (
@@ -89,7 +166,7 @@ export default function ParlamentarPage() {
     return (
       <div className="py-6">
         <div className="py-14 text-center text-sm text-outline">
-          Parlamentar não encontrado.{" "}
+          {loadError ?? "Parlamentar não encontrado."}{" "}
           <Link to="/parlamentares">← Voltar</Link>
         </div>
       </div>
@@ -166,7 +243,7 @@ export default function ParlamentarPage() {
             value={String(ano)}
             onValueChange={(v) => {
               setAno(Number(v));
-              setPage(1);
+              setPaginationModel((prev) => ({ ...prev, page: 0 }));
             }}
             options={anoOptions}
             className="mb-4 h-11 w-full rounded-lg border-outline-variant bg-white px-4 py-2 text-[15px]"
@@ -278,65 +355,25 @@ export default function ParlamentarPage() {
 
         <TabPanel value="despesas">
           <Card className="rounded-xl border-outline-variant/30 bg-white shadow-sm">
-            <Table.Root containerClassName="max-h-[700px]">
-              <Table.Header>
-                <Table.Row className="hover:bg-transparent">
-                  <Table.ColumnHeaderCell className="bg-primary-container text-xs uppercase tracking-wider text-on-primary">Data</Table.ColumnHeaderCell>
-                  <Table.ColumnHeaderCell className="bg-primary-container text-xs uppercase tracking-wider text-on-primary">Categoria</Table.ColumnHeaderCell>
-                  <Table.ColumnHeaderCell className="bg-primary-container text-xs uppercase tracking-wider text-on-primary">Fornecedor</Table.ColumnHeaderCell>
-                  <Table.ColumnHeaderCell className="bg-primary-container text-xs uppercase tracking-wider text-on-primary">Documento</Table.ColumnHeaderCell>
-                  <Table.ColumnHeaderCell className="bg-primary-container text-xs uppercase tracking-wider text-on-primary">Valor (R$)</Table.ColumnHeaderCell>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {loadingDespesas && (
-                  <Table.Row className="hover:bg-transparent border-b-0">
-                    <Table.Cell colSpan={5} className="py-12 text-center">
-                      <Spinner className="mx-auto" />
-                    </Table.Cell>
-                  </Table.Row>
-                )}
-                {!loadingDespesas && (despesas?.data ?? []).length === 0 && (
-                  <Table.Row className="hover:bg-transparent border-b-0">
-                    <Table.Cell colSpan={5} className="py-14 text-center text-(--text-muted) text-sm">Nenhuma despesa encontrada.</Table.Cell>
-                  </Table.Row>
-                )}
-                {!loadingDespesas && (despesas?.data ?? []).map((d) => (
-                  <Table.Row key={d.id} className="hover:bg-secondary-container/10">
-                    <Table.Cell className="whitespace-nowrap">
-                      <span className="font-mono text-[12px] text-outline">
-                        {d.data_emissao
-                          ? new Date(d.data_emissao).toLocaleDateString("pt-BR")
-                          : `${MESES[(d.mes ?? 1) - 1]}/${ano}`}
-                      </span>
-                    </Table.Cell>
-                    <Table.Cell>{d.tipo_despesa ?? "-"}</Table.Cell>
-                    <Table.RowHeaderCell>{d.fornecedor ?? "-"}</Table.RowHeaderCell>
-                    <Table.Cell>
-                      {d.url_documento ? (
-                        <a href={d.url_documento} target="_blank" rel="noreferrer" className="text-[12px] text-primary transition-opacity hover:opacity-80">
-                          Ver nota ↗
-                        </a>
-                      ) : (
-                        <span className="text-[12px] text-outline">{d.numero_documento ?? "-"}</span>
-                      )}
-                    </Table.Cell>
-                    <Table.Cell className="whitespace-nowrap text-right">
-                      <span className="tabular-nums font-mono text-[13px] font-bold text-primary">
-                        {formatBRL(d.valor_liquido)}
-                      </span>
-                    </Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table.Root>
-            {despesas?.meta && (
-              <Pagination
-                currentPage={despesas.meta.currentPage}
-                lastPage={despesas.meta.lastPage}
-                onPageChange={setPage}
+            <div className="min-h-[600px] w-full">
+              <DataGrid
+                rows={despesas?.data ?? []}
+                columns={despesaColumns}
+                loading={loadingDespesas}
+                pagination
+                paginationMode="server"
+                rowCount={despesas?.meta.total ?? 0}
+                pageSizeOptions={[15]}
+                paginationModel={paginationModel}
+                onPaginationModelChange={setPaginationModel}
+                disableRowSelectionOnClick
+                localeText={{ ...muiPtBrLocaleText, noRowsLabel: "Nenhuma despesa encontrada." }}
+                sx={{
+                  border: 0,
+                  "& .MuiDataGrid-columnHeaders": { borderRadius: 0 },
+                }}
               />
-            )}
+            </div>
           </Card>
         </TabPanel>
       </TabsField>

@@ -1,18 +1,14 @@
+import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { useEffect, useMemo, useState } from "react";
 import { Card } from "../components/ui/card";
-import { Pagination } from "../components/ui/Pagination";
 import { Spinner } from "../components/ui/spinner";
 import { TabPanel, TabsField } from "../components/ui/Tabs";
+import { muiPtBrLocaleText } from "../lib/muiGridLocale";
 import { getRankingCategorias, getRankingPartidos } from "../services/api";
 import type { RankingCategoria, RankingPartido } from "../types";
 import { ANOS, formatBRL } from "../utils";
 
 const CLIENT_PER_PAGE = 12;
-
-function getSlice<T>(items: T[], page: number) {
-  const start = (page - 1) * CLIENT_PER_PAGE;
-  return items.slice(start, start + CLIENT_PER_PAGE);
-}
 
 export default function PartidosPage() {
   const [ano, setAno] = useState(ANOS[0]);
@@ -22,8 +18,8 @@ export default function PartidosPage() {
   const [categorias, setCategorias] = useState<RankingCategoria[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [partidosPage, setPartidosPage] = useState(1);
-  const [categoriasPage, setCategoriasPage] = useState(1);
+  const [partidosPaginationModel, setPartidosPaginationModel] = useState({ page: 0, pageSize: CLIENT_PER_PAGE });
+  const [categoriasPaginationModel, setCategoriasPaginationModel] = useState({ page: 0, pageSize: CLIENT_PER_PAGE });
 
   const anosVisiveis = useMemo(() => ANOS.slice(0, 3), []);
 
@@ -32,8 +28,8 @@ export default function PartidosPage() {
 
     const loadData = async () => {
       setLoading(true);
-      setPartidosPage(1);
-      setCategoriasPage(1);
+      setPartidosPaginationModel((prev) => ({ ...prev, page: 0 }));
+      setCategoriasPaginationModel((prev) => ({ ...prev, page: 0 }));
 
       try {
         const [rp, rc] = await Promise.all([getRankingPartidos({ ano }), getRankingCategorias({ ano })]);
@@ -56,14 +52,107 @@ export default function PartidosPage() {
   const maxPartido = Math.max(...partidos.map((p) => p.total), 1);
   const maxCategoria = Math.max(...categorias.map((c) => c.total), 1);
 
-  const partidosLastPage = Math.max(1, Math.ceil(partidos.length / CLIENT_PER_PAGE));
-  const categoriasLastPage = Math.max(1, Math.ceil(categorias.length / CLIENT_PER_PAGE));
-
-  const partidosCurrent = getSlice(partidos, partidosPage);
-  const categoriasCurrent = getSlice(categorias, categoriasPage);
   const totalPartidos = partidos.reduce((acc, p) => acc + p.total, 0);
   const mediaPartido = partidos.length > 0 ? totalPartidos / partidos.length : 0;
   const maiorCategoria = categorias[0];
+  const partidosColumns = useMemo<GridColDef<RankingPartido>[]>(
+    () => [
+      {
+        field: "partido",
+        headerName: "Partido",
+        minWidth: 130,
+        sortable: false,
+        renderCell: (params) => (
+          <span className="inline-flex w-fit rounded-full bg-surface-container px-2 py-0.5 font-headline text-[10px] font-bold tracking-[0.03em] text-primary" title={params.row.partido}>
+            {params.row.partido || "-"}
+          </span>
+        ),
+      },
+      {
+        field: "peso",
+        headerName: "Participação",
+        minWidth: 220,
+        flex: 1,
+        sortable: false,
+        renderCell: (params) => (
+          <div className="w-full">
+            <div className="h-2 overflow-hidden rounded-full bg-surface-container">
+              <div className="h-full rounded-full bg-secondary" style={{ width: `${(params.row.total / maxPartido) * 100}%` }} />
+            </div>
+          </div>
+        ),
+      },
+      {
+        field: "total",
+        headerName: "Total (R$)",
+        minWidth: 150,
+        align: "right",
+        headerAlign: "right",
+        sortable: false,
+        renderCell: (params) => <span className="tabular-nums font-mono text-[12px] font-bold text-primary">{formatBRL(params.row.total)}</span>,
+      },
+      {
+        field: "qtd_parlamentares",
+        headerName: "Deputados",
+        minWidth: 110,
+        align: "right",
+        headerAlign: "right",
+        sortable: false,
+        renderCell: (params) => <span className="tabular-nums font-mono text-[12px] text-outline">{params.row.qtd_parlamentares}</span>,
+      },
+      {
+        field: "media_por_parlamentar",
+        headerName: "Média/dep. (R$)",
+        minWidth: 160,
+        align: "right",
+        headerAlign: "right",
+        sortable: false,
+        renderCell: (params) => <span className="tabular-nums font-mono text-[12px] text-on-surface">{formatBRL(params.row.media_por_parlamentar)}</span>,
+      },
+    ],
+    [maxPartido],
+  );
+
+  const categoriasColumns = useMemo<GridColDef<RankingCategoria>[]>(
+    () => [
+      {
+        field: "categoria",
+        headerName: "Categoria",
+        minWidth: 240,
+        flex: 1,
+        sortable: false,
+        renderCell: (params) => (
+          <span className="block w-full overflow-hidden text-ellipsis whitespace-nowrap text-[12px] font-medium text-on-surface-variant" title={params.row.categoria}>
+            {params.row.categoria}
+          </span>
+        ),
+      },
+      {
+        field: "peso",
+        headerName: "Participação",
+        minWidth: 260,
+        flex: 1,
+        sortable: false,
+        renderCell: (params) => (
+          <div className="w-full">
+            <div className="h-2 overflow-hidden rounded-full bg-surface-container">
+              <div className="h-full rounded-full bg-secondary" style={{ width: `${(params.row.total / maxCategoria) * 100}%` }} />
+            </div>
+          </div>
+        ),
+      },
+      {
+        field: "total",
+        headerName: "Total (R$)",
+        minWidth: 150,
+        align: "right",
+        headerAlign: "right",
+        sortable: false,
+        renderCell: (params) => <span className="tabular-nums whitespace-nowrap font-mono text-[12px] font-semibold text-on-surface">{formatBRL(params.row.total)}</span>,
+      },
+    ],
+    [maxCategoria],
+  );
 
   return (
     <div className="max-w-full animate-[fadeUp_0.35s_ease_both] pb-6">
@@ -123,85 +212,49 @@ export default function PartidosPage() {
           ]}
         >
           <TabPanel value="partidos">
-            <Card className="flex max-h-[calc(100vh-350px)] flex-col rounded-xl border-outline-variant/40 bg-surface-container-lowest p-6 shadow-sm">
+            <Card className="flex max-h-[calc(100vh-350px)] flex-col rounded-xl border-outline-variant/40 bg-surface-container-lowest p-0 shadow-sm">
               {partidos.length === 0 ? (
                 <p className="py-14 text-center text-sm text-outline">Sem dados para o periodo selecionado.</p>
               ) : (
-                <>
-                  <div className="mb-1 grid flex-shrink-0 items-center gap-4 border-b border-outline-variant pb-3 text-[11px] font-semibold uppercase tracking-widest text-outline" style={{ gridTemplateColumns: '80px 1fr 110px 100px 140px' }}>
-                    <span>Partido</span>
-                    <span />
-                    <span className="text-right">Total (R$)</span>
-                    <span className="text-right">Deputados</span>
-                    <span className="text-right">Média/dep. (R$)</span>
-                  </div>
-
-                  <div className="flex flex-col overflow-y-auto flex-1">
-                    {partidosCurrent.map((p, i) => (
-                      <div
-                        key={p.partido}
-                        className="grid items-center gap-4 rounded-lg border-b border-outline-variant px-1.5 py-2.5 transition-colors last:border-b-0 hover:bg-secondary-container/10"
-                        style={{ gridTemplateColumns: '80px 1fr 110px 100px 140px', animationDelay: `${i * 25}ms`, animation: 'fadeUp 0.3s ease both' }}
-                      >
-                        <span className="inline-flex w-fit rounded-full bg-surface-container px-2.5 py-1 font-headline text-[12px] font-bold tracking-[0.03em] text-primary" title={p.partido}>
-                          {p.partido || "-"}
-                        </span>
-                        <div className="h-2 overflow-hidden rounded-full bg-surface-container">
-                          <div className="h-full rounded-full bg-secondary" style={{ width: `${(p.total / maxPartido) * 100}%` }} />
-                        </div>
-                        <span className="tabular-nums text-right font-mono text-[12px] font-bold text-primary">
-                          {formatBRL(p.total)}
-                        </span>
-                        <span className="tabular-nums text-right font-mono text-[12px] text-outline">
-                          {p.qtd_parlamentares}
-                        </span>
-                        <span className="tabular-nums text-right font-mono text-[12px] text-on-surface">
-                          {formatBRL(p.media_por_parlamentar)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex-shrink-0">
-                    <Pagination currentPage={partidosPage} lastPage={partidosLastPage} onPageChange={setPartidosPage} />
-                  </div>
-                </>
+                <div className="min-h-[480px] w-full">
+                  <DataGrid
+                    rows={partidos}
+                    columns={partidosColumns}
+                    loading={loading}
+                    getRowId={(row) => row.partido}
+                    pagination
+                    paginationModel={partidosPaginationModel}
+                    onPaginationModelChange={setPartidosPaginationModel}
+                    pageSizeOptions={[CLIENT_PER_PAGE]}
+                    disableRowSelectionOnClick
+                    localeText={{ ...muiPtBrLocaleText, noRowsLabel: "Sem dados para o periodo selecionado." }}
+                    sx={{ border: 0, "& .MuiDataGrid-columnHeaders": { borderRadius: 0 } }}
+                  />
+                </div>
               )}
             </Card>
           </TabPanel>
 
           <TabPanel value="categorias">
-            <Card className="flex max-h-[calc(100vh-350px)] flex-col rounded-xl border-outline-variant/40 bg-surface-container-lowest p-6 shadow-sm">
+            <Card className="flex max-h-[calc(100vh-350px)] flex-col rounded-xl border-outline-variant/40 bg-surface-container-lowest p-0 shadow-sm">
               {categorias.length === 0 ? (
                 <p className="py-14 text-center text-sm text-outline">Sem dados para o periodo selecionado.</p>
               ) : (
-                <>
-                  <div className="flex flex-col gap-3.5 overflow-y-auto flex-1">
-                    {categoriasCurrent.map((cat, i) => (
-                      <div
-                        key={cat.categoria}
-                        className="grid items-center gap-3.5"
-                        style={{ gridTemplateColumns: '200px 1fr 110px', animationDelay: `${i * 25}ms`, animation: 'fadeUp 0.3s ease both' }}
-                      >
-                        <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[12px] font-medium text-on-surface-variant" title={cat.categoria}>
-                          {cat.categoria}
-                        </span>
-                        <div className="h-2 overflow-hidden rounded-full bg-surface-container">
-                          <div className="h-full rounded-full bg-secondary" style={{ width: `${(cat.total / maxCategoria) * 100}%` }} />
-                        </div>
-                        <span className="tabular-nums whitespace-nowrap text-right font-mono text-[12px] font-semibold text-on-surface">{formatBRL(cat.total)}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex-shrink-0">
-                    <Pagination
-                      currentPage={categoriasPage}
-                      lastPage={categoriasLastPage}
-                      onPageChange={setCategoriasPage}
-                    />
-                  </div>
-                </>
+                <div className="min-h-[480px] w-full">
+                  <DataGrid
+                    rows={categorias}
+                    columns={categoriasColumns}
+                    loading={loading}
+                    getRowId={(row) => row.categoria}
+                    pagination
+                    paginationModel={categoriasPaginationModel}
+                    onPaginationModelChange={setCategoriasPaginationModel}
+                    pageSizeOptions={[CLIENT_PER_PAGE]}
+                    disableRowSelectionOnClick
+                    localeText={{ ...muiPtBrLocaleText, noRowsLabel: "Sem dados para o periodo selecionado." }}
+                    sx={{ border: 0, "& .MuiDataGrid-columnHeaders": { borderRadius: 0 } }}
+                  />
+                </div>
               )}
             </Card>
 

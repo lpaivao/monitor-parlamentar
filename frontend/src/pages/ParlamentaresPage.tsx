@@ -1,24 +1,30 @@
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ParlamentarAvatar } from "../components/ui/Avatar";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { SelectField } from "../components/ui/SelectField";
+import { useParlamentaresQuery } from "../hooks/useParlamentaresQuery";
 import { muiPtBrLocaleText } from "../lib/muiGridLocale";
-import { getParlamentares } from "../services/api";
-import type { Paginated, Parlamentar } from "../types";
+import type { Parlamentar } from "../types";
 import { ANOS, formatBRL, UFS } from "../utils";
 
 export default function ParlamentaresPage() {
-  const [result, setResult] = useState<Paginated<Parlamentar> | null>(null);
-  const [loading, setLoading] = useState(true);
-
   const [nome, setNome] = useState("");
   const [partido, setPartido] = useState("");
   const [uf, setUf] = useState("");
   const [ano, setAno] = useState(ANOS[0]);
   const [page, setPage] = useState(1);
+
+  const { data: result, isLoading, isFetching } = useParlamentaresQuery({
+    nome,
+    partido,
+    uf,
+    ano,
+    page,
+    perPage: 20,
+  });
 
   const ufOptions = useMemo(
     () => [{ label: "Todos os estados", value: "" }, ...UFS.map((u) => ({ label: u, value: u }))],
@@ -35,21 +41,9 @@ export default function ParlamentaresPage() {
     [nome, partido, uf, ano],
   );
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await getParlamentares({ nome, partido, uf, ano, page, perPage: 20 });
-      setResult(response);
-    } finally {
-      setLoading(false);
-    }
-  }, [nome, partido, uf, ano, page]);
-
-  useEffect(() => { setPage(1); }, [nome, partido, uf, ano]);
-  useEffect(() => { load(); }, [load]);
-
   const meta = result?.meta;
   const data = result?.data ?? [];
+  const loading = isLoading || isFetching;
   const columns = useMemo<GridColDef<Parlamentar>[]>(
     () => [
       {
@@ -136,21 +130,38 @@ export default function ParlamentaresPage() {
             <Input
               placeholder="Buscar por nome..."
               value={nome}
-              onChange={(e) => setNome(e.target.value)}
+              onChange={(e) => {
+                setNome(e.target.value);
+                setPage(1);
+              }}
               className="w-full border-0 bg-transparent px-0 py-0 shadow-none focus:bg-transparent focus:shadow-none"
             />
           </label>
           <Input
             placeholder="Partido (ex: PT)"
             value={partido}
-            onChange={(e) => setPartido(e.target.value.toUpperCase())}
+            onChange={(e) => {
+              setPartido(e.target.value.toUpperCase());
+              setPage(1);
+            }}
             className="w-[140px] rounded-lg border-outline-variant bg-white px-4 py-2"
             maxLength={10}
           />
-          <SelectField value={uf} onValueChange={setUf} options={ufOptions} className="w-[160px] rounded-lg border-outline-variant bg-white px-4 py-2" />
+          <SelectField
+            value={uf}
+            onValueChange={(value) => {
+              setUf(value);
+              setPage(1);
+            }}
+            options={ufOptions}
+            className="w-[160px] rounded-lg border-outline-variant bg-white px-4 py-2"
+          />
           <SelectField
             value={String(ano)}
-            onValueChange={(v) => setAno(Number(v))}
+            onValueChange={(value) => {
+              setAno(Number(value));
+              setPage(1);
+            }}
             options={anoOptions}
             className="w-[120px] rounded-lg border-outline-variant bg-white px-4 py-2"
           />

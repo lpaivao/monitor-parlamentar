@@ -1,6 +1,6 @@
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { BadgeDollarSign, CalendarDays, ChevronLeft, Megaphone, Shapes } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { Badge } from "../components/ui/badge";
@@ -9,9 +9,10 @@ import { ChartContainer, ChartTooltip, type ChartConfig } from "../components/ui
 import { SelectField } from "../components/ui/SelectField";
 import { Spinner } from "../components/ui/spinner";
 import { TabPanel, TabsField } from "../components/ui/Tabs";
+import { useDespesasParlamentarQuery } from "../hooks/useDespesasParlamentarQuery";
+import { useParlamentarQuery } from "../hooks/useParlamentarQuery";
 import { muiPtBrLocaleText } from "../lib/muiGridLocale";
-import { getDespesasParlamentar, getParlamentar } from "../services/api";
-import type { Despesa, Paginated, ParlamentarDetalhe } from "../types";
+import type { Despesa } from "../types";
 import { ANOS, formatBRL, MESES } from "../utils";
 
 const mesChartConfig = {
@@ -26,70 +27,24 @@ export default function ParlamentarPage() {
   const parlamentarId = Number(id);
   const [ano, setAno] = useState(ANOS[0]);
   const [tab, setTab] = useState<"categorias" | "despesas">("categorias");
-
-  const [parlamentar, setParlamentar] = useState<ParlamentarDetalhe | null>(null);
-  const [loadingParlamentar, setLoadingParlamentar] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
-
-  const [despesas, setDespesas] = useState<Paginated<Despesa> | null>(null);
-  const [loadingDespesas, setLoadingDespesas] = useState(false);
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 15 });
 
+  const parlamentarQuery = useParlamentarQuery(parlamentarId, ano);
+  const despesasQuery = useDespesasParlamentarQuery(
+    parlamentarId,
+    { ano, page: paginationModel.page + 1, perPage: paginationModel.pageSize },
+    tab === "despesas",
+  );
+
+  const parlamentar = parlamentarQuery.data ?? null;
+  const despesas = despesasQuery.data;
+  const loadingParlamentar = parlamentarQuery.isLoading;
+  const loadingDespesas = despesasQuery.isLoading || despesasQuery.isFetching;
+  const loadError = parlamentarQuery.isError
+    ? "Não foi possível carregar os dados do parlamentar."
+    : null;
+
   const anoOptions = useMemo(() => ANOS.map((item) => ({ label: String(item), value: String(item) })), []);
-
-  useEffect(() => {
-    if (!id || Number.isNaN(parlamentarId)) {
-      setLoadingParlamentar(false);
-      setLoadError("Parlamentar inválido.");
-      return;
-    }
-    let mounted = true;
-
-    const loadParlamentar = async () => {
-      setLoadingParlamentar(true);
-      setLoadError(null);
-      try {
-        const data = await getParlamentar(parlamentarId, ano);
-        if (mounted) setParlamentar(data);
-      } catch {
-        if (mounted) {
-          setParlamentar(null);
-          setLoadError("Não foi possível carregar os dados do parlamentar.");
-        }
-      } finally {
-        if (mounted) setLoadingParlamentar(false);
-      }
-    };
-
-    void loadParlamentar();
-
-    return () => {
-      mounted = false;
-    };
-  }, [id, ano, parlamentarId]);
-
-  useEffect(() => {
-    if (!id || Number.isNaN(parlamentarId) || tab !== "despesas") return;
-    let mounted = true;
-
-    const loadDespesas = async () => {
-      setLoadingDespesas(true);
-      try {
-        const data = await getDespesasParlamentar(parlamentarId, { ano, page: paginationModel.page + 1, perPage: paginationModel.pageSize });
-        if (mounted) setDespesas(data);
-      } catch {
-        if (mounted) setDespesas({ data: [], meta: { total: 0, perPage: paginationModel.pageSize, currentPage: 1, lastPage: 1, firstPage: 1 } });
-      } finally {
-        if (mounted) setLoadingDespesas(false);
-      }
-    };
-
-    void loadDespesas();
-
-    return () => {
-      mounted = false;
-    };
-  }, [id, tab, ano, paginationModel.page, paginationModel.pageSize, parlamentarId]);
 
   const despesaColumns = useMemo<GridColDef<Despesa>[]>(
     () => [
@@ -158,6 +113,16 @@ export default function ParlamentarPage() {
     return (
       <div className="py-6">
         <div className="py-14 text-center"><Spinner className="mx-auto" /></div>
+      </div>
+    );
+  }
+
+  if (!id || Number.isNaN(parlamentarId)) {
+    return (
+      <div className="py-6">
+        <div className="py-14 text-center text-sm text-outline">
+          Parlamentar inválido. <Link to="/parlamentares">← Voltar</Link>
+        </div>
       </div>
     );
   }

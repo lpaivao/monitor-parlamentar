@@ -1,10 +1,11 @@
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Card } from "../components/ui/card";
 import { Spinner } from "../components/ui/spinner";
 import { TabPanel, TabsField } from "../components/ui/Tabs";
+import { useRankingCategoriasQuery } from "../hooks/useRankingCategoriasQuery";
+import { useRankingPartidosQuery } from "../hooks/useRankingPartidosQuery";
 import { muiPtBrLocaleText } from "../lib/muiGridLocale";
-import { getRankingCategorias, getRankingPartidos } from "../services/api";
 import type { RankingCategoria, RankingPartido } from "../types";
 import { ANOS, formatBRL } from "../utils";
 
@@ -14,40 +15,25 @@ export default function PartidosPage() {
   const [ano, setAno] = useState(ANOS[0]);
   const [tab, setTab] = useState<"partidos" | "categorias">("partidos");
 
-  const [partidos, setPartidos] = useState<RankingPartido[]>([]);
-  const [categorias, setCategorias] = useState<RankingCategoria[]>([]);
-  const [loading, setLoading] = useState(true);
-
   const [partidosPaginationModel, setPartidosPaginationModel] = useState({ page: 0, pageSize: CLIENT_PER_PAGE });
   const [categoriasPaginationModel, setCategoriasPaginationModel] = useState({ page: 0, pageSize: CLIENT_PER_PAGE });
 
+  const {
+    data: partidosData,
+    isLoading: isLoadingPartidos,
+    isFetching: isFetchingPartidos,
+  } = useRankingPartidosQuery({ ano });
+  const {
+    data: categoriasData,
+    isLoading: isLoadingCategorias,
+    isFetching: isFetchingCategorias,
+  } = useRankingCategoriasQuery({ ano });
+
+  const partidos = partidosData?.data ?? [];
+  const categorias = categoriasData?.data ?? [];
+  const loading = isLoadingPartidos || isFetchingPartidos || isLoadingCategorias || isFetchingCategorias;
+
   const anosVisiveis = useMemo(() => ANOS.slice(0, 3), []);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const loadData = async () => {
-      setLoading(true);
-      setPartidosPaginationModel((prev) => ({ ...prev, page: 0 }));
-      setCategoriasPaginationModel((prev) => ({ ...prev, page: 0 }));
-
-      try {
-        const [rp, rc] = await Promise.all([getRankingPartidos({ ano }), getRankingCategorias({ ano })]);
-        if (mounted) {
-          setPartidos(rp.data);
-          setCategorias(rc.data);
-        }
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
-
-    void loadData();
-
-    return () => {
-      mounted = false;
-    };
-  }, [ano]);
 
   const maxPartido = Math.max(...partidos.map((p) => p.total), 1);
   const maxCategoria = Math.max(...categorias.map((c) => c.total), 1);
@@ -168,7 +154,11 @@ export default function PartidosPage() {
           <button
             key={anoItem}
             type="button"
-            onClick={() => setAno(anoItem)}
+            onClick={() => {
+              setAno(anoItem);
+              setPartidosPaginationModel((prev) => ({ ...prev, page: 0 }));
+              setCategoriasPaginationModel((prev) => ({ ...prev, page: 0 }));
+            }}
             className={[
               "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
               anoItem === ano ? "bg-primary text-white" : "text-outline hover:bg-white",

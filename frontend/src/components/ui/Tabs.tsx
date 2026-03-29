@@ -11,7 +11,7 @@ function TabsList({ className, ...props }: ComponentProps<typeof TabsPrimitive.L
         <TabsPrimitive.List
             data-slot="tabs-list"
             className={cn(
-                "inline-flex h-10 items-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-surface)] p-1",
+                "inline-flex h-11 items-center gap-2 rounded-xl border border-outline-variant/60 bg-surface-container-low px-2",
                 className,
             )}
             {...props}
@@ -24,7 +24,7 @@ function TabsTrigger({ className, ...props }: ComponentProps<typeof TabsPrimitiv
         <TabsPrimitive.Trigger
             data-slot="tabs-trigger"
             className={cn(
-                "inline-flex items-center justify-center whitespace-nowrap rounded-[var(--radius-sm)] border border-transparent px-4 py-1.5 text-[13px] font-medium text-[var(--text-muted)] transition-all outline-none hover:bg-[var(--bg-raised)] hover:text-[var(--text-strong)] data-[state=active]:border-[var(--accent-border)] data-[state=active]:bg-[var(--accent-dim)] data-[state=active]:text-[var(--accent)]",
+                "inline-flex h-full items-center justify-center whitespace-nowrap border-b-2 border-transparent px-4 text-[13px] font-medium text-outline transition-colors outline-none hover:text-on-surface data-[state=active]:border-primary data-[state=active]:font-semibold data-[state=active]:text-primary",
                 className,
             )}
             {...props}

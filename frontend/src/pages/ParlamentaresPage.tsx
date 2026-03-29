@@ -27,6 +27,15 @@ export default function ParlamentaresPage() {
     [],
   );
   const anoOptions = useMemo(() => ANOS.map((a) => ({ label: String(a), value: String(a) })), []);
+  const activeFilters = useMemo(
+    () => [
+      nome ? { label: `Nome: ${nome}`, clear: () => setNome("") } : null,
+      partido ? { label: `Partido: ${partido}`, clear: () => setPartido("") } : null,
+      uf ? { label: `UF: ${uf}`, clear: () => setUf("") } : null,
+      ano ? { label: `Ano: ${ano}`, clear: () => setAno(ANOS[0]) } : null,
+    ].filter(Boolean) as { label: string; clear: () => void }[],
+    [nome, partido, uf, ano],
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -45,44 +54,68 @@ export default function ParlamentaresPage() {
   const data = result?.data ?? [];
 
   return (
-    <div className="px-8 pt-10 pb-4 max-w-full animate-[fadeUp_0.35s_ease_both] flex flex-col flex-1 min-h-0">
-      <div className="mb-8">
-        <h1 className="page-title-gradient text-[42px] font-extrabold tracking-[-0.04em] mb-2">Parlamentares</h1>
-        <p className="text-[var(--text-muted)] text-sm tracking-wide">Busque e filtre por nome, partido e estado</p>
+    <div className="flex min-h-0 max-w-full flex-1 flex-col animate-[fadeUp_0.35s_ease_both]">
+      <section className="hero-gradient mb-6 rounded-xl p-6 text-white shadow-sm md:p-8">
+        <h1 className="mt-4 font-headline text-3xl font-bold tracking-[-0.03em] md:text-4xl">Parlamentares da Republica</h1>
+        <p className="mt-3 max-w-2xl text-sm text-white/70 md:text-base">
+          Consulte representantes, acompanhe partido e UF e acesse rapidamente os detalhes de cada parlamentar.
+        </p>
+      </section>
+
+      <div className="mb-6 rounded-xl bg-surface-container-low p-3 shadow-sm">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <label className="flex min-w-[250px] flex-1 items-center gap-2 rounded-lg border border-outline-variant bg-white px-3 py-2">
+            <span className="material-symbols-outlined text-[18px] text-outline">search</span>
+            <Input
+              placeholder="Buscar por nome..."
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              className="w-full border-0 bg-transparent px-0 py-0 shadow-none focus:bg-transparent focus:shadow-none"
+            />
+          </label>
+          <Input
+            placeholder="Partido (ex: PT)"
+            value={partido}
+            onChange={(e) => setPartido(e.target.value.toUpperCase())}
+            className="w-[140px] rounded-lg border-outline-variant bg-white px-4 py-2"
+            maxLength={10}
+          />
+          <SelectField value={uf} onValueChange={setUf} options={ufOptions} className="w-[160px] rounded-lg border-outline-variant bg-white px-4 py-2" />
+          <SelectField
+            value={String(ano)}
+            onValueChange={(v) => setAno(Number(v))}
+            options={anoOptions}
+            className="w-[120px] rounded-lg border-outline-variant bg-white px-4 py-2"
+          />
+        </div>
+
+        {activeFilters.length > 0 && (
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-[0.12em] text-outline">FILTROS ATIVOS:</span>
+            {activeFilters.map((filter) => (
+              <button
+                key={filter.label}
+                type="button"
+                onClick={filter.clear}
+                className="inline-flex items-center gap-1 rounded-full border border-outline-variant bg-white px-2.5 py-1 text-xs font-medium text-on-surface-variant transition-colors hover:bg-surface-container"
+              >
+                {filter.label}
+                <span className="material-symbols-outlined text-[14px]">close</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      <div className="flex items-center gap-2.5 mb-6 flex-wrap">
-        <Input
-          placeholder="Buscar por nome..."
-          value={nome}
-          onChange={(e) => setNome(e.target.value)}
-          className="flex-1 min-w-0 max-w-[300px]"
-        />
-        <Input
-          placeholder="Partido (ex: PT)"
-          value={partido}
-          onChange={(e) => setPartido(e.target.value.toUpperCase())}
-          className="w-[130px]"
-          maxLength={10}
-        />
-        <SelectField value={uf} onValueChange={setUf} options={ufOptions} className="w-[160px]" />
-        <SelectField
-          value={String(ano)}
-          onValueChange={(v) => setAno(Number(v))}
-          options={anoOptions}
-          className="w-[120px]"
-        />
-      </div>
-
-      <Card className="transition-colors duration-300 hover:border-[var(--border-strong)] flex flex-col flex-1 min-h-0">
+      <Card className="flex min-h-0 flex-1 flex-col rounded-xl border-outline-variant/40 bg-surface-container-lowest shadow-sm">
         <Table.Root containerClassName="flex-1 min-h-0">
           <Table.Header>
             <Table.Row className="hover:bg-transparent">
-              <Table.ColumnHeaderCell>Parlamentar</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell>Partido</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell>UF</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell>Total gasto em {ano} (R$)</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell aria-label="Acoes" />
+              <Table.ColumnHeaderCell className="bg-primary-container text-xs uppercase tracking-wider text-on-primary">Parlamentar</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell className="bg-primary-container text-xs uppercase tracking-wider text-on-primary">Partido</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell className="bg-primary-container text-xs uppercase tracking-wider text-on-primary">UF</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell className="bg-primary-container text-xs uppercase tracking-wider text-on-primary">Total gasto em {ano} (R$)</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell className="bg-primary-container text-xs uppercase tracking-wider text-on-primary" aria-label="Acoes" />
             </Table.Row>
           </Table.Header>
           <Table.Body>
@@ -99,30 +132,33 @@ export default function ParlamentaresPage() {
               </Table.Row>
             )}
             {!loading && data.map((p) => (
-              <Table.Row key={p.id}>
+              <Table.Row key={p.id} className="hover:bg-secondary-container/10">
                 <Table.Cell>
-                  <div className="flex items-center gap-2.5 text-[var(--text-strong)] font-medium">
+                  <div className="flex items-center gap-2.5 font-medium text-on-surface">
                     <ParlamentarAvatar nome={p.nome} foto={p.foto_url} />
-                    <span className="text-[var(--text-strong)] font-medium">{p.nome}</span>
+                    <div>
+                      <div className="font-medium text-on-surface">{p.nome}</div>
+                      <div className="text-xs text-outline">{p.casa === "camara" ? "Deputado Federal" : "Parlamentar"}</div>
+                    </div>
                   </div>
                 </Table.Cell>
                 <Table.Cell>
                   <Badge>{p.sigla_partido ?? "-"}</Badge>
                 </Table.Cell>
                 <Table.Cell>
-                  <span className="font-mono text-[12px] text-[var(--text-muted)]">
+                  <span className="font-mono text-[12px] text-outline">
                     {p.sigla_uf ?? "-"}
                   </span>
                 </Table.Cell>
-                <Table.Cell>
-                  <span className="font-mono text-[13px] font-semibold text-[var(--accent)]">
+                <Table.Cell className="text-right">
+                  <span className="tabular-nums font-mono text-[13px] font-bold text-primary">
                     {p.total_gasto !== undefined ? formatBRL(p.total_gasto) : "-"}
                   </span>
                 </Table.Cell>
                 <Table.Cell>
                   <Link
                     to={`/parlamentares/${p.id}`}
-                    className="inline-flex items-center gap-1.5 font-sans text-[12px] font-medium text-[var(--text-muted)] px-4 py-2 rounded-[var(--radius-sm)] border border-[var(--border)] transition-all hover:text-[var(--text-strong)] hover:bg-[var(--bg-raised)] hover:border-[var(--border-strong)] whitespace-nowrap"
+                    className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 font-label text-[12px] font-medium text-primary transition-colors hover:bg-surface-container-low"
                   >
                     Ver detalhes →
                   </Link>

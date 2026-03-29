@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Card } from "../components/ui/card";
 import { Pagination } from "../components/ui/Pagination";
-import { SelectField } from "../components/ui/SelectField";
 import { Spinner } from "../components/ui/spinner";
 import { TabPanel, TabsField } from "../components/ui/Tabs";
 import { getRankingCategorias, getRankingPartidos } from "../services/api";
@@ -26,7 +25,7 @@ export default function PartidosPage() {
   const [partidosPage, setPartidosPage] = useState(1);
   const [categoriasPage, setCategoriasPage] = useState(1);
 
-  const anoOptions = useMemo(() => ANOS.map((item) => ({ label: String(item), value: String(item) })), []);
+  const anosVisiveis = useMemo(() => ANOS.slice(0, 3), []);
 
   useEffect(() => {
     let mounted = true;
@@ -62,21 +61,50 @@ export default function PartidosPage() {
 
   const partidosCurrent = getSlice(partidos, partidosPage);
   const categoriasCurrent = getSlice(categorias, categoriasPage);
+  const totalPartidos = partidos.reduce((acc, p) => acc + p.total, 0);
+  const mediaPartido = partidos.length > 0 ? totalPartidos / partidos.length : 0;
+  const maiorCategoria = categorias[0];
 
   return (
-    <div className="px-8 py-10 pb-16 max-w-full animate-[fadeUp_0.35s_ease_both]">
-      <div className="mb-8">
-        <h1 className="page-title-gradient text-[42px] font-extrabold tracking-[-0.04em] mb-2">Gastos por Partido</h1>
-        <p className="text-[var(--text-muted)] text-sm tracking-wide">Comparativo do uso da cota parlamentar entre partidos e categorias</p>
+    <div className="max-w-full animate-[fadeUp_0.35s_ease_both] pb-6">
+      <section className="hero-gradient mb-6 rounded-xl p-6 text-white shadow-sm md:p-8">
+        <h1 className="mt-4 font-headline text-3xl font-bold tracking-[-0.03em] md:text-4xl">Gastos por Partido</h1>
+        <p className="mt-3 max-w-2xl text-sm text-white/70 md:text-base">
+          Comparativo do uso da cota parlamentar entre partidos e categorias
+        </p>
+      </section>
+
+      <div className="mb-6 inline-flex items-center overflow-hidden rounded-lg border border-outline-variant bg-surface-container-low p-1">
+        {anosVisiveis.map((anoItem) => (
+          <button
+            key={anoItem}
+            type="button"
+            onClick={() => setAno(anoItem)}
+            className={[
+              "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+              anoItem === ano ? "bg-primary text-white" : "text-outline hover:bg-white",
+            ].join(" ")}
+          >
+            {anoItem}
+          </button>
+        ))}
       </div>
 
-      <div className="flex items-center gap-2.5 mb-6 flex-wrap">
-        <SelectField
-          value={String(ano)}
-          onValueChange={(v) => setAno(Number(v))}
-          options={anoOptions}
-          className="w-[120px]"
-        />
+      <div className="mb-6 grid gap-3.5" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
+        <Card className="hero-gradient rounded-xl px-5 py-5 text-white shadow-sm">
+          <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-white/70">Gasto Total Partidario</div>
+          <div className="font-headline text-3xl font-bold leading-none">{loading ? "—" : formatBRL(totalPartidos)}</div>
+          {/* <div className="mt-2 text-xs text-secondary-container">+7,3% em relacao ao ultimo ano</div> */}
+        </Card>
+        <Card className="rounded-xl border-outline-variant/40 bg-surface-container-lowest px-5 py-5 shadow-sm">
+          <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-outline">Media por Parlamentar</div>
+          <div className="tabular-nums font-headline text-2xl font-bold text-on-surface">{loading ? "—" : formatBRL(mediaPartido)}</div>
+        </Card>
+        <Card className="rounded-xl border-outline-variant/40 bg-surface-container-lowest px-5 py-5 shadow-sm">
+          <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-outline">Categoria mais Expressiva</div>
+          <div className="text-sm font-semibold text-on-surface">{maiorCategoria?.categoria ?? "—"}</div>
+          {/* <div className="mt-2 text-xs text-amber-700">Alerta: monitorar variacao acima do teto medio.</div> */}
+        </Card>
       </div>
 
       {loading && (
@@ -95,12 +123,12 @@ export default function PartidosPage() {
           ]}
         >
           <TabPanel value="partidos">
-            <Card className="p-6 max-h-[calc(100vh-350px)] flex flex-col">
+            <Card className="flex max-h-[calc(100vh-350px)] flex-col rounded-xl border-outline-variant/40 bg-surface-container-lowest p-6 shadow-sm">
               {partidos.length === 0 ? (
-                <p className="py-14 text-center text-[var(--text-muted)] text-sm">Sem dados para o período selecionado.</p>
+                <p className="py-14 text-center text-sm text-outline">Sem dados para o periodo selecionado.</p>
               ) : (
                 <>
-                  <div className="grid items-center gap-4 pb-3 mb-1 border-b border-[var(--border)] text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-widest flex-shrink-0" style={{ gridTemplateColumns: '80px 1fr 110px 100px 140px' }}>
+                  <div className="mb-1 grid flex-shrink-0 items-center gap-4 border-b border-outline-variant pb-3 text-[11px] font-semibold uppercase tracking-widest text-outline" style={{ gridTemplateColumns: '80px 1fr 110px 100px 140px' }}>
                     <span>Partido</span>
                     <span />
                     <span className="text-right">Total (R$)</span>
@@ -112,22 +140,22 @@ export default function PartidosPage() {
                     {partidosCurrent.map((p, i) => (
                       <div
                         key={p.partido}
-                        className="grid items-center gap-4 py-2.5 px-1.5 border-b border-[var(--border)] last:border-b-0 rounded-[var(--radius-sm)] hover:bg-[var(--bg-hover)] transition-colors"
+                        className="grid items-center gap-4 rounded-lg border-b border-outline-variant px-1.5 py-2.5 transition-colors last:border-b-0 hover:bg-secondary-container/10"
                         style={{ gridTemplateColumns: '80px 1fr 110px 100px 140px', animationDelay: `${i * 25}ms`, animation: 'fadeUp 0.3s ease both' }}
                       >
-                        <span className="font-sans font-extrabold text-[15px] text-[var(--text-h)] tracking-[-0.01em] overflow-hidden text-ellipsis whitespace-nowrap" title={p.partido}>
-                          {p.partido}
+                        <span className="inline-flex w-fit rounded-full bg-surface-container px-2.5 py-1 font-headline text-[12px] font-bold tracking-[0.03em] text-primary" title={p.partido}>
+                          {p.partido || "-"}
                         </span>
-                        <div className="h-1.5 bg-[var(--bg-raised)] rounded-full overflow-hidden border border-[var(--border)]">
-                          <div className="gasto-bar-fill" style={{ width: `${(p.total / maxPartido) * 100}%` }} />
+                        <div className="h-2 overflow-hidden rounded-full bg-surface-container">
+                          <div className="h-full rounded-full bg-secondary" style={{ width: `${(p.total / maxPartido) * 100}%` }} />
                         </div>
-                        <span className="text-right font-mono font-semibold text-[12px] text-[var(--accent)]">
+                        <span className="tabular-nums text-right font-mono text-[12px] font-bold text-primary">
                           {formatBRL(p.total)}
                         </span>
-                        <span className="text-right font-mono text-[12px] text-[var(--text-muted)]">
+                        <span className="tabular-nums text-right font-mono text-[12px] text-outline">
                           {p.qtd_parlamentares}
                         </span>
-                        <span className="text-right font-mono text-[12px] text-[var(--text-strong)]">
+                        <span className="tabular-nums text-right font-mono text-[12px] text-on-surface">
                           {formatBRL(p.media_por_parlamentar)}
                         </span>
                       </div>
@@ -143,9 +171,9 @@ export default function PartidosPage() {
           </TabPanel>
 
           <TabPanel value="categorias">
-            <Card className="p-6 max-h-[calc(100vh-350px)] flex flex-col">
+            <Card className="flex max-h-[calc(100vh-350px)] flex-col rounded-xl border-outline-variant/40 bg-surface-container-lowest p-6 shadow-sm">
               {categorias.length === 0 ? (
-                <p className="py-14 text-center text-[var(--text-muted)] text-sm">Sem dados para o período selecionado.</p>
+                <p className="py-14 text-center text-sm text-outline">Sem dados para o periodo selecionado.</p>
               ) : (
                 <>
                   <div className="flex flex-col gap-3.5 overflow-y-auto flex-1">
@@ -155,13 +183,13 @@ export default function PartidosPage() {
                         className="grid items-center gap-3.5"
                         style={{ gridTemplateColumns: '200px 1fr 110px', animationDelay: `${i * 25}ms`, animation: 'fadeUp 0.3s ease both' }}
                       >
-                        <span className="text-[12px] font-medium text-[var(--text)] overflow-hidden text-ellipsis whitespace-nowrap" title={cat.categoria}>
+                        <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[12px] font-medium text-on-surface-variant" title={cat.categoria}>
                           {cat.categoria}
                         </span>
-                        <div className="h-2 bg-[var(--bg-raised)] rounded-full overflow-hidden border border-[var(--border)]">
-                          <div className="gasto-bar-fill" style={{ width: `${(cat.total / maxCategoria) * 100}%` }} />
+                        <div className="h-2 overflow-hidden rounded-full bg-surface-container">
+                          <div className="h-full rounded-full bg-secondary" style={{ width: `${(cat.total / maxCategoria) * 100}%` }} />
                         </div>
-                        <span className="font-mono text-[12px] font-semibold text-[var(--text-strong)] text-right whitespace-nowrap">{formatBRL(cat.total)}</span>
+                        <span className="tabular-nums whitespace-nowrap text-right font-mono text-[12px] font-semibold text-on-surface">{formatBRL(cat.total)}</span>
                       </div>
                     ))}
                   </div>
@@ -176,6 +204,25 @@ export default function PartidosPage() {
                 </>
               )}
             </Card>
+
+            <div className="mt-4 grid gap-3.5 md:grid-cols-2">
+              {/* <Card className="rounded-xl border-outline-variant/40 bg-surface-container-lowest p-5 shadow-sm">
+                <h3 className="font-headline text-lg font-semibold text-on-surface">Maiores Crescimentos</h3>
+                <ul className="mt-3 space-y-2 text-sm text-on-surface-variant">
+                  <li className="flex items-center justify-between"><span>PSD</span><span className="font-semibold text-secondary">+14.8%</span></li>
+                  <li className="flex items-center justify-between"><span>MDB</span><span className="font-semibold text-secondary">+11.2%</span></li>
+                  <li className="flex items-center justify-between"><span>PSB</span><span className="font-semibold text-secondary">+9.6%</span></li>
+                </ul>
+              </Card>
+              <Card className="hero-gradient rounded-xl p-5 text-white shadow-sm">
+                <h3 className="font-headline text-lg font-semibold">Exportar Inteligencia</h3>
+                <p className="mt-2 text-sm text-white/70">Opcoes de compartilhamento estrategico para briefing executivo.</p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <button type="button" className="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-primary">Download PDF</button>
+                  <button type="button" className="rounded-lg border border-white/35 px-3 py-2 text-sm font-semibold text-white">Enviar por E-mail</button>
+                </div>
+              </Card> */}
+            </div>
           </TabPanel>
         </TabsField>
       )}

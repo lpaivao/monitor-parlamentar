@@ -60,55 +60,63 @@ export default function RankingPage() {
   const currentItems = getSlice(items, page);
 
   return (
-    <div className="px-8 pt-10 pb-4 max-w-full animate-[fadeUp_0.35s_ease_both] flex flex-col flex-1 min-h-0">
-      <div className="mb-8">
-        <h1 className="page-title-gradient text-[42px] font-extrabold tracking-[-0.04em] mb-2">Ranking de Gastos</h1>
-        <p className="text-[var(--text-muted)] text-sm tracking-wide">Top parlamentares por total da cota parlamentar utilizada</p>
-      </div>
+    <div className="flex min-h-0 max-w-full flex-1 flex-col animate-[fadeUp_0.35s_ease_both]">
+      <section className="hero-gradient mb-6 rounded-xl p-6 text-white shadow-sm md:p-8">
+        <h1 className="mt-4 font-headline text-3xl font-bold tracking-[-0.03em] md:text-4xl">Ranking de Gastos</h1>
+        <p className="mt-3 max-w-2xl text-sm text-white/70 md:text-base">
+          Top parlamentares por total da cota parlamentar utilizada
+        </p>
+      </section>
 
-      <div className="flex items-center gap-2.5 mb-6 flex-wrap">
+      <div className="mb-6 flex flex-wrap items-center gap-2.5 rounded-xl bg-surface-container-low p-3 shadow-sm">
         <SelectField
           value={String(ano)}
           onValueChange={(value) => setAno(Number(value))}
           options={anoOptions}
-          className="w-[120px]"
+          className="w-[132px] rounded-lg border-outline-variant bg-white px-4 py-2"
         />
         <Input
           placeholder="Partido (ex: PT)"
           value={partido}
           onChange={(e) => setPartido(e.target.value.toUpperCase())}
-          className="w-[140px]"
+          className="w-[160px] rounded-lg border-outline-variant bg-white px-4 py-2"
           maxLength={10}
         />
-        <SelectField value={uf} onValueChange={setUf} options={ufOptions} className="w-[160px]" />
+        <SelectField value={uf} onValueChange={setUf} options={ufOptions} className="w-[180px] rounded-lg border-outline-variant bg-white px-4 py-2" />
       </div>
 
-      <div className="grid gap-3.5 mb-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
-        <Card className="stat-card rounded-[var(--radius-md)] px-5 py-5 relative transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
-          <div className="text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-[0.1em] mb-2.5">Parlamentares</div>
-          <div className="font-sans text-[28px] font-extrabold text-[var(--text-h)] tracking-[-0.03em] leading-none">{loading ? "—" : items.length}</div>
+      <div className="mb-6 grid gap-3.5" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
+        <Card className="hero-gradient rounded-xl px-5 py-5 text-white shadow-sm">
+          <div className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-white/70">Total gasto</div>
+          <div className="font-headline text-3xl font-bold leading-none">{loading ? "—" : formatBRL(totalGeral)}</div>
+          {/* <div className="mt-2 text-xs text-secondary-container">+12,4% comparado ao periodo anterior</div> */}
         </Card>
-        <Card className="stat-card rounded-[var(--radius-md)] px-5 py-5 relative transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
-          <div className="text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-[0.1em] mb-2.5">Total gasto em {ano}</div>
-          <div className="font-sans text-[22px] font-extrabold text-[var(--text-h)] tracking-[-0.03em] leading-none">{loading ? "—" : formatBRL(totalGeral)}</div>
+        <Card className="rounded-xl border-outline-variant/40 bg-surface-container-lowest px-5 py-5 shadow-sm">
+          <div className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-outline">Maior gasto individual</div>
+          <div className="flex items-center gap-3">
+            <ParlamentarAvatar nome={items[0]?.nome ?? "-"} foto={items[0]?.foto_url ?? null} />
+            <div className="min-w-0">
+              <div className="truncate text-sm font-semibold text-on-surface">{items[0]?.nome ?? "—"}</div>
+              <div className="tabular-nums text-sm font-bold text-primary">{!loading && items[0] ? formatBRL(items[0].total_gasto) : "—"}</div>
+            </div>
+          </div>
         </Card>
-        <Card className="stat-card rounded-[var(--radius-md)] px-5 py-5 relative transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow)]">
-          <div className="text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-[0.1em] mb-2.5">Maior gasto individual</div>
-          <div className="font-sans text-[20px] font-extrabold text-[var(--text-h)] tracking-[-0.03em] leading-none">{!loading && items[0] ? formatBRL(items[0].total_gasto) : "—"}</div>
-          <div className="font-mono text-[11px] text-[var(--text-muted)] mt-1.5">{items[0]?.nome ?? ""}</div>
+        <Card className="rounded-xl border-outline-variant/40 bg-surface-container-lowest px-5 py-5 shadow-sm">
+          <div className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-outline">Parlamentares</div>
+          <div className="font-headline text-3xl font-bold leading-none text-on-surface">{loading ? "—" : items.length}</div>
         </Card>
       </div>
 
-      <Card className="transition-colors duration-300 hover:border-[var(--border-strong)] flex flex-col flex-1 min-h-0">
+      <Card className="flex min-h-0 flex-1 flex-col rounded-xl border-outline-variant/40 bg-surface-container-lowest shadow-sm">
         <Table.Root containerClassName="flex-1 min-h-0">
           <Table.Header>
             <Table.Row className="hover:bg-transparent">
-              <Table.ColumnHeaderCell className="w-14">#</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell>Parlamentar</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell>Partido / UF</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell>Despesas</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell>Total gasto (R$)</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell className="w-[180px]">Proporcao</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell className="w-14 bg-primary-container text-xs uppercase tracking-wider text-on-primary">#</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell className="bg-primary-container text-xs uppercase tracking-wider text-on-primary">Parlamentar</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell className="bg-primary-container text-xs uppercase tracking-wider text-on-primary">Partido / UF</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell className="bg-primary-container text-xs uppercase tracking-wider text-on-primary">Despesas</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell className="bg-primary-container text-xs uppercase tracking-wider text-on-primary">Total gasto (R$)</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell className="w-[180px] bg-primary-container text-xs uppercase tracking-wider text-on-primary">Proporcao</Table.ColumnHeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
@@ -128,20 +136,32 @@ export default function RankingPage() {
               const medal = getRankMedal(item.posicao);
               const pct = (item.total_gasto / max) * 100;
               return (
-                <Table.Row key={item.id}>
+                <Table.Row key={item.id} className="hover:bg-secondary-container/10">
                   <Table.Cell>
                     {medal ? (
-                      <span className="text-[18px]" title={`#${item.posicao}`}>{medal.icon}</span>
+                      <span
+                        className={[
+                          "inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold",
+                          item.posicao === 1
+                            ? "bg-tertiary-fixed text-tertiary"
+                            : item.posicao === 2
+                              ? "bg-slate-300 text-slate-700"
+                              : "bg-amber-700/20 text-amber-900",
+                        ].join(" ")}
+                        title={`#${item.posicao}`}
+                      >
+                        {item.posicao}
+                      </span>
                     ) : (
-                      <span className="font-mono text-[12px] font-semibold text-[var(--text-dim)]">
+                      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-surface-container text-xs font-semibold text-outline">
                         {item.posicao}
                       </span>
                     )}
                   </Table.Cell>
                   <Table.Cell>
-                    <div className="flex items-center gap-2.5 text-[var(--text-strong)] font-medium">
+                    <div className="flex items-center gap-2.5 font-medium text-on-surface">
                       <ParlamentarAvatar nome={item.nome} foto={item.foto_url} />
-                      <Link to={`/parlamentares/${item.id}`} className="text-[var(--text-strong)] font-medium hover:text-[var(--accent)] transition-colors">{item.nome}</Link>
+                      <Link to={`/parlamentares/${item.id}`} className="font-medium text-on-surface transition-colors hover:text-primary">{item.nome}</Link>
                     </div>
                   </Table.Cell>
                   <Table.Cell>
@@ -151,21 +171,21 @@ export default function RankingPage() {
                     </div>
                   </Table.Cell>
                   <Table.Cell>
-                    <span className="font-mono text-[12px] text-[var(--text-muted)]">
+                    <span className="tabular-nums font-mono text-[12px] text-outline">
                       {item.qtd_despesas.toLocaleString("pt-BR")}
                     </span>
                   </Table.Cell>
-                  <Table.Cell>
-                    <span className="font-mono text-[13px] font-semibold text-[var(--text-h)]">
+                  <Table.Cell className="text-right">
+                    <span className="tabular-nums font-mono text-[13px] font-bold text-primary">
                       {formatBRL(item.total_gasto)}
                     </span>
                   </Table.Cell>
                   <Table.Cell>
                     <div className="flex items-center gap-2">
-                      <div className="flex-1 h-1.5 bg-[var(--bg-raised)] rounded-full overflow-hidden border border-[var(--border)]">
-                        <div className="gasto-bar-fill" style={{ width: `${pct}%` }} />
+                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-container">
+                        <div className="h-full rounded-full bg-secondary" style={{ width: `${pct}%` }} />
                       </div>
-                      <span className="font-mono text-[10px] text-[var(--text-dim)] w-9 text-right">
+                      <span className="tabular-nums w-9 text-right font-mono text-[10px] text-outline">
                         {pct.toFixed(0)}%
                       </span>
                     </div>
@@ -176,6 +196,15 @@ export default function RankingPage() {
           </Table.Body>
         </Table.Root>
         {!loading && <Pagination currentPage={page} lastPage={lastPage} onPageChange={setPage} />}
+      </Card>
+
+      <Card className="mt-4 rounded-xl border-0 border-l-4 border-tertiary bg-primary-container/5 px-4 py-3 shadow-sm">
+        <div className="flex items-start gap-2.5 text-sm text-on-surface-variant">
+          <span className="material-symbols-outlined text-tertiary">info</span>
+          <p>
+            Os valores apresentados refletem despesas declaradas na cota parlamentar para o periodo selecionado.
+          </p>
+        </div>
       </Card>
     </div>
   );

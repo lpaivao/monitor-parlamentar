@@ -49,9 +49,7 @@ export default function PartidosPage() {
         minWidth: 130,
         sortable: false,
         renderCell: (params) => (
-          <span className="inline-flex w-fit rounded-full bg-surface-container px-2 py-0.5 font-headline text-[10px] font-bold tracking-[0.03em] text-primary" title={params.row.partido}>
-            {params.row.partido || "-"}
-          </span>
+          params.row.partido || "-"
         ),
       },
       {

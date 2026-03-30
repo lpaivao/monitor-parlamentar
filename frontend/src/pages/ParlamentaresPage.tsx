@@ -1,7 +1,8 @@
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ParlamentarAvatar } from "../components/ui/Avatar";
+import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { SelectField } from "../components/ui/SelectField";
@@ -11,6 +12,7 @@ import type { Parlamentar } from "../types";
 import { ANOS, formatBRL, UFS } from "../utils";
 
 export default function ParlamentaresPage() {
+  const navigate = useNavigate();
   const [nome, setNome] = useState("");
   const [partido, setPartido] = useState("");
   const [uf, setUf] = useState("");
@@ -101,17 +103,19 @@ export default function ParlamentaresPage() {
         renderCell: (params) => {
           const parlamentarId = params.row.id ?? params.row.api_id;
           return (
-            <Link
-              to={`/parlamentares/${parlamentarId}`}
-              className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 font-label text-[12px] font-medium text-primary transition-colors hover:bg-surface-container-low"
+            <Button
+              type="button"
+              size="sm"
+              className="gap-1.5 rounded-lg font-label text-[12px]"
+              onClick={() => navigate(`/parlamentares/${parlamentarId}`)}
             >
               Ver detalhes →
-            </Link>
+            </Button>
           );
         },
       },
     ],
-    [ano],
+    [ano, navigate],
   );
 
   return (

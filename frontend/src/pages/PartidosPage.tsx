@@ -33,7 +33,7 @@ export default function PartidosPage() {
   const categorias = categoriasData?.data ?? [];
   const loading = isLoadingPartidos || isFetchingPartidos || isLoadingCategorias || isFetchingCategorias;
 
-  const anosVisiveis = useMemo(() => ANOS.slice(0, 3), []);
+  const anosVisiveis = useMemo(() => ANOS.slice(0, 5), []);
 
   const maxPartido = Math.max(...partidos.map((p) => p.total), 1);
   const maxCategoria = Math.max(...categorias.map((c) => c.total), 1);

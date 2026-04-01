@@ -26,15 +26,15 @@ def get_conn():
 # PARTIDOS
 # ──────────────────────────────────────────────
 
-def upsert_partido(conn, sigla: str, nome: str) -> int:
-    with conn.cursor() as cur:
-        cur.execute("""
-            INSERT INTO partidos (sigla, nome)
-            VALUES (%s, %s)
-            ON CONFLICT (sigla) DO UPDATE SET nome = EXCLUDED.nome
-            RETURNING id
-        """, (sigla, nome))
-        return cur.fetchone()[0]
+# def upsert_partido(conn, sigla: str, nome: str) -> int:
+#     with conn.cursor() as cur:
+#         cur.execute("""
+#             INSERT INTO partidos (sigla, nome)
+#             VALUES (%s, %s)
+#             ON CONFLICT (sigla) DO UPDATE SET nome = EXCLUDED.nome
+#             RETURNING id
+#         """, (sigla, nome))
+#         return cur.fetchone()[0]
 
 
 # ──────────────────────────────────────────────

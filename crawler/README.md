@@ -24,7 +24,6 @@ Os dados coletados sao armazenados nas seguintes tabelas:
 
 | Tabela          | Descricao                                                                                                        |
 | --------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `partidos`      | Cadastro de partidos (sigla e nome).                                                                             |
 | `parlamentares` | Dados de identificacao do parlamentar (id da API, nome, partido, UF, foto, casa e legislatura).                  |
 | `despesas`      | Gastos parlamentares por documento (ano, mes, tipo de despesa, fornecedor, CNPJ/CPF, valores e data de emissao). |
 | `sync_logs`     | Historico das execucoes do crawler (ano, status e detalhes da sincronizacao).                                    |

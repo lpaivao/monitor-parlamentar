@@ -2,6 +2,63 @@
 
 Coleta dados oficiais da Camara e persiste no PostgreSQL.
 
+## Resumo da Etapa 1 (Crawler)
+
+Esta primeira etapa do projeto implementa somente o processo de coleta e persistencia dos dados de gastos parlamentares da Camara dos Deputados.
+
+Fontes utilizadas para a coleta:
+
+1. API de Dados Abertos da Camara: https://dadosabertos.camara.leg.br/api/v2
+2. Arquivo anual de cotas parlamentares (JSON compactado em ZIP): https://www.camara.leg.br/cotas/
+
+Fluxo resumido:
+
+1. Coletar deputados da legislatura informada pela API.
+2. Coletar despesas anuais via arquivo ZIP (2022..2026) e usar API por deputado como fallback.
+3. Salvar/atualizar parlamentares e inserir despesas sem duplicacao.
+4. Registrar logs de sincronizacao no banco.
+
+## Descritor dos Dados (Tabelas)
+
+Os dados coletados sao armazenados nas seguintes tabelas:
+
+| Tabela          | Descricao                                                                                                        |
+| --------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `partidos`      | Cadastro de partidos (sigla e nome).                                                                             |
+| `parlamentares` | Dados de identificacao do parlamentar (id da API, nome, partido, UF, foto, casa e legislatura).                  |
+| `despesas`      | Gastos parlamentares por documento (ano, mes, tipo de despesa, fornecedor, CNPJ/CPF, valores e data de emissao). |
+| `sync_logs`     | Historico das execucoes do crawler (ano, status e detalhes da sincronizacao).                                    |
+
+## Armazenamento dos Dados
+
+O local de armazenamento e um banco PostgreSQL.
+
+Configuracao padrao no `.env`:
+
+- `DB_HOST=localhost`
+- `DB_PORT=5432`
+- `DB_NAME=monitor_parlamentar`
+- `DB_USER=postgres`
+- `DB_PASSWORD=`
+
+No ambiente Docker Compose, os dados do banco ficam persistidos no volume `pgdata`.
+
+## Arquivo com os Dados Coletados (Anexo da Entrega)
+
+Para anexar os dados coletados ao professor, gere e versione dois arquivos CSV:
+
+1. `parlamentares.csv`
+2. `despesas.csv`
+
+Exemplo de exportacao com PostgreSQL (executar apos a coleta):
+
+```sql
+\copy (SELECT id, api_id, nome, sigla_partido, sigla_uf, casa, legislatura FROM parlamentares ORDER BY id) TO 'parlamentares.csv' WITH CSV HEADER;
+\copy (SELECT id, parlamentar_id, ano, mes, tipo_despesa, fornecedor, cnpj_cpf, valor_documento, valor_liquido, numero_documento, url_documento, data_emissao FROM despesas ORDER BY id) TO 'despesas.csv' WITH CSV HEADER;
+```
+
+Depois de gerar os arquivos, inclua-os no repositorio (ou em pasta de entrega) e compartilhe o link para avaliacao.
+
 ## Setup
 
 ```bash

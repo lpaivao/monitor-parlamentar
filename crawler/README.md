@@ -43,22 +43,6 @@ Configuracao padrao no `.env`:
 
 No ambiente Docker Compose, os dados do banco ficam persistidos no volume `pgdata`.
 
-## Arquivo com os Dados Coletados (Anexo da Entrega)
-
-Para anexar os dados coletados ao professor, gere e versione dois arquivos CSV:
-
-1. `parlamentares.csv`
-2. `despesas.csv`
-
-Exemplo de exportacao com PostgreSQL (executar apos a coleta):
-
-```sql
-\copy (SELECT id, api_id, nome, sigla_partido, sigla_uf, casa, legislatura FROM parlamentares ORDER BY id) TO 'parlamentares.csv' WITH CSV HEADER;
-\copy (SELECT id, parlamentar_id, ano, mes, tipo_despesa, fornecedor, cnpj_cpf, valor_documento, valor_liquido, numero_documento, url_documento, data_emissao FROM despesas ORDER BY id) TO 'despesas.csv' WITH CSV HEADER;
-```
-
-Depois de gerar os arquivos, inclua-os no repositorio (ou em pasta de entrega) e compartilhe o link para avaliacao.
-
 ## Setup
 
 ```bash

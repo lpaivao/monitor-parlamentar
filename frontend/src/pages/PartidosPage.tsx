@@ -59,10 +59,13 @@ export default function PartidosPage() {
         flex: 1,
         sortable: false,
         renderCell: (params) => (
-          <div className="w-full">
-            <div className="h-2 overflow-hidden rounded-full bg-surface-container">
+          <div className="flex w-full items-center gap-2">
+            <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-container">
               <div className="h-full rounded-full bg-secondary" style={{ width: `${(params.row.total / maxPartido) * 100}%` }} />
             </div>
+            <span className="tabular-nums w-9 text-right font-mono text-[10px] text-outline">
+              {((params.row.total / maxPartido) * 100).toFixed(0)}%
+            </span>
           </div>
         ),
       },
@@ -118,10 +121,13 @@ export default function PartidosPage() {
         flex: 1,
         sortable: false,
         renderCell: (params) => (
-          <div className="w-full">
-            <div className="h-2 overflow-hidden rounded-full bg-surface-container">
+          <div className="flex w-full items-center gap-2">
+            <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-container">
               <div className="h-full rounded-full bg-secondary" style={{ width: `${(params.row.total / maxCategoria) * 100}%` }} />
             </div>
+            <span className="tabular-nums w-9 text-right font-mono text-[10px] text-outline">
+              {((params.row.total / maxCategoria) * 100).toFixed(0)}%
+            </span>
           </div>
         ),
       },

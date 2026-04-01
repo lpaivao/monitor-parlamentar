@@ -324,6 +324,7 @@ export default function ParlamentarPage() {
               <DataGrid
                 rows={despesas?.data ?? []}
                 columns={despesaColumns}
+                getRowId={(row: any) => row.id}
                 loading={loadingDespesas}
                 pagination
                 paginationMode="server"

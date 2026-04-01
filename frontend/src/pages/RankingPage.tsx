@@ -215,6 +215,7 @@ export default function RankingPage() {
           <DataGrid
             rows={items}
             columns={columns}
+            getRowId={(row: any) => row.id || row.parlamentarId}
             loading={loading}
             pagination
             pageSizeOptions={[CLIENT_PER_PAGE]}

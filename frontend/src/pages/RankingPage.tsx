@@ -75,12 +75,12 @@ export default function RankingPage() {
       renderCell: (params) => {
         const parlamentarId = params.row.id;
         return (
-          <div className="flex items-center gap-2.5 font-medium text-on-surface">
+          <Link to={`/parlamentares/${parlamentarId}`} className="group flex items-center gap-2.5 font-medium text-on-surface">
             <ParlamentarAvatar nome={params.row.nome} foto={params.row.foto_url} />
-            <Link to={`/parlamentares/${parlamentarId}`} className="font-medium text-on-surface transition-colors hover:text-primary">
+            <div className="font-medium text-on-surface transition-colors group-hover:text-primary">
               {params.row.nome}
-            </Link>
-          </div>
+            </div>
+          </Link>
         );
       },
     },

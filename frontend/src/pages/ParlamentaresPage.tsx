@@ -1,6 +1,6 @@
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ParlamentarAvatar } from "../components/ui/Avatar";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
@@ -54,15 +54,18 @@ export default function ParlamentaresPage() {
         flex: 1.6,
         minWidth: 260,
         sortable: false,
-        renderCell: (params) => (
-          <div className="flex items-center gap-2.5 font-medium text-on-surface">
-            <ParlamentarAvatar nome={params.row.nome} foto={params.row.foto_url} />
-            <div>
-              <div className="font-medium text-on-surface">{params.row.nome}</div>
-              <div className="text-xs text-outline">{params.row.casa === "camara" ? "Deputado Federal" : "Parlamentar"}</div>
-            </div>
-          </div>
-        ),
+        renderCell: (params) => {
+          const parlamentarId = params.row.id ?? params.row.api_id;
+          return (
+            <Link to={`/parlamentares/${parlamentarId}`} className="group flex items-center gap-2.5 font-medium text-on-surface">
+              <ParlamentarAvatar nome={params.row.nome} foto={params.row.foto_url} />
+              <div>
+                <div className="font-medium text-on-surface transition-colors group-hover:text-primary">{params.row.nome}</div>
+                <div className="text-xs text-outline">{params.row.casa === "camara" ? "Deputado Federal" : "Parlamentar"}</div>
+              </div>
+            </Link>
+          );
+        },
       },
       {
         field: "sigla_partido",

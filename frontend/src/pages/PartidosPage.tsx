@@ -206,7 +206,7 @@ export default function PartidosPage() {
           ]}
         >
           <TabPanel value="partidos">
-            <Card className="flex max-h-[calc(100vh-350px)] flex-col rounded-xl border-outline-variant/40 bg-surface-container-lowest p-0 shadow-sm">
+            <Card className="flex flex-col rounded-xl border-outline-variant/40 bg-surface-container-lowest p-0 shadow-sm">
               {partidos.length === 0 ? (
                 <p className="py-14 text-center text-sm text-outline">Sem dados para o periodo selecionado.</p>
               ) : (
@@ -230,7 +230,7 @@ export default function PartidosPage() {
           </TabPanel>
 
           <TabPanel value="categorias">
-            <Card className="flex max-h-[calc(100vh-350px)] flex-col rounded-xl border-outline-variant/40 bg-surface-container-lowest p-0 shadow-sm">
+            <Card className="flex flex-col rounded-xl border-outline-variant/40 bg-surface-container-lowest p-0 shadow-sm">
               {categorias.length === 0 ? (
                 <p className="py-14 text-center text-sm text-outline">Sem dados para o periodo selecionado.</p>
               ) : (

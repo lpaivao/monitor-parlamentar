@@ -1,5 +1,9 @@
 import router from '@adonisjs/core/services/router'
 
+router.get('/', async () => {
+  return { status: 'ok' }
+})
+
 const ParlamentaresController = () => import('#controllers/parlamentares_controller')
 const DespesasController       = () => import('#controllers/despesas_controller')
 const RankingController        = () => import('#controllers/ranking_controller')

@@ -175,7 +175,7 @@ export default function RankingPage() {
             setPaginationModel((prev) => ({ ...prev, page: 0 }));
           }}
           className="w-[160px] rounded-lg border-outline-variant bg-white px-4 py-2"
-          maxLength={10}
+          maxLength={15}
         />
         <SelectField
           value={uf}

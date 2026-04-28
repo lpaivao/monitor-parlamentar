@@ -1,0 +1,39 @@
+name: Monitor Parlamentar Crawler
+
+on:
+  schedule:
+    # Roda às 10h, 16h e 22h no horário de Brasília (UTC-3)
+    # 10:00 BRT -> 13:00 UTC
+    # 16:00 BRT -> 19:00 UTC
+    # 22:00 BRT -> 01:00 UTC
+    - cron: '0 1,13,19 * * *'
+  workflow_dispatch: # Permite rodar manualmente pelo painel do GitHub
+
+jobs:
+  run-crawler:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          cd crawler
+          pip install -r requirements.txt
+
+      - name: Run Crawler
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          LEGISLATURA: 57
+        run: |
+          cd crawler
+          python main.py --modo diario

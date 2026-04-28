@@ -1,0 +1,49 @@
+services:
+  # ── API (AdonisJS) ────────────────────────────────────────────────
+  - type: web
+    name: monitor-api
+    runtime: docker
+    dockerContext: ./api
+    dockerfilePath: Dockerfile
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3333
+      - key: HOST
+        value: 0.0.0.0
+      - key: APP_KEY
+        sync: false # O usuário deve configurar manualmente no painel do Render
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_DATABASE
+        sync: false
+
+  # ── Crawler (Python APScheduler) ──────────────────────────────────
+  - type: worker
+    name: monitor-crawler
+    runtime: docker
+    dockerContext: ./crawler
+    dockerfilePath: Dockerfile
+    plan: free
+    envVars:
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: LEGISLATURA
+        value: 57

@@ -17,11 +17,7 @@ const corsConfig = defineConfig({
    * In development, allow every origin to simplify local front/backend setup.
    * In production, allow configured origins from env or use an allowlist.
    */
-  origin: app.inDev
-    ? true
-    : process.env.CORS_ORIGIN
-      ? process.env.CORS_ORIGIN.split(',')
-      : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost'],
+  origin: true,
 
   /**
    * HTTP methods accepted for cross-origin requests.

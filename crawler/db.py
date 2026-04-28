@@ -126,7 +126,7 @@ def insert_despesas_batch(conn, parlamentar_id: int, despesas: list[dict]):
 
     ignored = len(rows) - inserted
     log.info(
-        "  → "
+        "  -> "
         f"{inserted} despesas inseridas (parlamentar_id={parlamentar_id}; "
         f"{ignored} duplicadas ignoradas)"
     )

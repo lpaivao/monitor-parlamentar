@@ -2,18 +2,17 @@
 import type { routes } from './index.ts'
 
 export interface ApiDefinition {
-  auth: {
-    newAccount: {
-      store: typeof routes['auth.new_account.store']
-    }
-    accessToken: {
-      store: typeof routes['auth.access_token.store']
-      destroy: typeof routes['auth.access_token.destroy']
-    }
+  parlamentares: {
+    index: typeof routes['parlamentares.index']
+    show: typeof routes['parlamentares.show']
   }
-  profile: {
-    profile: {
-      show: typeof routes['profile.profile.show']
-    }
+  despesas: {
+    index: typeof routes['despesas.index']
+    byParlamentar: typeof routes['despesas.by_parlamentar']
+  }
+  ranking: {
+    index: typeof routes['ranking.index']
+    porCategoria: typeof routes['ranking.por_categoria']
+    porPartido: typeof routes['ranking.por_partido']
   }
 }

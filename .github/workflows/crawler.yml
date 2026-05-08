@@ -2,11 +2,9 @@ name: Monitor Parlamentar Crawler
 
 on:
   schedule:
-    # Roda às 10h, 16h e 22h no horário de Brasília (UTC-3)
-    # 10:00 BRT -> 13:00 UTC
-    # 16:00 BRT -> 19:00 UTC
+    # Roda às 22h no horário de Brasília (UTC-3)
     # 22:00 BRT -> 01:00 UTC
-    - cron: '0 1,13,19 * * *'
+    - cron: '0 1 * * *'
   workflow_dispatch: # Permite rodar manualmente pelo painel do GitHub
 
 jobs:

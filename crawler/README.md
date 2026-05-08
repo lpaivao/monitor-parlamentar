@@ -62,7 +62,7 @@ python main.py --modo servico                      # historico + agenda 10h/16h/
 
 Ao subir o compose, o container do crawler faz:
 
-1. Carga historica por ZIP (2022..2026)
-2. Inicia agendamento com APScheduler para atualizacao diaria via API as 10h, 16h e 22h
+1. Carga histórica por ZIP (2022..2026)
+2. Inicia agendamento com APScheduler para atualização diária.
+   - Nota: Recomenda-se rodar `python main.py --ano 2026` (via ZIP) em vez do `--modo diario` (via API) se a velocidade for prioridade, pois o ZIP anual é mais rápido que centenas de chamadas à API REST.
 
-As execucoes agendadas consultam somente despesas do dia da execucao e inserem sem duplicar.

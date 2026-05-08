@@ -34,4 +34,4 @@ jobs:
           LEGISLATURA: 57
         run: |
           cd crawler
-          python main.py --modo diario
+          python main.py --ano $(date +%Y)

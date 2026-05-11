@@ -47,7 +47,7 @@ export const UFS = [
 ];
 
 export const ANOS = Array.from(
-  { length: 6 },
+  { length: 5 },
   (_, i) => new Date().getFullYear() - i,
 );
 

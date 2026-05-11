@@ -1,9 +1,15 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\MonitorParlamentar.Domain\MonitorParlamentar.Domain.csproj" />
     <ProjectReference Include="..\MonitorParlamentar.Application\MonitorParlamentar.Application.csproj" />
   </ItemGroup>
+
+  <!-- Embarca os arquivos SQL como recursos para o MigrationRunner -->
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\*.sql" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.72" />

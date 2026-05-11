@@ -20,6 +20,9 @@ RUN dotnet publish MonitorParlamentar.Api/MonitorParlamentar.Api.csproj \
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
 
+# Install libgssapi-krb5-2 for Npgsql external connections (Supabase, etc)
+RUN apt-get update && apt-get install -y libgssapi-krb5-2 && rm -rf /var/lib/apt/lists/*
+
 # Non-root user for security
 RUN adduser --disabled-password --gecos "" appuser && chown -R appuser /app
 USER appuser

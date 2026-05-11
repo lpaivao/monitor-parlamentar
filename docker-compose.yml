@@ -26,7 +26,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:3333
-      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}"
+      ConnectionStrings__DefaultConnection: "Host=${DB_HOST:-db};Port=${DB_PORT:-5432};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}"
       CORS_ORIGIN: ${CORS_ORIGIN:-}
     ports:
       - "3333:3333"
@@ -54,8 +54,8 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
-      DB_HOST: db
-      DB_PORT: 5432
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-5432}
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}

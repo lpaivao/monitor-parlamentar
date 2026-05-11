@@ -4,6 +4,7 @@ Conexão com PostgreSQL e funções de gravação.
 
 import os
 import logging
+import hashlib
 import psycopg2
 import psycopg2.extras
 from dotenv import load_dotenv
@@ -89,13 +90,53 @@ def _to_float(value):
 def insert_despesas_batch(conn, parlamentar_id: int, despesas: list[dict]):
     """
     Insere lote de despesas ignorando duplicatas.
-    Cada item do lote deve ter:
-        ano, mes, tipo_despesa, fornecedor, cnpj_cpf,
-        valor_documento, valor_liquido, numero_documento,
-        url_documento, data_emissao
+    Utiliza deduplicação em dois níveis:
+      1. Em memória (before INSERT) — evita round-trips desnecessários.
+      2. No banco via ON CONFLICT ON CONSTRAINT — garante integridade mesmo
+         em execuções concorrentes ou re-execuções do crawler.
     """
     if not despesas:
         return
+
+    # ── 1. Deduplicação em memória e cálculo do MD5 ──────────────────────
+    seen: set = set()
+    unique_despesas: list[dict] = []
+    for d in despesas:
+        # Extrai o cod_documento se existir
+        raw_cod = d.get("codDocumento") or d.get("cod_documento")
+        cod_doc = None
+        if raw_cod:
+            try:
+                cod_doc = int(raw_cod)
+            except (ValueError, TypeError):
+                pass
+
+        d["_cod_doc_parsed"] = cod_doc if cod_doc and cod_doc > 0 else None
+
+        key_tuple = (
+            str(parlamentar_id),
+            str(d.get("ano") or ""),
+            str(d.get("mes") or ""),
+            _clean_str(d.get("tipoDespesa") or d.get("tipo_despesa")) or "",
+            _clean_str(d.get("nomeFornecedor") or d.get("fornecedor")) or "",
+            _clean_str(d.get("cnpjCpfFornecedor") or d.get("cnpj_cpf")) or "",
+            str(_to_float(d.get("valorDocumento") or d.get("valor_documento"))),
+            str(_to_float(d.get("valorLiquido") or d.get("valor_liquido"))),
+            _clean_str(d.get("numDocumento") or d.get("numero_documento")) or "",
+            _clean_str(d.get("urlDocumento") or d.get("url_documento")) or "",
+            _clean_str(d.get("dataEmissao") or d.get("data_emissao")) or "",
+            str(d["_cod_doc_parsed"] or "")
+        )
+
+        # Usando separador '||' para garantir mesma lógica de unicidade
+        raw_key = "||".join(key_tuple)
+        dedupe_hash = hashlib.md5(raw_key.encode("utf-8")).hexdigest()
+        
+        d["_dedupe_hash"] = dedupe_hash
+
+        if dedupe_hash not in seen:
+            seen.add(dedupe_hash)
+            unique_despesas.append(d)
 
     rows = [
         (
@@ -110,25 +151,29 @@ def insert_despesas_batch(conn, parlamentar_id: int, despesas: list[dict]):
             _clean_str(d.get("numDocumento") or d.get("numero_documento")),
             _clean_str(d.get("urlDocumento") or d.get("url_documento")),
             _clean_str(d.get("dataEmissao") or d.get("data_emissao")),
+            d["_cod_doc_parsed"],
+            d["_dedupe_hash"],
         )
-        for d in despesas
+        for d in unique_despesas
     ]
 
+    # ── 2. INSERT com ON CONFLICT (dedupe_hash) ──────────────────────────
     with conn.cursor() as cur:
         psycopg2.extras.execute_values(cur, """
             INSERT INTO despesas
                 (parlamentar_id, ano, mes, tipo_despesa, fornecedor, cnpj_cpf,
-                 valor_documento, valor_liquido, numero_documento, url_documento, data_emissao)
+                 valor_documento, valor_liquido, numero_documento, url_documento, data_emissao, cod_documento, dedupe_hash)
             VALUES %s
-            ON CONFLICT DO NOTHING
+            ON CONFLICT (dedupe_hash) DO NOTHING
         """, rows)
         inserted = cur.rowcount if cur.rowcount is not None and cur.rowcount >= 0 else 0
 
-    ignored = len(rows) - inserted
+    skipped_mem = len(despesas) - len(unique_despesas)
+    skipped_db  = len(unique_despesas) - inserted
     log.info(
         "  -> "
         f"{inserted} despesas inseridas (parlamentar_id={parlamentar_id}; "
-        f"{ignored} duplicadas ignoradas)"
+        f"{skipped_mem} dedupadas em memória, {skipped_db} rejeitadas pelo banco)"
     )
 
 

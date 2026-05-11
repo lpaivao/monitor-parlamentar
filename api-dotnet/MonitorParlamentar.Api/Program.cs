@@ -26,6 +26,8 @@ builder.Services.Configure<Microsoft.AspNetCore.Routing.RouteOptions>(options =>
 Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
 
 builder.Services.AddSingleton<DatabaseConnectionFactory>();
+builder.Services.AddSingleton<MigrationRunner>();
+
 
 builder.Services.AddScoped<IRankingRepository, RankingRepository>();
 builder.Services.AddScoped<IRankingService, RankingService>();
@@ -41,6 +43,14 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// ── Executa migrations na inicialização ──────────────────────────────────────
+using (var scope = app.Services.CreateScope())
+{
+    var migrationRunner = scope.ServiceProvider.GetRequiredService<MigrationRunner>();
+    await migrationRunner.RunAsync();
+}
+
 
 // Configure the HTTP request pipeline.
 app.UseSwagger();

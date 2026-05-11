@@ -22,6 +22,36 @@ const mesChartConfig = {
   },
 } satisfies ChartConfig;
 
+const ESTADOS_BRASIL = [
+  { nome: "Acre", sigla: "AC" },
+  { nome: "Alagoas", sigla: "AL" },
+  { nome: "Amapá", sigla: "AP" },
+  { nome: "Amazonas", sigla: "AM" },
+  { nome: "Bahia", sigla: "BA" },
+  { nome: "Ceará", sigla: "CE" },
+  { nome: "Distrito Federal", sigla: "DF" },
+  { nome: "Espírito Santo", sigla: "ES" },
+  { nome: "Goiás", sigla: "GO" },
+  { nome: "Maranhão", sigla: "MA" },
+  { nome: "Mato Grosso", sigla: "MT" },
+  { nome: "Mato Grosso do Sul", sigla: "MS" },
+  { nome: "Minas Gerais", sigla: "MG" },
+  { nome: "Pará", sigla: "PA" },
+  { nome: "Paraíba", sigla: "PB" },
+  { nome: "Paraná", sigla: "PR" },
+  { nome: "Pernambuco", sigla: "PE" },
+  { nome: "Piauí", sigla: "PI" },
+  { nome: "Rio de Janeiro", sigla: "RJ" },
+  { nome: "Rio Grande do Norte", sigla: "RN" },
+  { nome: "Rio Grande do Sul", sigla: "RS" },
+  { nome: "Rondônia", sigla: "RO" },
+  { nome: "Roraima", sigla: "RR" },
+  { nome: "Santa Catarina", sigla: "SC" },
+  { nome: "São Paulo", sigla: "SP" },
+  { nome: "Sergipe", sigla: "SE" },
+  { nome: "Tocantins", sigla: "TO" },
+];
+
 export default function ParlamentarPage() {
   const { id } = useParams<{ id: string }>();
   const parlamentarId = Number(id);
@@ -143,6 +173,7 @@ export default function ParlamentarPage() {
   const maiorCategoria = parlamentar.por_categoria?.[0];
   const maiorCategoriaPercentual = maiorCategoria ? ((maiorCategoria.total / parlamentar.total_gasto) * 100).toFixed(1) : "0.0";
   const initial = parlamentar.nome?.[0]?.toUpperCase() ?? "?";
+  const nomeEstado = ESTADOS_BRASIL.find((e) => e.sigla === parlamentar.sigla_uf)?.nome ?? parlamentar.sigla_uf ?? "UF não informada";
 
   return (
     <div className="max-w-full animate-[fadeUp_0.35s_ease_both] pb-6">
@@ -171,6 +202,12 @@ export default function ParlamentarPage() {
               <Badge className="border-amber-200/60 bg-amber-200 text-[10px] font-bold uppercase tracking-[0.08em] text-primary">
                 {parlamentar.sigla_partido ? `${parlamentar.sigla_partido} - Partido` : "Sem partido"}
               </Badge>
+              <Badge className="border-cyan-300/40 bg-cyan-600/90 text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
+                {nomeEstado}
+              </Badge>
+              <Badge className="border-purple-300/40 bg-purple-500/90 text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
+                Legislatura {parlamentar.legislatura}
+              </Badge>
             </div>
 
             <div className="flex flex-wrap items-start gap-5">
@@ -194,9 +231,6 @@ export default function ParlamentarPage() {
                 <h1 className="mb-2 font-headline text-3xl font-extrabold tracking-[-0.03em] text-white md:text-5xl">
                   {parlamentar.nome}
                 </h1>
-                <p className="max-w-2xl text-[15px] leading-relaxed text-white/85">
-                  Legislatura {parlamentar.legislatura}. Representando {parlamentar.sigla_uf ?? "UF não informada"} na Câmara dos Deputados, com foco em transparência de gastos públicos.
-                </p>
               </div>
             </div>
           </div>
@@ -214,7 +248,7 @@ export default function ParlamentarPage() {
             className="mb-4 h-11 w-full rounded-lg border-outline-variant bg-white px-4 py-2 text-[15px]"
           />
           <p className="text-[15px] leading-relaxed text-on-surface-variant">
-            Dados atualizados em tempo real conforme as notas fiscais processadas pela Câmara dos Deputados.
+            Dados atualizados diariamente conforme as notas fiscais processadas pela Câmara dos Deputados.
           </p>
         </Card>
       </div>

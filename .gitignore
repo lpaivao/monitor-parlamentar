@@ -23,3 +23,11 @@ Thumbs.db
 
 # Docker
 .dockerignore
+
+# .NET
+[Bb]in/
+[Oo]bj/
+.vs/
+*.user
+*.suo
+appsettings.Development.json

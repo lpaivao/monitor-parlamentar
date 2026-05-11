@@ -131,6 +131,7 @@ def _normalize_despesa(item: dict, ano: int) -> dict:
         "numDocumento": item.get("numDocumento") or item.get("numero") or item.get("numeroDocumento"),
         "urlDocumento": item.get("urlDocumento"),
         "dataEmissao": item.get("datEmissao") or item.get("dataEmissao"),
+        "codDocumento": item.get("idDocumento") or item.get("codDocumento"),
     }
 
 
@@ -210,19 +211,21 @@ def fetch_despesas_zip_ano(ano: int, retries: int = 3) -> tuple[dict[int, list[d
                         for item in iterator:
                             despesa = _normalize_despesa(item, ano)
                             api_id = _extract_api_id(item)
+
                             if api_id is not None:
+                                # Indexa pelo ID numérico — caminho primário
                                 grouped_by_id.setdefault(api_id, []).append(despesa)
-
-                            dep_key = _build_dep_key(
-                                item.get("nomeParlamentar"),
-                                item.get("siglaPartido"),
-                                item.get("siglaUF"),
-                            )
-                            if dep_key != "||":
-                                grouped_by_key.setdefault(dep_key, []).append(despesa)
-
-                            if api_id is None and dep_key == "||":
-                                ignored += 1
+                            else:
+                                # Só usa chave textual como fallback quando não há ID
+                                dep_key = _build_dep_key(
+                                    item.get("nomeParlamentar"),
+                                    item.get("siglaPartido"),
+                                    item.get("siglaUF"),
+                                )
+                                if dep_key != "||":
+                                    grouped_by_key.setdefault(dep_key, []).append(despesa)
+                                else:
+                                    ignored += 1
 
                             total += 1
                             if total % 100000 == 0:

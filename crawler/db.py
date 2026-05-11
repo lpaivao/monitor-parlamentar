@@ -159,14 +159,20 @@ def insert_despesas_batch(conn, parlamentar_id: int, despesas: list[dict]):
 
     # ── 2. INSERT com ON CONFLICT (dedupe_hash) ──────────────────────────
     with conn.cursor() as cur:
-        psycopg2.extras.execute_values(cur, """
-            INSERT INTO despesas
-                (parlamentar_id, ano, mes, tipo_despesa, fornecedor, cnpj_cpf,
-                 valor_documento, valor_liquido, numero_documento, url_documento, data_emissao, cod_documento, dedupe_hash)
-            VALUES %s
-            ON CONFLICT (dedupe_hash) DO NOTHING
-        """, rows)
-        inserted = cur.rowcount if cur.rowcount is not None and cur.rowcount >= 0 else 0
+        result = psycopg2.extras.execute_values(
+            cur, 
+            """
+                INSERT INTO despesas
+                    (parlamentar_id, ano, mes, tipo_despesa, fornecedor, cnpj_cpf,
+                     valor_documento, valor_liquido, numero_documento, url_documento, data_emissao, cod_documento, dedupe_hash)
+                VALUES %s
+                ON CONFLICT (dedupe_hash) DO NOTHING
+                RETURNING id
+            """, 
+            rows,
+            fetch=True
+        )
+        inserted = len(result) if result else 0
 
     skipped_mem = len(despesas) - len(unique_despesas)
     skipped_db  = len(unique_despesas) - inserted

@@ -63,34 +63,15 @@ using (var scope = app.Services.CreateScope())
 
 
 // Configure the HTTP request pipeline.
-app.Use(async (context, next) =>
-{
-    context.Response.OnStarting(() =>
-    {
-        context.Response.Headers["Access-Control-Allow-Origin"] = "*";
-        context.Response.Headers["Access-Control-Allow-Methods"] = "*";
-        context.Response.Headers["Access-Control-Allow-Headers"] = "*";
-        return Task.CompletedTask;
-    });
-
-    if (context.Request.Method == "OPTIONS")
-    {
-        context.Response.Headers["Access-Control-Allow-Origin"] = "*";
-        context.Response.Headers["Access-Control-Allow-Methods"] = "*";
-        context.Response.Headers["Access-Control-Allow-Headers"] = "*";
-        context.Response.StatusCode = 200;
-        return;
-    }
-
-    await next();
-});
-
 app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseRouting();
 
-app.MapGet("/", () => "API is running - V4 (Force CORS)");
+// Ativa o CORS com a política definida no builder.Services
+app.UseCors("CorsPolicy");
+
+app.MapGet("/", () => "API is running - V5 (Native CORS)");
 
 app.MapControllers();
 

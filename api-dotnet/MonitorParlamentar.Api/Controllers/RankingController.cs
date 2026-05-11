@@ -15,7 +15,7 @@ public class RankingController(IRankingService rankingService) : ControllerBase
         [FromQuery] int limit = 100)
     {
         var result = await rankingService.GetTopParlamentaresAsync(ano, partido, uf, limit);
-        return Ok(result);
+        return Ok(new { Ano = ano, Data = result });
     }
 
     [HttpGet("categorias")]
@@ -24,7 +24,7 @@ public class RankingController(IRankingService rankingService) : ControllerBase
         [FromQuery] string? partido = null)
     {
         var result = await rankingService.GetPorCategoriaAsync(ano, partido);
-        return Ok(result);
+        return Ok(new { Ano = ano, Data = result });
     }
 
     [HttpGet("partidos")]
@@ -32,6 +32,6 @@ public class RankingController(IRankingService rankingService) : ControllerBase
         [FromQuery] int ano = 2024)
     {
         var result = await rankingService.GetPorPartidoAsync(ano);
-        return Ok(result);
+        return Ok(new { Ano = ano, Data = result });
     }
 }

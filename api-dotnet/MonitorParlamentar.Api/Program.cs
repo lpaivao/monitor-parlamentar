@@ -10,7 +10,20 @@ using MonitorParlamentar.Infrastructure.Repositories;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower;
+        options.JsonSerializerOptions.DictionaryKeyPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower;
+    });
+
+builder.Services.Configure<Microsoft.AspNetCore.Routing.RouteOptions>(options =>
+{
+    options.LowercaseUrls = true;
+});
+
+// Configure Dapper
+Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
 
 builder.Services.AddSingleton<DatabaseConnectionFactory>();
 

@@ -22,7 +22,7 @@ public class DespesasController(IDespesasService despesasService) : ControllerBa
         return Ok(result);
     }
 
-    [HttpGet("parlamentar/{parlamentarId}")]
+    [HttpGet("{parlamentarId}")]
     public async Task<IActionResult> GetByParlamentar(
         int parlamentarId,
         [FromQuery] int? ano = null,

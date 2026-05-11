@@ -44,20 +44,40 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("CorsPolicy", policy =>
     {
-        var origins = builder.Configuration["CORS_ORIGIN"]?.Split(',', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
-        if (origins.Length > 0)
+        var originsString = builder.Configuration["CORS_ORIGIN"];
+        if (string.IsNullOrWhiteSpace(originsString) || originsString == "*")
         {
-            policy.WithOrigins(origins)
+            policy.AllowAnyOrigin()
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         }
         else
         {
-            policy.AllowAnyOrigin()
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
+            var origins = originsString.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                       .Select(o => o.Trim().TrimEnd('/'))
+                                       .ToArray();
+
+            policy.SetIsOriginAllowed(origin => 
+            {
+                // Permite se for exatamente um dos configurados
+                if (origins.Contains(origin, StringComparer.OrdinalIgnoreCase))
+                    return true;
+
+                // Permite localhost para facilitar o desenvolvimento do frontend
+                if (origin.StartsWith("http://localhost:", StringComparison.OrdinalIgnoreCase) || 
+                    origin.StartsWith("http://127.0.0.1:", StringComparison.OrdinalIgnoreCase))
+                    return true;
+
+                // Permite preview URLs do Vercel (terminam com .vercel.app)
+                if (origin.EndsWith(".vercel.app", StringComparison.OrdinalIgnoreCase))
+                    return true;
+
+                return false;
+            })
+            .AllowAnyHeader()
+            .AllowAnyMethod();
         }
     });
 });
@@ -76,10 +96,11 @@ using (var scope = app.Services.CreateScope())
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseCors();
+app.UseRouting();
+app.UseCors("CorsPolicy");
 
 app.MapGet("/", () => "API is running");
 
-app.MapControllers();
+app.MapControllers().RequireCors("CorsPolicy");
 
 app.Run();

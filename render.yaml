@@ -1,29 +1,15 @@
 services:
-  # ── API (AdonisJS) ────────────────────────────────────────────────
+  # ── API (.NET) ────────────────────────────────────────────────
   - type: web
     name: monitor-api
     runtime: docker
-    dockerContext: ./api
+    dockerContext: ./api-dotnet
     dockerfilePath: Dockerfile
     plan: free
     healthCheckPath: /
     envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 3333
-      - key: HOST
-        value: 0.0.0.0
-      - key: APP_KEY
-        sync: false # O usuário deve configurar manualmente no painel do Render
-      - key: DB_HOST
-        sync: false
-      - key: DB_PORT
-        sync: false
-      - key: DB_USER
-        sync: false
-      - key: DB_PASSWORD
-        sync: false
-      - key: DB_DATABASE
-        sync: false
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__DefaultConnection
+        sync: false # O usuário deve configurar a string de conexão manualmente no painel do Render
 

@@ -56,7 +56,7 @@ using (var scope = app.Services.CreateScope())
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseAuthorization();
+app.MapGet("/", () => "API is running");
 
 app.MapControllers();
 

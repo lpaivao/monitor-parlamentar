@@ -46,39 +46,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", policy =>
     {
-        var originsString = builder.Configuration["CORS_ORIGIN"];
-        if (string.IsNullOrWhiteSpace(originsString) || originsString == "*")
-        {
-            policy.AllowAnyOrigin()
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        }
-        else
-        {
-            var origins = originsString.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                       .Select(o => o.Trim().TrimEnd('/'))
-                                       .ToArray();
-
-            policy.SetIsOriginAllowed(origin => 
-            {
-                // Permite se for exatamente um dos configurados
-                if (origins.Contains(origin, StringComparer.OrdinalIgnoreCase))
-                    return true;
-
-                // Permite localhost para facilitar o desenvolvimento do frontend
-                if (origin.StartsWith("http://localhost:", StringComparison.OrdinalIgnoreCase) || 
-                    origin.StartsWith("http://127.0.0.1:", StringComparison.OrdinalIgnoreCase))
-                    return true;
-
-                // Permite preview URLs do Vercel (terminam com .vercel.app)
-                if (origin.EndsWith(".vercel.app", StringComparison.OrdinalIgnoreCase))
-                    return true;
-
-                return false;
-            })
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-        }
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
     });
 });
 

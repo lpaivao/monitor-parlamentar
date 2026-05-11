@@ -46,9 +46,11 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy
+            .SetIsOriginAllowed(_ => true)  // mais permissivo que AllowAnyOrigin
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();            // caso o front mande cookies/auth
     });
 });
 
@@ -63,6 +65,21 @@ using (var scope = app.Services.CreateScope())
 
 
 // Configure the HTTP request pipeline.
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+    context.Response.Headers.Append("Access-Control-Allow-Headers", "*");
+    context.Response.Headers.Append("Access-Control-Allow-Methods", "*");
+    
+    if (context.Request.Method == "OPTIONS")
+    {
+        context.Response.StatusCode = 200;
+        return;
+    }
+    
+    await next();
+});
+
 app.UseSwagger();
 app.UseSwaggerUI();
 
@@ -71,7 +88,7 @@ app.UseRouting();
 // Ativa o CORS com a política definida no builder.Services
 app.UseCors("CorsPolicy");
 
-app.MapGet("/", () => "API is running - V5 (Native CORS)");
+app.MapGet("/", () => "API is running - V6 (Fallback Middleware & Native CORS)").RequireCors("CorsPolicy");
 
 app.MapControllers();
 

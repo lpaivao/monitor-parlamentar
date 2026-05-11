@@ -30,5 +30,3 @@ Thumbs.db
 .vs/
 *.user
 *.suo
-appsettings.Development.json
-appsettings.json

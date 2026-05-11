@@ -63,14 +63,28 @@ using (var scope = app.Services.CreateScope())
 
 
 // Configure the HTTP request pipeline.
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+    context.Response.Headers.Append("Access-Control-Allow-Methods", "*");
+    context.Response.Headers.Append("Access-Control-Allow-Headers", "*");
+
+    if (context.Request.Method == "OPTIONS")
+    {
+        context.Response.StatusCode = 200;
+        return;
+    }
+
+    await next();
+});
+
 app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseRouting();
-app.UseCors("CorsPolicy");
 
 app.MapGet("/", () => "API is running");
 
-app.MapControllers().RequireCors("CorsPolicy");
+app.MapControllers();
 
 app.Run();

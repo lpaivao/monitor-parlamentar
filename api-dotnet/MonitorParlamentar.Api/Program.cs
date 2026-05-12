@@ -88,6 +88,7 @@ app.UseRouting();
 // Ativa o CORS com a política definida no builder.Services
 app.UseCors("CorsPolicy");
 
+app.MapMethods("/", new[] { "HEAD" }, () => Results.Ok()).RequireCors("CorsPolicy");
 app.MapGet("/", () => "API is running - V6 (Fallback Middleware & Native CORS)").RequireCors("CorsPolicy");
 
 app.MapControllers();

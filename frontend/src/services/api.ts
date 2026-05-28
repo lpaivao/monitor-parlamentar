@@ -8,6 +8,7 @@ import type {
   RankingCategoria,
   RankingItem,
   RankingPartido,
+  RemuneracaoAnual,
 } from "../types";
 
 const envApiUrl = (import.meta.env.VITE_API_URL ?? "").trim();
@@ -115,5 +116,13 @@ export function getRankingPartidos(params: { ano?: number; limit?: number }) {
   return get<{ ano: number; data: RankingPartido[] }>(
     "/ranking/partidos",
     params as Record<string, unknown>,
+  );
+}
+
+// ── Remuneração ───────────────────────────────────────────
+export function getRemuneracao(apiId: number, ano?: number) {
+  return get<RemuneracaoAnual>(
+    `/parlamentares/${apiId}/remuneracao`,
+    ano ? { ano } : {},
   );
 }

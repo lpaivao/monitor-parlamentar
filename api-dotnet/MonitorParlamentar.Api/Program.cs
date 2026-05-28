@@ -28,6 +28,13 @@ Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
 builder.Services.AddSingleton<DatabaseConnectionFactory>();
 builder.Services.AddSingleton<MigrationRunner>();
 
+builder.Services.AddMemoryCache();
+
+builder.Services.AddHttpClient<IRemuneracaoService, RemuneracaoService>(client =>
+{
+    client.DefaultRequestHeaders.Add("User-Agent", "MonitorParlamentar/1.0");
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
 
 builder.Services.AddScoped<IRankingRepository, RankingRepository>();
 builder.Services.AddScoped<IRankingService, RankingService>();

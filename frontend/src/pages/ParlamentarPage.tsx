@@ -1,5 +1,5 @@
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
-import { BadgeDollarSign, CalendarDays, ChevronLeft, Megaphone, Shapes } from "lucide-react";
+import { BadgeDollarSign, CalendarDays, ChevronLeft, Megaphone, Shapes, Wallet } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
@@ -11,6 +11,7 @@ import { Spinner } from "../components/ui/spinner";
 import { TabPanel, TabsField } from "../components/ui/Tabs";
 import { useDespesasParlamentarQuery } from "../hooks/useDespesasParlamentarQuery";
 import { useParlamentarQuery } from "../hooks/useParlamentarQuery";
+import { useRemuneracaoQuery } from "../hooks/useRemuneracaoQuery";
 import { muiPtBrLocaleText } from "../lib/muiGridLocale";
 import type { Despesa } from "../types";
 import { ANOS, formatBRL, MESES } from "../utils";
@@ -65,6 +66,7 @@ export default function ParlamentarPage() {
     { ano, page: paginationModel.page + 1, perPage: paginationModel.pageSize },
     tab === "despesas",
   );
+  const remuneracaoQuery = useRemuneracaoQuery(parlamentarQuery.data?.api_id, ano);
 
   const parlamentar = parlamentarQuery.data ?? null;
   const despesas = despesasQuery.data;
@@ -300,7 +302,7 @@ export default function ParlamentarPage() {
         </Card>
       </div>
 
-      {/* Monthly chart */}
+      {/* Monthly expenses chart */}
       {parlamentar.por_mes && parlamentar.por_mes.length > 0 && (
         <Card className="mb-5 rounded-xl border-outline-variant/30 bg-white p-6 shadow-sm">
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
@@ -314,6 +316,94 @@ export default function ParlamentarPage() {
           <MesChart data={parlamentar.por_mes} />
         </Card>
       )}
+
+      {/* Salary / Remuneration section */}
+      <Card className="mb-5 rounded-xl border-outline-variant/30 bg-white p-6 shadow-sm">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="font-headline text-[33px] font-bold tracking-tight text-on-surface">
+              Salário do Parlamentar
+            </h3>
+            <p className="mt-1 text-sm text-outline">Remuneração bruta recebida em {ano}</p>
+          </div>
+          <div className="rounded-md border border-outline-variant/60 p-2 text-outline">
+            <Wallet className="h-5 w-5" />
+          </div>
+        </div>
+
+        {remuneracaoQuery.isLoading && (
+          <div className="py-10 text-center">
+            <Spinner className="mx-auto" />
+          </div>
+        )}
+
+        {remuneracaoQuery.isError && (
+          <p className="py-10 text-center text-sm text-outline">
+            Não foi possível carregar os dados de remuneração.
+          </p>
+        )}
+
+        {remuneracaoQuery.data && !remuneracaoQuery.isLoading && (
+          <>
+            {remuneracaoQuery.data.meses.length === 0 ? (
+              <p className="py-10 text-center text-sm text-outline">
+                Nenhum dado de remuneração disponível para {ano}.
+              </p>
+            ) : (
+              <>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-outline-variant/40">
+                        <th className="pb-3 text-left text-[11px] font-semibold uppercase tracking-widest text-outline">Mês</th>
+                        <th className="pb-3 text-right text-[11px] font-semibold uppercase tracking-widest text-outline">Valor (R$)</th>
+                        <th className="pb-3 text-right text-[11px] font-semibold uppercase tracking-widest text-outline">Detalhes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {remuneracaoQuery.data.meses.map((item) => (
+                        <tr
+                          key={item.mes}
+                          className="group border-b border-outline-variant/20 transition-colors hover:bg-surface-container/40"
+                        >
+                          <td className="py-3 font-medium text-on-surface">
+                            {MESES[item.mes - 1]}
+                          </td>
+                          <td className="py-3 text-right tabular-nums font-mono font-bold text-primary">
+                            {formatBRL(item.valor)}
+                          </td>
+                          <td className="py-3 text-right">
+                            {item.url_detalhe ? (
+                              <a
+                                href={item.url_detalhe}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-[12px] text-primary opacity-0 transition-opacity group-hover:opacity-100 hover:underline"
+                              >
+                                Ver detalhe ↗
+                              </a>
+                            ) : (
+                              <span className="text-[12px] text-outline">—</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr className="border-t-2 border-primary/20">
+                        <td className="pt-4 text-[11px] font-semibold uppercase tracking-widest text-outline">Total anual</td>
+                        <td className="pt-4 text-right tabular-nums font-mono text-[18px] font-extrabold text-primary" colSpan={2}>
+                          {formatBRL(remuneracaoQuery.data.total_anual)}
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </>
+            )}
+          </>
+        )}
+      </Card>
 
       {/* Tabs */}
       <TabsField

@@ -96,3 +96,17 @@ export interface Filters {
   page?: number;
   perPage?: number;
 }
+
+export interface RemuneracaoMensal {
+  mes: number;
+  valor: number;
+  url_detalhe: string | null;
+}
+
+export interface RemuneracaoAnual {
+  api_id: number;
+  ano: number;
+  meses: RemuneracaoMensal[];
+  total_anual: number;
+}
+

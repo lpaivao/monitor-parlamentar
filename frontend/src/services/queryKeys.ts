@@ -23,4 +23,7 @@ export const queryKeys = {
     ["rankingPartidos", params] as const,
   rankingCategorias: (params: { ano?: number; partido?: string; limit?: number }) =>
     ["rankingCategorias", params] as const,
+  remuneracao: (apiId: number, ano?: number) =>
+    ["remuneracao", apiId, { ano }] as const,
 };
+

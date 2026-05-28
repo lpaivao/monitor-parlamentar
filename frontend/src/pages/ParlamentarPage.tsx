@@ -207,9 +207,9 @@ export default function ParlamentarPage() {
               <Badge className="border-cyan-300/40 bg-cyan-600/90 text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
                 {nomeEstado}
               </Badge>
-              <Badge className="border-purple-300/40 bg-purple-500/90 text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
+              {/* <Badge className="border-purple-300/40 bg-purple-500/90 text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
                 Legislatura {parlamentar.legislatura}
-              </Badge>
+              </Badge> */}
             </div>
 
             <div className="flex flex-wrap items-start gap-5">

@@ -103,6 +103,7 @@ export function getRanking(params: {
 export function getRankingCategorias(params: {
   ano?: number;
   partido?: string;
+  limit?: number;
 }) {
   return get<{ ano: number; data: RankingCategoria[] }>(
     "/ranking/categorias",
@@ -110,7 +111,7 @@ export function getRankingCategorias(params: {
   );
 }
 
-export function getRankingPartidos(params: { ano?: number }) {
+export function getRankingPartidos(params: { ano?: number; limit?: number }) {
   return get<{ ano: number; data: RankingPartido[] }>(
     "/ranking/partidos",
     params as Record<string, unknown>,

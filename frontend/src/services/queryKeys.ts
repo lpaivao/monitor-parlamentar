@@ -19,8 +19,8 @@ export const queryKeys = {
     uf?: string;
     limit?: number;
   }) => ["ranking", params] as const,
-  rankingPartidos: (params: { ano?: number }) =>
+  rankingPartidos: (params: { ano?: number; limit?: number }) =>
     ["rankingPartidos", params] as const,
-  rankingCategorias: (params: { ano?: number; partido?: string }) =>
+  rankingCategorias: (params: { ano?: number; partido?: string; limit?: number }) =>
     ["rankingCategorias", params] as const,
 };

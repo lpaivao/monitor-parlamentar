@@ -11,8 +11,17 @@ import { ANOS, formatBRL } from "../utils";
 
 const CLIENT_PER_PAGE = 12;
 
+const LIMIT_OPTIONS = [
+  { label: "Top 5", value: 5 },
+  { label: "Top 10", value: 10 },
+  { label: "Top 20", value: 20 },
+  { label: "Top 50", value: 50 },
+  { label: "Todos", value: 200 },
+];
+
 export default function PartidosPage() {
   const [ano, setAno] = useState(ANOS[0]);
+  const [limit, setLimit] = useState(20);
   const [tab, setTab] = useState<"partidos" | "categorias">("partidos");
 
   const [partidosPaginationModel, setPartidosPaginationModel] = useState({ page: 0, pageSize: CLIENT_PER_PAGE });
@@ -22,12 +31,12 @@ export default function PartidosPage() {
     data: partidosData,
     isLoading: isLoadingPartidos,
     isFetching: isFetchingPartidos,
-  } = useRankingPartidosQuery({ ano });
+  } = useRankingPartidosQuery({ ano, limit });
   const {
     data: categoriasData,
     isLoading: isLoadingCategorias,
     isFetching: isFetchingCategorias,
-  } = useRankingCategoriasQuery({ ano });
+  } = useRankingCategoriasQuery({ ano, limit });
 
   const partidos = partidosData?.data ?? [];
   const categorias = categoriasData?.data ?? [];
@@ -153,24 +162,47 @@ export default function PartidosPage() {
         </p>
       </section>
 
-      <div className="mb-6 inline-flex items-center overflow-hidden rounded-lg border border-outline-variant bg-surface-container-low p-1">
-        {anosVisiveis.map((anoItem) => (
-          <button
-            key={anoItem}
-            type="button"
-            onClick={() => {
-              setAno(anoItem);
-              setPartidosPaginationModel((prev) => ({ ...prev, page: 0 }));
-              setCategoriasPaginationModel((prev) => ({ ...prev, page: 0 }));
-            }}
-            className={[
-              "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
-              anoItem === ano ? "bg-primary text-white" : "text-outline hover:bg-white",
-            ].join(" ")}
-          >
-            {anoItem}
-          </button>
-        ))}
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <div className="inline-flex items-center overflow-hidden rounded-lg border border-outline-variant bg-surface-container-low p-1">
+          {anosVisiveis.map((anoItem) => (
+            <button
+              key={anoItem}
+              type="button"
+              onClick={() => {
+                setAno(anoItem);
+                setPartidosPaginationModel((prev) => ({ ...prev, page: 0 }));
+                setCategoriasPaginationModel((prev) => ({ ...prev, page: 0 }));
+              }}
+              className={[
+                "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                anoItem === ano ? "bg-primary text-white" : "text-outline hover:bg-white",
+              ].join(" ")}
+            >
+              {anoItem}
+            </button>
+          ))}
+        </div>
+
+        <div className="inline-flex items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-low p-1">
+          <span className="pl-2 text-xs font-semibold uppercase tracking-[0.1em] text-outline">Top</span>
+          {LIMIT_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => {
+                setLimit(opt.value);
+                setPartidosPaginationModel((prev) => ({ ...prev, page: 0 }));
+                setCategoriasPaginationModel((prev) => ({ ...prev, page: 0 }));
+              }}
+              className={[
+                "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                limit === opt.value ? "bg-secondary text-white" : "text-outline hover:bg-white",
+              ].join(" ")}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="mb-6 grid gap-3.5" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>

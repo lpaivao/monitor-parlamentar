@@ -12,6 +12,14 @@ import { ANOS, formatBRL, UFS } from "../utils";
 
 const CLIENT_PER_PAGE = 20;
 
+const LIMIT_OPTIONS = [
+  { label: "Top 10", value: 10 },
+  { label: "Top 25", value: 25 },
+  { label: "Top 50", value: 50 },
+  { label: "Top 100", value: 100 },
+  { label: "Top 200", value: 200 },
+];
+
 function getRankMedal(pos: number) {
   if (pos === 1) return { icon: "🥇", color: "#fbbf24" };
   if (pos === 2) return { icon: "🥈", color: "#94a3b8" };
@@ -23,9 +31,10 @@ export default function RankingPage() {
   const [ano, setAno] = useState(ANOS[0]);
   const [partido, setPartido] = useState("");
   const [uf, setUf] = useState("");
+  const [limit, setLimit] = useState(100);
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: CLIENT_PER_PAGE });
 
-  const { data, isLoading, isFetching } = useRankingQuery({ ano, partido, uf, limit: 100 });
+  const { data, isLoading, isFetching } = useRankingQuery({ ano, partido, uf, limit });
   const items = data?.data ?? [];
   const loading = isLoading || isFetching;
 
@@ -186,6 +195,26 @@ export default function RankingPage() {
           options={ufOptions}
           className="w-[180px] rounded-lg border-outline-variant bg-white px-4 py-2"
         />
+
+        <div className="ml-auto inline-flex items-center gap-2 rounded-lg border border-outline-variant bg-white p-1">
+          <span className="pl-2 text-xs font-semibold uppercase tracking-[0.1em] text-outline">Top</span>
+          {LIMIT_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => {
+                setLimit(opt.value);
+                setPaginationModel((prev) => ({ ...prev, page: 0 }));
+              }}
+              className={[
+                "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                limit === opt.value ? "bg-primary text-white" : "text-outline hover:bg-surface-container",
+              ].join(" ")}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="mb-6 grid gap-3.5" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>

@@ -47,7 +47,7 @@ public class RankingRepository(DatabaseConnectionFactory factory) : IRankingRepo
         return list;
     }
 
-    public async Task<IEnumerable<RankingCategoriaDto>> GetPorCategoriaAsync(int ano, string? partido)
+    public async Task<IEnumerable<RankingCategoriaDto>> GetPorCategoriaAsync(int ano, string? partido, int limit)
     {
         using var conn = factory.CreateConnection();
 
@@ -59,6 +59,7 @@ public class RankingRepository(DatabaseConnectionFactory factory) : IRankingRepo
         };
         var parameters = new DynamicParameters();
         parameters.Add("ano", ano);
+        parameters.Add("limit", limit);
 
         if (!string.IsNullOrWhiteSpace(partido)) { conditions.Add("p.sigla_partido = @partido"); parameters.Add("partido", partido.ToUpper()); }
 
@@ -73,12 +74,13 @@ public class RankingRepository(DatabaseConnectionFactory factory) : IRankingRepo
             JOIN parlamentares p ON p.id = d.parlamentar_id
             {where}
             GROUP BY d.tipo_despesa
-            ORDER BY total DESC";
+            ORDER BY total DESC
+            LIMIT @limit";
 
         return await conn.QueryAsync<RankingCategoriaDto>(sql, parameters);
     }
 
-    public async Task<IEnumerable<RankingPartidoDto>> GetPorPartidoAsync(int ano)
+    public async Task<IEnumerable<RankingPartidoDto>> GetPorPartidoAsync(int ano, int limit)
     {
         using var conn = factory.CreateConnection();
 
@@ -93,9 +95,10 @@ public class RankingRepository(DatabaseConnectionFactory factory) : IRankingRepo
               AND p.casa = 'camara'
               AND p.sigla_partido IS NOT NULL
             GROUP BY p.sigla_partido
-            ORDER BY total DESC";
+            ORDER BY total DESC
+            LIMIT @limit";
 
-        var rows = await conn.QueryAsync<RankingPartidoDto>(sql, new { ano });
+        var rows = await conn.QueryAsync<RankingPartidoDto>(sql, new { ano, limit });
 
         // Calculate media_por_parlamentar
         return rows.Select(r => new RankingPartidoDto

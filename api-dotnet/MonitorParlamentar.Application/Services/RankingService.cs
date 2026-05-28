@@ -12,13 +12,13 @@ public class RankingService(IRankingRepository repository) : IRankingService
         return await repository.GetTopParlamentaresAsync(ano, partido, uf, limit);
     }
 
-    public async Task<IEnumerable<RankingCategoriaDto>> GetPorCategoriaAsync(int ano, string? partido)
+    public async Task<IEnumerable<RankingCategoriaDto>> GetPorCategoriaAsync(int ano, string? partido, int limit)
     {
-        return await repository.GetPorCategoriaAsync(ano, partido);
+        return await repository.GetPorCategoriaAsync(ano, partido, limit);
     }
 
-    public async Task<IEnumerable<RankingPartidoDto>> GetPorPartidoAsync(int ano)
+    public async Task<IEnumerable<RankingPartidoDto>> GetPorPartidoAsync(int ano, int limit)
     {
-        return await repository.GetPorPartidoAsync(ano);
+        return await repository.GetPorPartidoAsync(ano, limit);
     }
 }

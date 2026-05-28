@@ -21,17 +21,19 @@ public class RankingController(IRankingService rankingService) : ControllerBase
     [HttpGet("categorias")]
     public async Task<IActionResult> GetPorCategoria(
         [FromQuery] int ano = 2024,
-        [FromQuery] string? partido = null)
+        [FromQuery] string? partido = null,
+        [FromQuery] int limit = 100)
     {
-        var result = await rankingService.GetPorCategoriaAsync(ano, partido);
+        var result = await rankingService.GetPorCategoriaAsync(ano, partido, limit);
         return Ok(new { Ano = ano, Data = result });
     }
 
     [HttpGet("partidos")]
     public async Task<IActionResult> GetPorPartido(
-        [FromQuery] int ano = 2024)
+        [FromQuery] int ano = 2024,
+        [FromQuery] int limit = 100)
     {
-        var result = await rankingService.GetPorPartidoAsync(ano);
+        var result = await rankingService.GetPorPartidoAsync(ano, limit);
         return Ok(new { Ano = ano, Data = result });
     }
 }

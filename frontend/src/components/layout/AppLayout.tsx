@@ -14,14 +14,12 @@ import {
 } from "../ui/sidebar";
 
 const NAV_ITEMS = [
-    { to: "/ranking", label: "Ranking de Gastos", icon: "leaderboard" },
-    { to: "/parlamentares", label: "Parlamentares", icon: "groups" },
+    { to: "/parlamentares", label: "Parlamentares", icon: "leaderboard" },
     { to: "/partidos", label: "Gastos por Partido", icon: "pie_chart" },
 ];
 
 function isNavItemActive(pathname: string, to: string) {
-    if ((pathname === "/" || pathname === "/ranking") && to === "/ranking") return true;
-    if (to === "/parlamentares") return pathname === "/parlamentares" || pathname.startsWith("/parlamentares/");
+    if (to === "/parlamentares") return pathname === "/" || pathname === "/ranking" || pathname === "/parlamentares" || pathname.startsWith("/parlamentares/");
     return pathname === to;
 }
 
@@ -32,7 +30,7 @@ export default function AppLayout() {
         <SidebarProvider className="bg-background text-on-surface font-body">
             <Sidebar className="border-r border-white/12 bg-linear-to-b from-[#060F24] via-[#0B1F46] to-[#143A78] shadow-2xl shadow-[#050A16]/45">
                 <SidebarHeader>
-                    <Link to="/ranking" className="flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-white/8">
+                    <Link to="/parlamentares" className="flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-white/8">
                         <img src="/flag_brasil.svg" alt="Bandeira do Brasil" className="h-16 w-16" />
                         <span>
                             <span className="block text-base font-headline font-extrabold text-white">Monitor</span>

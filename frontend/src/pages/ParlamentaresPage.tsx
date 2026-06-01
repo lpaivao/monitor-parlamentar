@@ -46,8 +46,8 @@ export default function ParlamentaresPage() {
     () =>
       nome.trim()
         ? allItems.filter((item) =>
-            item.nome.toLowerCase().includes(nome.trim().toLowerCase()),
-          )
+          item.nome.toLowerCase().includes(nome.trim().toLowerCase()),
+        )
         : allItems,
     [allItems, nome],
   );
@@ -148,8 +148,8 @@ export default function ParlamentaresPage() {
         field: "total_gasto",
         headerName: `Total gasto em ${ano} (R$)`,
         minWidth: 180,
-        align: "right",
-        headerAlign: "right",
+        align: "right" as const,
+        headerAlign: "right" as const,
         sortable: false,
         renderCell: (params) => (
           <span className="tabular-nums font-mono text-[13px] font-bold text-primary">
@@ -189,7 +189,7 @@ export default function ParlamentaresPage() {
             <Button
               type="button"
               size="sm"
-              className="gap-1.5 rounded-lg font-label text-[12px]"
+              className="gap-1.5 rounded-lg font-label text-[12px] hover:cursor-pointer"
               onClick={() => navigate(`/parlamentares/${parlamentarId}`)}
             >
               Ver detalhes →

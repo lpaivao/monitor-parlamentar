@@ -345,37 +345,42 @@ export default function ParlamentarPage() {
 
       {/* Salary Modal */}
       {isSalaryModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-[fadeUp_0.15s_ease_both]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-[fadeUp_0.15s_ease_both]">
           {/* Backdrop Click Handler */}
           <div className="absolute inset-0" onClick={() => setIsSalaryModalOpen(false)} />
-          
-          <Card className="relative z-10 w-full max-w-lg overflow-hidden rounded-2xl border border-outline-variant bg-white p-6 shadow-2xl animate-[fadeUp_0.25s_ease_both] max-h-[90vh] flex flex-col">
+
+          <Card className="relative z-10 w-full max-w-xl overflow-hidden rounded-2xl border border-outline-variant/40 bg-white p-0 shadow-2xl animate-[fadeUp_0.25s_ease_both] max-h-[90vh] flex flex-col">
             {/* Header */}
-            <div className="mb-5 flex items-center justify-between gap-3 border-b border-outline-variant/20 pb-4">
-              <div>
-                <h3 className="font-headline text-2xl font-bold tracking-tight text-on-surface">
-                  Salário do Parlamentar
-                </h3>
-                <p className="mt-1 text-sm text-outline">Remuneração bruta recebida em {ano}</p>
+            <div className="flex items-center justify-between gap-3 border-b border-outline-variant/20 bg-surface-container-lowest px-6 py-5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <Wallet className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-headline text-xl font-bold tracking-tight text-on-surface">
+                    Salário do Parlamentar
+                  </h3>
+                  <p className="text-sm text-outline">Remuneração bruta recebida em {ano}</p>
+                </div>
               </div>
               <button
                 onClick={() => setIsSalaryModalOpen(false)}
-                className="rounded-lg p-2 text-outline hover:bg-surface-container hover:text-on-surface transition-colors cursor-pointer"
+                className="rounded-full p-2 text-outline hover:bg-surface-container hover:text-on-surface transition-colors cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             {/* Scrollable Content */}
-            <div className="overflow-y-auto pr-1 flex-1">
+            <div className="overflow-y-auto px-6 py-5 flex-1">
               {remuneracaoQuery.isLoading && (
-                <div className="py-10 text-center">
+                <div className="py-12 text-center">
                   <Spinner className="mx-auto" />
                 </div>
               )}
 
               {remuneracaoQuery.isError && (
-                <p className="py-10 text-center text-sm text-outline">
+                <p className="py-12 text-center text-sm text-outline">
                   Não foi possível carregar os dados de remuneração.
                 </p>
               )}
@@ -383,14 +388,14 @@ export default function ParlamentarPage() {
               {remuneracaoQuery.data && !remuneracaoQuery.isLoading && (
                 <>
                   {remuneracaoQuery.data.meses.length === 0 ? (
-                    <p className="py-10 text-center text-sm text-outline">
+                    <p className="py-12 text-center text-sm text-outline">
                       Nenhum dado de remuneração disponível para {ano}.
                     </p>
                   ) : (
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm">
                         <thead>
-                          <tr className="border-b border-outline-variant/40">
+                          <tr className="border-b border-outline-variant/30">
                             <th className="pb-3 text-left text-[11px] font-semibold uppercase tracking-widest text-outline">Mês</th>
                             <th className="pb-3 text-right text-[11px] font-semibold uppercase tracking-widest text-outline">Valor (R$)</th>
                             <th className="pb-3 text-right text-[11px] font-semibold uppercase tracking-widest text-outline">Detalhes</th>
@@ -400,35 +405,35 @@ export default function ParlamentarPage() {
                           {remuneracaoQuery.data.meses.map((item) => (
                             <tr
                               key={item.mes}
-                              className="group border-b border-outline-variant/20 transition-colors hover:bg-surface-container/40"
+                              className="group border-b border-outline-variant/20 transition-colors hover:bg-surface-container/30"
                             >
-                              <td className="py-3 font-medium text-on-surface">
+                              <td className="py-3.5 font-medium text-on-surface">
                                 {MESES[item.mes - 1]}
                               </td>
-                              <td className="py-3 text-right tabular-nums font-mono font-bold text-primary">
+                              <td className="py-3.5 text-right tabular-nums font-mono font-semibold text-on-surface">
                                 {formatBRL(item.valor)}
                               </td>
-                              <td className="py-3 text-right">
+                              <td className="py-3.5 text-right">
                                 {item.url_detalhe ? (
                                   <a
                                     href={item.url_detalhe}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="text-[12px] text-primary opacity-0 transition-opacity group-hover:opacity-100 hover:underline"
+                                    className="text-[12px] font-medium text-primary opacity-60 transition-opacity hover:opacity-100 group-hover:opacity-100 hover:underline"
                                   >
                                     Ver detalhe ↗
                                   </a>
                                 ) : (
-                                  <span className="text-[12px] text-outline">—</span>
+                                  <span className="text-[12px] text-outline/50">—</span>
                                 )}
                               </td>
                             </tr>
                           ))}
                         </tbody>
                         <tfoot>
-                          <tr className="border-t-2 border-primary/20">
-                            <td className="pt-4 text-[11px] font-semibold uppercase tracking-widest text-outline">Total anual</td>
-                            <td className="pt-4 text-right tabular-nums font-mono text-[18px] font-extrabold text-primary" colSpan={2}>
+                          <tr className="border-t-2 border-primary/10 bg-primary/5">
+                            <td className="py-4 pl-4 rounded-bl-lg text-[11px] font-semibold uppercase tracking-widest text-primary/80">Total anual</td>
+                            <td className="py-4 pr-4 rounded-br-lg text-right tabular-nums font-mono text-[18px] font-extrabold text-primary" colSpan={2}>
                               {formatBRL(remuneracaoQuery.data.total_anual)}
                             </td>
                           </tr>

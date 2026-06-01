@@ -1,11 +1,12 @@
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { BadgeDollarSign, CalendarDays, ChevronLeft, Megaphone, Shapes, Wallet, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { Badge } from "../components/ui/badge";
 import { Card } from "../components/ui/card";
 import { ChartContainer, ChartTooltip, type ChartConfig } from "../components/ui/chart";
+import { Dialog, DialogContent, DialogTrigger, DialogClose } from "../components/ui/dialog";
 import { SelectField } from "../components/ui/SelectField";
 import { Spinner } from "../components/ui/spinner";
 import { TabPanel, TabsField } from "../components/ui/Tabs";
@@ -59,23 +60,6 @@ export default function ParlamentarPage() {
   const [ano, setAno] = useState(ANOS[0]);
   const [tab, setTab] = useState<"categorias" | "despesas">("categorias");
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 15 });
-  const [isSalaryModalOpen, setIsSalaryModalOpen] = useState(false);
-
-  useEffect(() => {
-    if (isSalaryModalOpen) {
-      document.body.style.overflow = "hidden";
-      const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === "Escape") {
-          setIsSalaryModalOpen(false);
-        }
-      };
-      window.addEventListener("keydown", handleKeyDown);
-      return () => {
-        document.body.style.overflow = "";
-        window.removeEventListener("keydown", handleKeyDown);
-      };
-    }
-  }, [isSalaryModalOpen]);
 
   const parlamentarQuery = useParlamentarQuery(parlamentarId, ano);
   const despesasQuery = useDespesasParlamentarQuery(
@@ -213,14 +197,105 @@ export default function ParlamentarPage() {
           <div className="pointer-events-none absolute -left-20 -top-16 h-48 w-48 rounded-full bg-secondary/30 blur-2xl" />
           <div className="pointer-events-none absolute -bottom-20 right-2 h-52 w-52 rounded-full bg-white/10 blur-2xl" />
 
-          {/* Salary Button */}
-          <button
-            onClick={() => setIsSalaryModalOpen(true)}
-            className="absolute top-4 right-4 z-20 md:top-6 md:right-6 inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-semibold text-white shadow-sm backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/30 active:scale-95 cursor-pointer"
-          >
-            <Wallet className="h-3.5 w-3.5" />
-            <span>Salário</span>
-          </button>
+          {/* Salary Dialog */}
+          <Dialog>
+            <DialogTrigger asChild>
+              <button
+                className="absolute top-4 right-4 z-20 md:top-6 md:right-6 inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-semibold text-white shadow-sm backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/30 active:scale-95 cursor-pointer"
+              >
+                <Wallet className="h-3.5 w-3.5" />
+                <span>Salário</span>
+              </button>
+            </DialogTrigger>
+            <DialogContent className="max-h-[90vh] flex flex-col p-6 w-full max-w-lg border-outline-variant bg-white rounded-2xl shadow-2xl">
+              <div className="mb-5 flex items-center justify-between gap-3 border-b border-outline-variant/20 pb-4">
+                <div>
+                  <h3 className="font-headline text-2xl font-bold tracking-tight text-on-surface">
+                    Salário do Parlamentar
+                  </h3>
+                  <p className="mt-1 text-sm text-outline">Remuneração bruta recebida em {ano}</p>
+                </div>
+                <DialogClose asChild>
+                  <button className="rounded-lg p-2 text-outline hover:bg-surface-container hover:text-on-surface transition-colors cursor-pointer">
+                    <X className="h-5 w-5" />
+                  </button>
+                </DialogClose>
+              </div>
+
+              <div className="overflow-y-auto pr-1 flex-1">
+                {remuneracaoQuery.isLoading && (
+                  <div className="py-10 text-center">
+                    <Spinner className="mx-auto" />
+                  </div>
+                )}
+
+                {remuneracaoQuery.isError && (
+                  <p className="py-10 text-center text-sm text-outline">
+                    Não foi possível carregar os dados de remuneração.
+                  </p>
+                )}
+
+                {remuneracaoQuery.data && !remuneracaoQuery.isLoading && (
+                  <>
+                    {remuneracaoQuery.data.meses.length === 0 ? (
+                      <p className="py-10 text-center text-sm text-outline">
+                        Nenhum dado de remuneração disponível para {ano}.
+                      </p>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b border-outline-variant/40">
+                              <th className="pb-3 text-left text-[11px] font-semibold uppercase tracking-widest text-outline">Mês</th>
+                              <th className="pb-3 text-right text-[11px] font-semibold uppercase tracking-widest text-outline">Valor (R$)</th>
+                              <th className="pb-3 text-right text-[11px] font-semibold uppercase tracking-widest text-outline">Detalhes</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {remuneracaoQuery.data.meses.map((item) => (
+                              <tr
+                                key={item.mes}
+                                className="group border-b border-outline-variant/20 transition-colors hover:bg-surface-container/40"
+                              >
+                                <td className="py-3 font-medium text-on-surface">
+                                  {MESES[item.mes - 1]}
+                                </td>
+                                <td className="py-3 text-right tabular-nums font-mono font-bold text-primary">
+                                  {formatBRL(item.valor)}
+                                </td>
+                                <td className="py-3 text-right">
+                                  {item.url_detalhe ? (
+                                    <a
+                                      href={item.url_detalhe}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="text-[12px] text-primary opacity-0 transition-opacity group-hover:opacity-100 hover:underline"
+                                    >
+                                      Ver detalhe ↗
+                                    </a>
+                                  ) : (
+                                    <span className="text-[12px] text-outline">—</span>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                          <tfoot>
+                            <tr className="border-t-2 border-primary/20">
+                              <td className="pt-4 text-[11px] font-semibold uppercase tracking-widest text-outline">Total anual</td>
+                              <td className="pt-4 text-right tabular-nums font-mono text-[18px] font-extrabold text-primary" colSpan={2}>
+                                {formatBRL(remuneracaoQuery.data.total_anual)}
+                              </td>
+                            </tr>
+                          </tfoot>
+                        </table>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
 
           <div className="relative z-10">
             <div className="mb-4 flex flex-wrap items-center gap-2 pr-24 md:pr-28">
@@ -341,111 +416,6 @@ export default function ParlamentarPage() {
           </div>
           <MesChart data={parlamentar.por_mes} />
         </Card>
-      )}
-
-      {/* Salary Modal */}
-      {isSalaryModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-[fadeUp_0.15s_ease_both]">
-          {/* Backdrop Click Handler */}
-          <div className="absolute inset-0" onClick={() => setIsSalaryModalOpen(false)} />
-
-          <Card className="relative z-10 w-full max-w-xl overflow-hidden rounded-2xl border border-outline-variant/40 bg-white p-0 shadow-2xl animate-[fadeUp_0.25s_ease_both] max-h-[90vh] flex flex-col">
-            {/* Header */}
-            <div className="flex items-center justify-between gap-3 border-b border-outline-variant/20 bg-surface-container-lowest px-6 py-5">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <Wallet className="h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="font-headline text-xl font-bold tracking-tight text-on-surface">
-                    Salário do Parlamentar
-                  </h3>
-                  <p className="text-sm text-outline">Remuneração bruta recebida em {ano}</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsSalaryModalOpen(false)}
-                className="rounded-full p-2 text-outline hover:bg-surface-container hover:text-on-surface transition-colors cursor-pointer"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            {/* Scrollable Content */}
-            <div className="overflow-y-auto px-6 py-5 flex-1">
-              {remuneracaoQuery.isLoading && (
-                <div className="py-12 text-center">
-                  <Spinner className="mx-auto" />
-                </div>
-              )}
-
-              {remuneracaoQuery.isError && (
-                <p className="py-12 text-center text-sm text-outline">
-                  Não foi possível carregar os dados de remuneração.
-                </p>
-              )}
-
-              {remuneracaoQuery.data && !remuneracaoQuery.isLoading && (
-                <>
-                  {remuneracaoQuery.data.meses.length === 0 ? (
-                    <p className="py-12 text-center text-sm text-outline">
-                      Nenhum dado de remuneração disponível para {ano}.
-                    </p>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b border-outline-variant/30">
-                            <th className="pb-3 text-left text-[11px] font-semibold uppercase tracking-widest text-outline">Mês</th>
-                            <th className="pb-3 text-right text-[11px] font-semibold uppercase tracking-widest text-outline">Valor (R$)</th>
-                            <th className="pb-3 text-right text-[11px] font-semibold uppercase tracking-widest text-outline">Detalhes</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {remuneracaoQuery.data.meses.map((item) => (
-                            <tr
-                              key={item.mes}
-                              className="group border-b border-outline-variant/20 transition-colors hover:bg-surface-container/30"
-                            >
-                              <td className="py-3.5 font-medium text-on-surface">
-                                {MESES[item.mes - 1]}
-                              </td>
-                              <td className="py-3.5 text-right tabular-nums font-mono font-semibold text-on-surface">
-                                {formatBRL(item.valor)}
-                              </td>
-                              <td className="py-3.5 text-right">
-                                {item.url_detalhe ? (
-                                  <a
-                                    href={item.url_detalhe}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="text-[12px] font-medium text-primary opacity-60 transition-opacity hover:opacity-100 group-hover:opacity-100 hover:underline"
-                                  >
-                                    Ver detalhe ↗
-                                  </a>
-                                ) : (
-                                  <span className="text-[12px] text-outline/50">—</span>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                        <tfoot>
-                          <tr className="border-t-2 border-primary/10 bg-primary/5">
-                            <td className="py-4 pl-4 rounded-bl-lg text-[11px] font-semibold uppercase tracking-widest text-primary/80">Total anual</td>
-                            <td className="py-4 pr-4 rounded-br-lg text-right tabular-nums font-mono text-[18px] font-extrabold text-primary" colSpan={2}>
-                              {formatBRL(remuneracaoQuery.data.total_anual)}
-                            </td>
-                          </tr>
-                        </tfoot>
-                      </table>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          </Card>
-        </div>
       )}
 
       {/* Tabs */}
